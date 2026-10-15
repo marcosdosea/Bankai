@@ -31,7 +31,7 @@
   
   <h2 id="linksuteis">4. Links Úteis</h2>
 
-  <a href="#" target="_blank">1 - Documento de Visão - Bankai</a>
+  <a href="https://github.com/marcosdosea/Bankai/blob/Miguel_Menezes_50/Gerenciamento/Documento%20de%20Vis%C3%A3o.docx" target="_blank">1 - Documento de Visão - Bankai</a>
 
   
   <h2 id="equipe">5. Equipe </h2>
@@ -42,7 +42,7 @@
       <a href="https://github.com/Hiakewve" target="_blank">
         <img style="border-radius:100px;" src="https://avatars.githubusercontent.com/u/107659821?v=4" width="100px;" alt="Foto do GitHub"/><br>
         <sub>
-          <b>Hiakewve Santos Alves</b>
+          <b>Hiakewve Santos</b>
           <p>Desenvolvedor</p>
         </sub>
       </a>
@@ -51,7 +51,7 @@
       <a href="https://github.com/ValterSantos1" target="_blank">
         <img style="border-radius:100px;" src="https://avatars.githubusercontent.com/u/145620828?v=4"  width="100px;" alt="Foto do GitHub"/><br>
         <sub>
-          <b>José Valter Santos de Jesus</b>
+          <b>José Valter</b>
           <p>Desenvolvedor</p>
         </sub>
       </a>
@@ -60,7 +60,7 @@
       <a href="https://github.com/kauaeduuardo" target="_blank">
         <img style="border-radius:100px;" src="https://avatars.githubusercontent.com/u/154907062?v=4" target="_blank"  width="100px;" alt="Foto do GitHub"/><br>
         <sub>
-          <b>Kauã Eduardo Andrade de Lima</b>
+          <b>Kauã Eduardo</b>
           <p>Desenvolvedor</p>
         </sub>
       </a>
@@ -69,7 +69,7 @@
       <a href="https://github.com/viniciusmeneses159" target="_blank">
         <img style="border-radius:100px;" src="https://avatars.githubusercontent.com/u/229240738?v=4" target="_blank"  width="100px;" alt="Foto do GitHub"/><br>
         <sub>
-          <b>Vinicius Meneses Oliveira </b>
+          <b>Vinicius Meneses</b>
           <p>Desenvolvedor</p>
         </sub>
       </a>
@@ -78,7 +78,7 @@
       <a href="https://github.com/zxfmiguel" target="_blank">
         <img style="border-radius:100px;" src="https://avatars.githubusercontent.com/u/27424115?v=4" target="_blank"  width="100px;" alt="Foto do GitHub"/><br>
         <sub>
-          <b>Miguel Menezes Andrade</b>
+          <b>Miguel Menezes</b>
           <p>Desenvolvedor</p>
         </sub>
       </a>
@@ -87,7 +87,7 @@
       <a href="https://github.com/wellington143" target="_blank">
         <img style="border-radius:100px;" src="https://avatars.githubusercontent.com/u/225276815?v=4" target="_blank"  width="100px;" alt="Foto do GitHub"/><br>
         <sub>
-          <b>José Wellington Carvalho Santos</b>
+          <b>José Wellington</b>
           <p>Desenvolvedor</p>
         </sub>
       </a>
