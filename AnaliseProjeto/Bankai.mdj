@@ -196110,7 +196110,7 @@
 											"top": 488,
 											"width": 161.0908203125,
 											"height": 13,
-											"text": "+inserir()",
+											"text": "+Create()",
 											"horizontalAlignment": 0
 										},
 										{
@@ -196144,7 +196144,7 @@
 											"top": 518,
 											"width": 161.0908203125,
 											"height": 13,
-											"text": "+consultar()",
+											"text": "+Find()",
 											"horizontalAlignment": 0
 										},
 										{
@@ -196161,7 +196161,7 @@
 											"top": 533,
 											"width": 161.0908203125,
 											"height": 13,
-											"text": "+alterar()",
+											"text": "+Update()",
 											"horizontalAlignment": 0
 										},
 										{
@@ -196178,7 +196178,7 @@
 											"top": 548,
 											"width": 161.0908203125,
 											"height": 13,
-											"text": "+excluir()",
+											"text": "+Delete()",
 											"horizontalAlignment": 0
 										}
 									],
@@ -204424,7 +204424,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGhYSQ+qU+eOLo="
 									},
-									"name": "inserir"
+									"name": "Create"
 								},
 								{
 									"_type": "UMLOperation",
@@ -204440,7 +204440,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGhYSQ+qU+eOLo="
 									},
-									"name": "consultar"
+									"name": "Find"
 								},
 								{
 									"_type": "UMLOperation",
@@ -204448,7 +204448,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGhYSQ+qU+eOLo="
 									},
-									"name": "alterar"
+									"name": "Update"
 								},
 								{
 									"_type": "UMLOperation",
@@ -204456,7 +204456,7 @@
 									"_parent": {
 										"$ref": "AAAAAAGhYSQ+qU+eOLo="
 									},
-									"name": "excluir"
+									"name": "Delete"
 								}
 							]
 						}
