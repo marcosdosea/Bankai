@@ -1,0 +1,8 @@
+# Visual Studio e ficheiros de utilizador/cache
+.vs/
+*.user
+*.suo
+
+# Pastas de compilação do .NET
+**/bin/
+**/obj/

@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="BankaiWeb/BankaiWeb.csproj" />
+  <Project Path="Core/Core.csproj" />
+  <Project Path="Service/Service.csproj" />
+</Solution>
