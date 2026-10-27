@@ -1,8 +1,12 @@
-# Visual Studio e ficheiros de utilizador/cache
+# Caches e arquivos da IDE (Visual Studio)
 .vs/
 *.user
 *.suo
+*.userosscache
+*.sln.docstates
 
-# Pastas de compilação do .NET
+# Pastas de compilação / Binários
 **/bin/
 **/obj/
+[Dd]ebug/
+[Rr]elease/
