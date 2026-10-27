@@ -1,0 +1,15 @@
+C:\Users\jvalt\Desktop\Bankai\Bankai\Codigo\Bankai\Core\bin\Debug\net10.0\Core.deps.json
+C:\Users\jvalt\Desktop\Bankai\Bankai\Codigo\Bankai\Core\bin\Debug\net10.0\Core.runtimeconfig.json
+C:\Users\jvalt\Desktop\Bankai\Bankai\Codigo\Bankai\Core\bin\Debug\net10.0\Core.dll
+C:\Users\jvalt\Desktop\Bankai\Bankai\Codigo\Bankai\Core\bin\Debug\net10.0\Core.pdb
+C:\Users\jvalt\Desktop\Bankai\Bankai\Codigo\Bankai\Core\obj\Debug\net10.0\Core.csproj.AssemblyReference.cache
+C:\Users\jvalt\Desktop\Bankai\Bankai\Codigo\Bankai\Core\obj\Debug\net10.0\Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jvalt\Desktop\Bankai\Bankai\Codigo\Bankai\Core\obj\Debug\net10.0\Core.AssemblyInfoInputs.cache
+C:\Users\jvalt\Desktop\Bankai\Bankai\Codigo\Bankai\Core\obj\Debug\net10.0\Core.AssemblyInfo.cs
+C:\Users\jvalt\Desktop\Bankai\Bankai\Codigo\Bankai\Core\obj\Debug\net10.0\Core.csproj.CoreCompileInputs.cache
+C:\Users\jvalt\Desktop\Bankai\Bankai\Codigo\Bankai\Core\obj\Debug\net10.0\Core.sourcelink.json
+C:\Users\jvalt\Desktop\Bankai\Bankai\Codigo\Bankai\Core\obj\Debug\net10.0\Core.dll
+C:\Users\jvalt\Desktop\Bankai\Bankai\Codigo\Bankai\Core\obj\Debug\net10.0\refint\Core.dll
+C:\Users\jvalt\Desktop\Bankai\Bankai\Codigo\Bankai\Core\obj\Debug\net10.0\Core.pdb
+C:\Users\jvalt\Desktop\Bankai\Bankai\Codigo\Bankai\Core\obj\Debug\net10.0\Core.genruntimeconfig.cache
+C:\Users\jvalt\Desktop\Bankai\Bankai\Codigo\Bankai\Core\obj\Debug\net10.0\ref\Core.dll
