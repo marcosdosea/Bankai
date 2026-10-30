@@ -1,5 +1,5 @@
 <Solution>
   <Project Path="BankaiWeb/BankaiWeb.csproj" />
   <Project Path="Core/Core.csproj" />
-  <Project Path="Service/Service.csproj" />
+  <Project Path="Service/Service.csproj" Id="0278101d-d3db-4974-ab6a-fd4a367b3ed4" />
 </Solution>
