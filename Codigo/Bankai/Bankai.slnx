@@ -1,5 +1,7 @@
 <Solution>
   <Project Path="BankaiWeb/BankaiWeb.csproj" />
+  <Project Path="BankaiWebTests/BankaiWebTests.csproj" Id="ba5e91b1-027b-4653-96d7-8bd0607869c8" />
   <Project Path="Core/Core.csproj" />
   <Project Path="Service/Service.csproj" Id="0278101d-d3db-4974-ab6a-fd4a367b3ed4" />
+  <Project Path="ServiceTests/ServiceTests.csproj" Id="a9ecca51-fd58-401c-b274-86af5a095ee5" />
 </Solution>
