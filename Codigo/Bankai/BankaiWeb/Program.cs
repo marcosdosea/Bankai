@@ -12,6 +12,11 @@ namespace BankaiWeb
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+            builder.Services.AddDbContext<BankaiContext>(options =>
+                options.UseMySQL(connectionString));
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -21,11 +26,6 @@ namespace BankaiWeb
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-            builder.Services.AddDbContext<BankaiContext>(options =>
-                options.UseMySQL(connectionString));
 
             app.UseHttpsRedirection();
             app.UseRouting();
