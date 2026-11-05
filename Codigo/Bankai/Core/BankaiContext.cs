@@ -35,10 +35,7 @@ public partial class BankaiContext : DbContext
 
     public virtual DbSet<Servico> Servicos { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-
-    }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,8 +44,6 @@ public partial class BankaiContext : DbContext
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 
             entity.ToTable("agendamento");
-
-            entity.HasIndex(e => e.IdPagamento, "fk_Agendamento_Pagamento_idx");
 
             entity.HasIndex(e => e.IdProfissional, "fk_Agendamento_Pessoa1_idx");
 
@@ -63,8 +58,16 @@ public partial class BankaiContext : DbContext
             entity.Property(e => e.DescricaoServico)
                 .HasMaxLength(255)
                 .HasColumnName("descricaoServico");
+            entity.Property(e => e.DiaSemana)
+                .HasColumnType("enum('D','SF','TF','QF','QIF','SXF','S')")
+                .HasColumnName("diaSemana");
+            entity.Property(e => e.HorarioFim)
+                .HasColumnType("time")
+                .HasColumnName("horarioFim");
+            entity.Property(e => e.HorarioInicio)
+                .HasColumnType("time")
+                .HasColumnName("horarioInicio");
             entity.Property(e => e.IdCliente).HasColumnName("idCliente");
-            entity.Property(e => e.IdPagamento).HasColumnName("idPagamento");
             entity.Property(e => e.IdProfissional).HasColumnName("idProfissional");
             entity.Property(e => e.Nota)
                 .HasColumnType("enum('MR','R','B','MB','E')")
@@ -80,11 +83,6 @@ public partial class BankaiContext : DbContext
                 .HasForeignKey(d => d.IdCliente)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("fk_Agendamento_Pessoa2");
-
-            entity.HasOne(d => d.IdPagamentoNavigation).WithMany(p => p.Agendamentos)
-                .HasForeignKey(d => d.IdPagamento)
-                .OnDelete(DeleteBehavior.Restrict)
-                .HasConstraintName("fk_Agendamento_Pagamento");
 
             entity.HasOne(d => d.IdProfissionalNavigation).WithMany(p => p.AgendamentoIdProfissionalNavigations)
                 .HasForeignKey(d => d.IdProfissional)
@@ -136,6 +134,9 @@ public partial class BankaiContext : DbContext
             entity.Property(e => e.DataChamado)
                 .HasColumnType("date")
                 .HasColumnName("dataChamado");
+            entity.Property(e => e.Descricao)
+                .HasMaxLength(300)
+                .HasColumnName("descricao");
             entity.Property(e => e.IdAgendamento).HasColumnName("idAgendamento");
             entity.Property(e => e.StatusGarantia)
                 .HasColumnType("enum('S','A','R','C','E')")
@@ -159,21 +160,18 @@ public partial class BankaiContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.DiaSemana)
-                .HasMaxLength(13)
-                .IsFixedLength()
+                .HasColumnType("enum('D','SF','TF','QF','QIF','SXF','S')")
                 .HasColumnName("diaSemana");
             entity.Property(e => e.HorarioFim)
-                .HasMaxLength(5)
-                .IsFixedLength()
+                .HasColumnType("time")
                 .HasColumnName("horarioFim");
             entity.Property(e => e.HorarioInicio)
-                .HasMaxLength(5)
-                .IsFixedLength()
+                .HasColumnType("time")
                 .HasColumnName("horarioInicio");
             entity.Property(e => e.IdPessoa).HasColumnName("idPessoa");
-            entity.Property(e => e.StatusAgenda)
+            entity.Property(e => e.StatusDisponibilidade)
                 .HasColumnType("enum('D','ND')")
-                .HasColumnName("statusAgenda");
+                .HasColumnName("statusDisponibilidade");
 
             entity.HasOne(d => d.IdPessoaNavigation).WithMany(p => p.Disponibilidades)
                 .HasForeignKey(d => d.IdPessoa)
@@ -199,18 +197,26 @@ public partial class BankaiContext : DbContext
 
             entity.ToTable("pagamento");
 
+            entity.HasIndex(e => e.IdAgendamento, "fk_Pagamento_Agendamento1_idx");
+
             entity.HasIndex(e => e.Id, "id_UNIQUE").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.FormaPagamento)
                 .HasColumnType("enum('P','CC')")
                 .HasColumnName("formaPagamento");
+            entity.Property(e => e.IdAgendamento).HasColumnName("idAgendamento");
             entity.Property(e => e.StatusPagamento)
                 .HasColumnType("enum('AP','P','R','A','C')")
                 .HasColumnName("statusPagamento");
             entity.Property(e => e.ValorTransacao)
                 .HasPrecision(10)
                 .HasColumnName("valorTransacao");
+
+            entity.HasOne(d => d.IdAgendamentoNavigation).WithMany(p => p.Pagamentos)
+                .HasForeignKey(d => d.IdAgendamento)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("fk_Pagamento_Agendamento1");
         });
 
         modelBuilder.Entity<Pessoa>(entity =>
@@ -228,6 +234,16 @@ public partial class BankaiContext : DbContext
             entity.HasIndex(e => e.Telefone, "telefone_UNIQUE").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Bairro)
+                .HasMaxLength(30)
+                .HasColumnName("bairro");
+            entity.Property(e => e.Cep)
+                .HasMaxLength(8)
+                .IsFixedLength()
+                .HasColumnName("cep");
+            entity.Property(e => e.Cidade)
+                .HasMaxLength(30)
+                .HasColumnName("cidade");
             entity.Property(e => e.CpfCnpj)
                 .HasMaxLength(14)
                 .IsFixedLength()
@@ -236,15 +252,19 @@ public partial class BankaiContext : DbContext
             entity.Property(e => e.Email)
                 .HasMaxLength(50)
                 .HasColumnName("email");
-            entity.Property(e => e.Endereco)
-                .HasMaxLength(100)
-                .HasColumnName("endereco");
+            entity.Property(e => e.Estado)
+                .HasMaxLength(30)
+                .HasColumnName("estado");
             entity.Property(e => e.Nome)
                 .HasMaxLength(50)
                 .HasColumnName("nome");
-            entity.Property(e => e.Senha)
+            entity.Property(e => e.NumeroCasa)
+                .HasMaxLength(10)
+                .IsFixedLength()
+                .HasColumnName("numeroCasa");
+            entity.Property(e => e.Rua)
                 .HasMaxLength(30)
-                .HasColumnName("senha");
+                .HasColumnName("rua");
             entity.Property(e => e.Telefone)
                 .HasMaxLength(11)
                 .IsFixedLength()

@@ -7,13 +7,13 @@ public partial class Disponibilidade
 {
     public int Id { get; set; }
 
-    public string StatusAgenda { get; set; } = null!;
+    public string StatusDisponibilidade { get; set; } = null!;
 
     public string DiaSemana { get; set; } = null!;
 
-    public string HorarioInicio { get; set; } = null!;
+    public TimeSpan HorarioInicio { get; set; }
 
-    public string HorarioFim { get; set; } = null!;
+    public TimeSpan HorarioFim { get; set; }
 
     public int IdPessoa { get; set; }
 

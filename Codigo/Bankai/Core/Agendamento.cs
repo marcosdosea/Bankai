@@ -13,8 +13,6 @@ public partial class Agendamento
 
     public string StatusAgendamento { get; set; } = null!;
 
-    public int IdPagamento { get; set; }
-
     public string Nota { get; set; } = null!;
 
     public string? Comentario { get; set; }
@@ -23,13 +21,19 @@ public partial class Agendamento
 
     public int IdCliente { get; set; }
 
+    public TimeSpan HorarioInicio { get; set; }
+
+    public TimeSpan HorarioFim { get; set; }
+
+    public string DiaSemana { get; set; } = null!;
+
     public virtual ICollection<Agendamentoservico> Agendamentoservicos { get; set; } = new List<Agendamentoservico>();
 
     public virtual ICollection<Chamadogarantium> Chamadogarantia { get; set; } = new List<Chamadogarantium>();
 
     public virtual Pessoa IdClienteNavigation { get; set; } = null!;
 
-    public virtual Pagamento IdPagamentoNavigation { get; set; } = null!;
-
     public virtual Pessoa IdProfissionalNavigation { get; set; } = null!;
+
+    public virtual ICollection<Pagamento> Pagamentos { get; set; } = new List<Pagamento>();
 }

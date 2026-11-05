@@ -13,5 +13,7 @@ public partial class Pagamento
 
     public decimal ValorTransacao { get; set; }
 
-    public virtual ICollection<Agendamento> Agendamentos { get; set; } = new List<Agendamento>();
+    public int IdAgendamento { get; set; }
+
+    public virtual Agendamento IdAgendamentoNavigation { get; set; } = null!;
 }

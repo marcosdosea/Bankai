@@ -13,5 +13,7 @@ public partial class Chamadogarantium
 
     public int IdAgendamento { get; set; }
 
+    public string? Descricao { get; set; }
+
     public virtual Agendamento IdAgendamentoNavigation { get; set; } = null!;
 }
