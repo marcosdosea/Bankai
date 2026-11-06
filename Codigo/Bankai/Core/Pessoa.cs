@@ -13,13 +13,21 @@ public partial class Pessoa
 
     public string Email { get; set; } = null!;
 
-    public string Senha { get; set; } = null!;
-
     public string? Telefone { get; set; }
 
     public bool EhProfissional { get; set; }
 
-    public string Endereco { get; set; } = null!;
+    public string Cep { get; set; } = null!;
+
+    public string Rua { get; set; } = null!;
+
+    public string Bairro { get; set; } = null!;
+
+    public string Cidade { get; set; } = null!;
+
+    public string Estado { get; set; } = null!;
+
+    public string NumeroCasa { get; set; } = null!;
 
     public virtual ICollection<Agendamento> AgendamentoIdClienteNavigations { get; set; } = new List<Agendamento>();
 

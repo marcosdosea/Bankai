@@ -12,7 +12,9 @@ namespace BankaiWeb
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            // Mensagem de erro caso a connection string não seja encontrada
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' não encontrada.");
 
             builder.Services.AddDbContext<BankaiContext>(options =>
                 options.UseMySQL(connectionString));

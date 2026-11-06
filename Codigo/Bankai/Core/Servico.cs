@@ -9,7 +9,7 @@ public partial class Servico
 
     public string Nome { get; set; } = null!;
 
-    public string? Descricao { get; set; }
+    public string Descricao { get; set; } = null!;
 
     public virtual ICollection<Agendamentoservico> Agendamentoservicos { get; set; } = new List<Agendamentoservico>();
 
