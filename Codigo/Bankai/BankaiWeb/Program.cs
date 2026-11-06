@@ -13,8 +13,8 @@ namespace BankaiWeb
             builder.Services.AddControllersWithViews();
 
             // Mensagem de erro caso a connection string não seja encontrada
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' não encontrada.");
+            var connectionString = builder.Configuration.GetConnectionString("BankaiContext")
+            ?? throw new InvalidOperationException("Connection string 'BankaiContext' não encontrada.");
 
             builder.Services.AddDbContext<BankaiContext>(options =>
                 options.UseMySQL(connectionString));
