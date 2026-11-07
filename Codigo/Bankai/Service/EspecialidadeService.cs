@@ -31,7 +31,7 @@ namespace Service
 
         public void Delete(uint id)
         {
-            var especialidade = this.context.Especialidades.Find(id);
+            var especialidade = this.context.Especialidades.FirstOrDefault(e => e.Id == id);
             if (especialidade != null)
             {
                 this.context.Remove(especialidade);
@@ -41,7 +41,7 @@ namespace Service
 
         public Especialidade? Get(uint id)
         {
-            return this.context.Especialidades.Find(id);
+            return this.context.Especialidades.FirstOrDefault(e => e.Id == id);
         }
 
         public IEnumerable<Especialidade> GetAll()
