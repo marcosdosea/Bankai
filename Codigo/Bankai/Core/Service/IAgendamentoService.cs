@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Core.DTO;
 
-namespace Core.Service
+namespace Core.Service;
+
+public interface IAgendamentoService
 {
-    public interface IAgendamentoService
-    {
-        Task<int> Create(Agendamento agendamento);
-        void Edit(Agendamento agendamento);
-        void Delete(int idAgendamento);
-        Agendamento Get(int idAgendamento);
-
-        IEnumerable<Agendamento> GetAll();
-    }
+    Task<int> Create(CriarAgendamentoDto dto);
+    void Edit(Agendamento agendamento);
+    void Delete(int idAgendamento);
+    void Avaliar(AvaliarAgendamentoDto dto);
+    Agendamento Get(int idAgendamento);
+    Task<IEnumerable<Agendamento>> GetByPessoa(int idPessoa);
+    Task<IEnumerable<Agendamento>> GetAllByCpfCnpj(string cpfCnpj);
 }
