@@ -20,24 +20,44 @@ namespace Service
         /// <returns>Id do agendamento</returns>
         public async Task<int> Create(Agendamento agendamento)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            
+            _context.Add(agendamento);
+            _context.SaveChanges();
             return agendamento.Id;
+
         }
 
         public void Delete(int idAgendamento)
         {
-            throw new NotImplementedException();
+            var agendamento = _context.Agendamentos.Find(idAgendamento);
+            if(agendamento != null)
+            {
+                _context.Agendamentos.Remove(agendamento);
+                _context.SaveChanges();
+            }
         }
 
         public void Edit(Agendamento agendamento)
         {
-            throw new NotImplementedException();
+            _context.Agendamentos.Update(agendamento);
+            _context.SaveChanges();
         }
 
-        public Agendamento GetById(int idAgendamento)
+        public Agendamento Get(int idAgendamento)
         {
-            throw new NotImplementedException();
+            return _context.Agendamentos.Find(idAgendamento);
         }
+
+        public IEnumerable<Agendamento> GetAll()
+        {
+            try
+            {
+                return _context.Agendamentos.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro ao buscar agendamentos: {ex.Message}");
+            }
+        }
+
     }
 }
