@@ -1,5 +1,5 @@
 ﻿using Core;
-    using Core.DTO;
+using Core.DTO;
 using Core.Service;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,156 +14,103 @@ public class AgendamentoService : IAgendamentoService
     private readonly BankaiContext _context;
     public AgendamentoService(BankaiContext context) => _context = context;
 
-    /// <summary>
-    /// Cria um agendamento no banco de dados, validando disponibilidade do profissional e conflito de horários.
-    /// </summary>
-    /// <param name="dto"></param>
-    /// <returns></returns>
-    public async Task<int> Create(CriarAgendamentoDto dto)
+    /// <summary>Cria um agendamento validando disponibilidade, conflito e serviços ofertados.</summary>
+    public async Task<int> Create(Agendamento agendamento)
     {
-        var precos = await Validar(dto);
-
-        var agendamento = new Agendamento
-        {
-            IdCliente = dto.IdCliente,
-            IdProfissional = dto.IdProfissional,
-            DiaSemana = dto.Data.ToString(),
-            HorarioInicio = dto.HorarioInicio,
-            HorarioFim = dto.HorarioFim,
-            DescricaoServico = dto.DescricaoServico,
-            TipoCobranca = dto.TipoCobranca,
-            StatusAgendamento = EmExecucao
-        };
-
-        foreach (var s in dto.Servicos)
-            agendamento.Agendamentoservicos.Add(new Agendamentoservico
-            {
-                IdServico = s.IdServico,
-                ValorProposto = s.ValorProposto ?? precos[s.IdServico],
-                StatusServico = "E" // use o valor do seu ENUM
-            });
+        await Validar(agendamento);
+        agendamento.StatusAgendamento = EmExecucao;
 
         _context.Agendamentos.Add(agendamento);
-        await _context.SaveChangesAsync(); // agendamento + serviços na mesma transação
+        await _context.SaveChangesAsync();
         return agendamento.Id;
     }
-    /// <summary>
-    /// edita um agendamento no banco de dados
-    /// </summary>
-    /// <param name="agendamento"></param>
+
+    /// <summary>Edita um agendamento em execução.</summary>
     public void Edit(Agendamento agendamento)
     {
-        ExigirStatus(agendamento, EmExecucao, "Só é possível concluir agendamentos em execução.");
-        agendamento.StatusAgendamento = Concluido;
-        _context.SaveChangesAsync();
-    }
-    
-    /// <summary>
-    /// deleta um agendamento no banco de dados
-    /// </summary>
-    /// <param name="idAgendamento"></param>
-    public void Delete(int idAgendamento)
-    {   
-        var _agendamento = _context.Agendamentos.Find(idAgendamento);
-        _context.Remove(_agendamento);
-        _context.SaveChangesAsync();
+        var atual = ObterOuFalhar(agendamento.Id);
+        ExigirStatus(atual, EmExecucao, "Só é possível editar agendamentos em execução.");
+
+        atual.DiaSemana = agendamento.DiaSemana;
+        atual.HorarioInicio = agendamento.HorarioInicio;
+        atual.HorarioFim = agendamento.HorarioFim;
+        atual.DescricaoServico = agendamento.DescricaoServico;
+        atual.TipoCobranca = agendamento.TipoCobranca;
+
+        _context.SaveChanges();
     }
 
-    public async void Avaliar(AvaliarAgendamentoDto dto)
+    /// <summary>Cancelamento lógico (há FKs de Pagamento e ChamadoGarantia).</summary>
+    public void Delete(int idAgendamento)
     {
-        var ag = await ObterOuFalharAsync(dto.Id);
+        var ag = ObterOuFalhar(idAgendamento);
+        ExigirStatus(ag, EmExecucao, "Só é possível cancelar agendamentos em execução.");
+        ag.StatusAgendamento = Cancelado;
+        _context.SaveChanges();
+    }
+
+    public void Avaliar(int idAgendamento, int nota, string? comentario)
+    {
+        var ag = ObterOuFalhar(idAgendamento);
         ExigirStatus(ag, Concluido, "Só é possível avaliar agendamentos concluídos.");
-        ag.Nota = dto.Nota.ToString();
-        ag.Comentario = dto.Comentario;
-        await _context.SaveChangesAsync();
+
+        ag.Nota = nota.ToString();  //Nota é ENUM no banco
+        ag.Comentario = comentario;
+        _context.SaveChanges();
     }
 
     public Agendamento Get(int idAgendamento)
     {
-        return _context.Agendamentos.Find(idAgendamento) ?? throw new InvalidOperationException("Agendamento não encontrado.");
+
+        return _context.Agendamentos.Find(idAgendamento)
+        ?? throw new KeyNotFoundException("Agendamento não encontrado.");
     }
-        
-
-    public async Task<IEnumerable<Agendamento>> GetByPessoa(int idPessoa)
+    public IEnumerable<Agendamento> GetByPessoa(int idPessoa)
     {
-
-        return await _context.Agendamentos
-            .AsNoTracking()
+        return _context.Agendamentos
             .Where(a => a.IdCliente == idPessoa || a.IdProfissional == idPessoa)
             .OrderByDescending(a => a.Id)
-            .ToListAsync();
+            .ToList();
     }
 
-    public async Task<IEnumerable<Agendamento>> GetAllByCpfCnpj(string cpfCnpj)
+    private async Task Validar(Agendamento agendamento)
     {
-        return await _context.Agendamentos
-            .Include(a => a.IdClienteNavigation)
-            .Include(a => a.IdProfissionalNavigation)
-            .AsNoTracking()
-            .Where(a => a.IdClienteNavigation.CpfCnpj == cpfCnpj || a.IdProfissionalNavigation.CpfCnpj == cpfCnpj)
-            .OrderByDescending(a => a.Id)
-            .ToListAsync();
-    }
-
-    // ---------- auxiliares ----------
-
-    private async Task<Dictionary<int, decimal>> Validar(CriarAgendamentoDto dto)
-    {
-        var dia = ToDiaSemana(dto.Data);
-
-        // Regra 1: profissional dispõe desse horário? (depende do banco)
+        // Regra 1: profissional disponível nesse dia/horário
         var disponivel = await _context.Disponibilidades.AnyAsync(d =>
-            d.IdPessoa == dto.IdProfissional &&
-            d.DiaSemana == dia &&
+            d.IdPessoa == agendamento.IdProfissional &&
+            d.DiaSemana == agendamento.DiaSemana &&
             d.StatusDisponibilidade == "D" &&
-            d.HorarioInicio <= dto.HorarioInicio &&
-            d.HorarioFim >= dto.HorarioFim);
+            d.HorarioInicio <= agendamento.HorarioInicio &&
+            d.HorarioFim >= agendamento.HorarioFim);
 
         if (!disponivel)
             throw new InvalidOperationException("Profissional indisponível neste dia/horário.");
 
-        // Regra 2: conflito com outro agendamento (depende do banco)
+        // Regra 2: conflito com outro agendamento
         var conflito = await _context.Agendamentos.AnyAsync(a =>
-            a.DiaSemana == dia &&
+            a.DiaSemana == agendamento.DiaSemana &&
             a.StatusAgendamento != Cancelado &&
-            (a.IdProfissional == dto.IdProfissional || a.IdCliente == dto.IdCliente) &&
-            a.HorarioInicio < dto.HorarioFim &&
-            a.HorarioFim > dto.HorarioInicio);
+            (a.IdProfissional == agendamento.IdProfissional || a.IdCliente == agendamento.IdCliente) &&
+            a.HorarioInicio < agendamento.HorarioFim &&
+            a.HorarioFim > agendamento.HorarioInicio);
 
         if (conflito)
             throw new InvalidOperationException("Já existe um agendamento neste horário.");
 
-        // Preços padrão do profissional (também valida se ele oferece o serviço)
-        var ids = dto.Servicos.Select(s => s.IdServico).ToList();
-        var precos = await _context.Profissionalservicos
-            .Where(ps => ps.IdPessoa == dto.IdProfissional && ids.Contains(ps.IdServico))
-            .ToDictionaryAsync(ps => ps.IdServico, ps => ps.Preco);
-
-        if (ids.Any(id => !precos.ContainsKey(id)))
-            throw new InvalidOperationException("O profissional não oferece todos os serviços informados.");
-
-        return precos;
     }
 
-    private async Task<Agendamento> ObterOuFalharAsync(int id) =>
-        await _context.Agendamentos.FirstOrDefaultAsync(a => a.Id == id)
-        ?? throw new KeyNotFoundException("Agendamento não encontrado.");
+    // ---------- auxiliares ----------
 
+    //verifica se o agendamento existe, caso contrário lança exceção
+    private Agendamento ObterOuFalhar(int id)
+    {
+        return _context.Agendamentos.FirstOrDefault(a => a.Id == id)
+        ?? throw new KeyNotFoundException("Agendamento não encontrado.");
+    }
+    //vefica se o agendamento está no status esperado, caso contrário lança exceção
     private static void ExigirStatus(Agendamento ag, string esperado, string msg)
     {
         if (ag.StatusAgendamento != esperado)
             throw new InvalidOperationException(msg);
     }
-
-    // Use o mesmo valor que o ENUM do banco espera
-    private static string ToDiaSemana(DateOnly d) => d.DayOfWeek switch
-    {
-        DayOfWeek.Monday => "SF",
-        DayOfWeek.Tuesday => "TF",
-        DayOfWeek.Wednesday => "QF",
-        DayOfWeek.Thursday => "QIF",
-        DayOfWeek.Friday => "SXF",
-        DayOfWeek.Saturday => "S",
-        _ => "D"
-    };
 }
