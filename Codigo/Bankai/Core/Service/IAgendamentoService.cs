@@ -8,6 +8,7 @@ public interface IAgendamentoService
     void Edit(Agendamento agendamento);
     void Delete(int idAgendamento);
     void Avaliar(int idAgendamento, int nota, string? comentario);
+    Task Validar(Agendamento agendamento);
     Agendamento Get(int idAgendamento);
-    IEnumerable<Agendamento> GetByPessoa(int idPessoa);
+    IEnumerable<AgendamentoDTO> GetAllByUser(int idPessoa);
 }

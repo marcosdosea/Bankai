@@ -14,7 +14,11 @@ public class AgendamentoService : IAgendamentoService
     private readonly BankaiContext _context;
     public AgendamentoService(BankaiContext context) => _context = context;
 
-    /// <summary>Cria um agendamento validando disponibilidade, conflito e serviços ofertados.</summary>
+    /// <summary>
+    /// Cria um agendamento no banco de dados
+    /// </summary>
+    /// <param name="agendamento"></param>
+    /// <returns>id do agendamento</returns>
     public async Task<int> Create(Agendamento agendamento)
     {
         await Validar(agendamento);
@@ -25,7 +29,10 @@ public class AgendamentoService : IAgendamentoService
         return agendamento.Id;
     }
 
-    /// <summary>Edita um agendamento em execução.</summary>
+    /// <summary>
+    /// Modifica um agendamento no banco de dados
+    /// </summary>
+    /// <param name="agendamento"></param>
     public void Edit(Agendamento agendamento)
     {
         var atual = ObterOuFalhar(agendamento.Id);
@@ -40,7 +47,10 @@ public class AgendamentoService : IAgendamentoService
         _context.SaveChanges();
     }
 
-    /// <summary>Cancelamento lógico (há FKs de Pagamento e ChamadoGarantia).</summary>
+    /// <summary>
+    /// Deleta/ cancela um agendamento
+    /// </summary>
+    /// <param name="idAgendamento"></param>
     public void Delete(int idAgendamento)
     {
         var ag = ObterOuFalhar(idAgendamento);
@@ -48,32 +58,57 @@ public class AgendamentoService : IAgendamentoService
         ag.StatusAgendamento = Cancelado;
         _context.SaveChanges();
     }
-
+       
+    /// <summary>
+    /// Salva avaliação no banco de dados
+    /// </summary>
+    /// <param name="idAgendamento"></param>
+    /// <param name="nota"></param>
+    /// <param name="comentario"></param>
     public void Avaliar(int idAgendamento, int nota, string? comentario)
     {
         var ag = ObterOuFalhar(idAgendamento);
         ExigirStatus(ag, Concluido, "Só é possível avaliar agendamentos concluídos.");
 
-        ag.Nota = nota.ToString();  //Nota é ENUM no banco
+        ag.Nota = nota.ToString();
         ag.Comentario = comentario;
         _context.SaveChanges();
     }
-
+    /// <summary>
+    /// Consulta agendamento no banco de dados
+    /// </summary>
+    /// <param name="idAgendamento"></param>
+    /// <returns>Dados agendamento</returns>
     public Agendamento Get(int idAgendamento)
     {
-
-        return _context.Agendamentos.Find(idAgendamento)
-        ?? throw new KeyNotFoundException("Agendamento não encontrado.");
+        return _context.Agendamentos.Find(idAgendamento);
     }
-    public IEnumerable<Agendamento> GetByPessoa(int idPessoa)
+
+    public IEnumerable <AgendamentoDTO> GetAllByUser(int idPessoa)
     {
         return _context.Agendamentos
-            .Where(a => a.IdCliente == idPessoa || a.IdProfissional == idPessoa)
-            .OrderByDescending(a => a.Id)
-            .ToList();
+        .Where(a => a.IdCliente == idPessoa || a.IdProfissional == idPessoa)
+        .OrderByDescending(a => a.Id)
+        .Select(a => new AgendamentoDTO
+        {
+            Id = a.Id,
+            IdCliente = a.IdCliente,
+            NomeCliente = a.IdClienteNavigation.Nome,
+            IdProfissional = a.IdProfissional,
+            NomeProfissional = a.IdProfissionalNavigation.Nome,
+            DescricaoServico = a.DescricaoServico,
+            TipoCobranca = a.TipoCobranca,
+            StatusAgendamento = a.StatusAgendamento,
+            DiaSemana = a.DiaSemana,
+            HorarioInicio = a.HorarioInicio,
+            HorarioFim = a.HorarioFim,
+            Nota = a.Nota,
+            Comentario = a.Comentario
+        })
+        .ToList();
     }
 
-    private async Task Validar(Agendamento agendamento)
+    public async Task Validar(Agendamento agendamento)
     {
         // Regra 1: profissional disponível nesse dia/horário
         var disponivel = await _context.Disponibilidades.AnyAsync(d =>
@@ -107,6 +142,7 @@ public class AgendamentoService : IAgendamentoService
         return _context.Agendamentos.FirstOrDefault(a => a.Id == id)
         ?? throw new KeyNotFoundException("Agendamento não encontrado.");
     }
+
     //vefica se o agendamento está no status esperado, caso contrário lança exceção
     private static void ExigirStatus(Agendamento ag, string esperado, string msg)
     {
