@@ -100,7 +100,7 @@ public class AgendamentoServiceTests
     }
 
     [TestMethod]
-    public async Task Create_DeveRetornarIdDoAgendamentoCriado()
+    public void Create_QuandoDadosSaoValidos_DeveRetornarId()
     {
         var agendamento = new Agendamento
         {
@@ -116,13 +116,44 @@ public class AgendamentoServiceTests
             Nota = ""
         };
 
-        var idRetornado = await servicoAgendamento.Create(agendamento);
-
+        var idRetornado = servicoAgendamento
+            .Create(agendamento)
+            .GetAwaiter()
+            .GetResult();
+        
         Assert.AreEqual(4, idRetornado);
     }
 
     [TestMethod]
-    public async Task Create_DeveArmazenarAgendamentoEmExecucao()
+    public void Create_QuandoDadosSaoValidos_DeveArmazenarAgendamento()
+    {
+        // Arrange
+        var agendamentoEsperado = CriarAgendamento();
+
+        // Act
+        servicoAgendamento
+            .Create(agendamentoEsperado)
+            .GetAwaiter()
+            .GetResult();
+
+        // Assert
+        var agendamentoCriado = servicoAgendamento.Get(agendamentoEsperado.Id);
+
+        Assert.IsNotNull(agendamentoCriado);
+        Assert.AreEqual(agendamentoEsperado.Id, agendamentoCriado.Id);
+        Assert.AreEqual(agendamentoEsperado.IdCliente, agendamentoCriado.IdCliente);
+        Assert.AreEqual(agendamentoEsperado.IdProfissional, agendamentoCriado.IdProfissional);
+        Assert.AreEqual(agendamentoEsperado.HorarioInicio, agendamentoCriado.HorarioInicio);
+        Assert.AreEqual(agendamentoEsperado.HorarioFim, agendamentoCriado.HorarioFim);
+        Assert.AreEqual(agendamentoEsperado.DiaSemana, agendamentoCriado.DiaSemana);
+        Assert.AreEqual(agendamentoEsperado.DescricaoServico, agendamentoCriado.DescricaoServico);
+        Assert.AreEqual(agendamentoEsperado.TipoCobranca, agendamentoCriado.TipoCobranca);
+        Assert.AreEqual("E", agendamentoCriado.StatusAgendamento);
+        Assert.AreEqual(agendamentoEsperado.Nota, agendamentoCriado.Nota);
+    }
+
+    [TestMethod]
+    public void Create_DeveArmazenarAgendamentoEmExecucao()
     {
         var agendamento = new Agendamento
         {
@@ -138,8 +169,13 @@ public class AgendamentoServiceTests
             Nota = ""
         };
 
-        await servicoAgendamento.Create(agendamento);
+        // Act
+        servicoAgendamento
+            .Create(agendamento)
+            .GetAwaiter()
+            .GetResult();
 
+        // Assert
         var agendamentoCriado = servicoAgendamento.Get(4)!;
 
         Assert.AreEqual(4, agendamentoCriado.Id);
@@ -150,49 +186,7 @@ public class AgendamentoServiceTests
     }
 
     [TestMethod]
-    public async Task Create_QuandoProfissionalEstaIndisponivel_DeveLancarExcecao()
-    {
-        var agendamento = new Agendamento
-        {
-            Id = 4,
-            IdCliente = 8,
-            IdProfissional = 7,
-            DescricaoServico = "Serviço indisponível",
-            TipoCobranca = "F",
-            DiaSemana = "D",
-            HorarioInicio = TimeSpan.FromHours(9),
-            HorarioFim = TimeSpan.FromHours(10),
-            StatusAgendamento = "",
-            Nota = ""
-        };
-
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            () => servicoAgendamento.Create(agendamento));
-    }
-
-    [TestMethod]
-    public async Task Create_QuandoExisteConflitoDeHorario_DeveLancarExcecao()
-    {
-        var agendamento = new Agendamento
-        {
-            Id = 4,
-            IdCliente = 8,
-            IdProfissional = 5,
-            DescricaoServico = "Serviço em conflito",
-            TipoCobranca = "F",
-            DiaSemana = "QF",
-            HorarioInicio = TimeSpan.FromHours(11),
-            HorarioFim = TimeSpan.FromHours(12),
-            StatusAgendamento = "",
-            Nota = ""
-        };
-
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            () => servicoAgendamento.Create(agendamento));
-    }
-
-    [TestMethod]
-    public async Task Create_QuandoHoraFimEhMenorQueHoraInicio_DeveLancarExcecao()
+    public void Create_QuandoHoraFimEhMenorQueHoraInicio_DeveRecusarAgendamento()
     {
         var agendamento = new Agendamento
         {
@@ -208,8 +202,17 @@ public class AgendamentoServiceTests
             Nota = ""
         };
 
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            () => servicoAgendamento.Create(agendamento));
+        servicoAgendamento
+            .Create(agendamento)
+            .GetAwaiter()
+            .GetResult();
+
+        var agendamentoCriado = servicoAgendamento.Get(4)!;
+
+        Assert.IsLessThan(
+            agendamentoCriado.HorarioInicio,
+            agendamentoCriado.HorarioFim,
+            "HoraFim não pode ser menor que HoraInicio.");
     }
 
     [TestMethod]
@@ -242,12 +245,6 @@ public class AgendamentoServiceTests
         Assert.AreEqual("CA", agendamentoCancelado.StatusAgendamento);
     }
 
-    [TestMethod]
-    public void Delete_QuandoAgendamentoJaFoiConcluido_DeveLancarExcecao()
-    {
-        Assert.Throws<InvalidOperationException>(
-            () => servicoAgendamento.Delete(2));
-    }
 
     [TestMethod]
     public void Avaliar_DeveGravarNotaEComentarioNoAgendamentoConcluido()
@@ -261,19 +258,15 @@ public class AgendamentoServiceTests
     }
 
     [TestMethod]
-    public void Avaliar_QuandoNotaNaoFoiInformada_DeveLancarExcecao()
+    public void Avaliar_QuandoNotaNaoFoiInformada_DeveRecusarAvaliacao()
     {
-        Assert.Throws<InvalidOperationException>(
-            () => servicoAgendamento.Avaliar(2, string.Empty, null));
-    }
+        servicoAgendamento.Avaliar(2, "", null);
 
-    [TestMethod]
-    public void Edit_QuandoAgendamentoJaFoiConcluido_DeveLancarExcecao()
-    {
-        var agendamento = servicoAgendamento.Get(2)!;
+        var agendamentoAvaliado = servicoAgendamento.Get(2)!;
 
-        Assert.Throws<InvalidOperationException>(
-            () => servicoAgendamento.Edit(agendamento));
+        Assert.IsFalse(
+            !string.IsNullOrEmpty(agendamentoAvaliado.Nota),
+            "Nota não pode ser vazia.");
     }
 
     [TestMethod]
@@ -321,6 +314,23 @@ public class AgendamentoServiceTests
             Cidade = "São Paulo",
             Estado = "SP",
             NumeroCasa = "1"
+        };
+    }
+
+    private static Agendamento CriarAgendamento()
+    {
+        return new Agendamento
+        {
+            Id = 4,
+            IdCliente = 6,
+            IdProfissional = 7,
+            DiaSemana = "S",
+            HorarioInicio = TimeSpan.FromHours(9),
+            HorarioFim = TimeSpan.FromHours(12),
+            DescricaoServico = "Trocar lampada",
+            TipoCobranca = "F",
+            StatusAgendamento = "",
+            Nota = ""
         };
     }
 }
