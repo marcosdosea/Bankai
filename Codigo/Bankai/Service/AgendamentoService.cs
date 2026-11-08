@@ -65,7 +65,7 @@ public class AgendamentoService : IAgendamentoService
     /// <param name="idAgendamento"></param>
     /// <param name="nota"></param>
     /// <param name="comentario"></param>
-    public void Avaliar(int idAgendamento, int nota, string? comentario)
+    public void Avaliar(int idAgendamento, string nota, string? comentario)
     {
         var ag = ObterOuFalhar(idAgendamento);
         ExigirStatus(ag, Concluido, "Só é possível avaliar agendamentos concluídos.");
