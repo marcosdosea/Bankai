@@ -80,4 +80,21 @@ public class EspecialidadeControllerTest
         var model = (EspecialidadeViewModel)viewResult.Model!;
         Assert.AreEqual("Pintor", model.Nome);
     }
+
+    [TestMethod]
+    public void Delete_Post_ComSucesso_RedirecionaParaIndex()
+    {
+        // Arrange 
+        var viewModel = new EspecialidadeViewModel { Id = 1, Nome = "Jardineiro" };
+
+        // Act
+        var result = controller.Delete(viewModel);
+
+        // Assert 
+        serviceMock.Verify(s => s.Delete(1u), Times.Once);
+        Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+
+        var redirectResult = (RedirectToActionResult)result;
+        Assert.AreEqual(nameof(EspecialidadeController.Index), redirectResult.ActionName);
+    }
 }
