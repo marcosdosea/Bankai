@@ -2,7 +2,7 @@
 
 namespace BankaiWeb.Models
 {
-    public class AgendamentoViewModel
+    public class AgendamentoViewModel : IValidatableObject
     {
         [Display(Name = "Código")]
         public int Id { get; set; }
@@ -42,11 +42,21 @@ namespace BankaiWeb.Models
         [RegularExpression("^(F|O)$", ErrorMessage = "Informe um tipo de cobrança válido")]
         public string TipoCobranca { get; set; } = null!;
 
-        [Display(Name = "Nota")]    
+        [Display(Name = "Nota")]
+        [RegularExpression("^(MR|R|B|MB|E)?$", ErrorMessage = "Informe uma nota válida")]
         public string? Nota { get; set; }
 
         [Display(Name = "Comentário")]
         [StringLength(255, ErrorMessage = "O comentário deve ter no máximo 255 caracteres")]
         public string? Comentario { get; set; }
+        public IEnumerable<ValidationResult> Validate(ValidationContext ctx)
+        {
+            if (HorarioFim <= HorarioInicio)
+                yield return new ValidationResult("O horário final deve ser maior que o inicial.",
+                    new[] { nameof(HorarioFim) });
+
+            if (IdCliente == IdProfissional)
+                yield return new ValidationResult("Cliente e profissional não podem ser a mesma pessoa.");
+        }
     }
 }

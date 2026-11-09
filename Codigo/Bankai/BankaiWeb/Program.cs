@@ -1,5 +1,9 @@
+using BankaiWeb.Mappers;
 using Core;
+using Core.Service;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Service;
 
 namespace BankaiWeb
 {
@@ -11,6 +15,10 @@ namespace BankaiWeb
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            TypeAdapterConfig.GlobalSettings.Scan(typeof(AgendamentoServicoProfile).Assembly);
+            builder.Services.AddSingleton(TypeAdapterConfig.GlobalSettings);
+            builder.Services.AddScoped<IAgendamentoService, AgendamentoService>();
 
             // Mensagem de erro caso a connection string não seja encontrada
             var connectionString = builder.Configuration.GetConnectionString("BankaiDatabase")
