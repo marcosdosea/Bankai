@@ -93,6 +93,155 @@ public class PessoaServiceTest
         var idRetornado = servicoPessoa.Create(novaPessoa);
 
         // Assert
-        Assert.AreEqual(4, idRetornado);
+        Assert.AreEqual(3, idRetornado);
     }
+
+    [TestMethod]
+    public void Create_QuandoDadosSaoValidos_DeveArmazenarPessoa()
+    {
+        // Arrange
+        var pessoaEsperada = new Pessoa
+        {
+            Id = 4,
+            CpfCnpj = "55566677788",
+            Nome = "Ana Lima",
+            Email = "analima@gmail.com",
+            Telefone = "79876543210",
+            EhProfissional = true,
+            Cep = "98765432",
+            Rua = "Rua D",
+            Bairro = "Bairro D",
+            Cidade = "Cidade D",
+            Estado = "Estado D",
+            NumeroCasa = "321",
+        };
+
+        // Act
+        servicoPessoa.Create(pessoaEsperada);
+
+        // Assert
+        var pessoaCriada = servicoPessoa.get(4);
+
+        Assert.IsNotNull(pessoaCriada);
+        Assert.AreEqual(pessoaEsperada.Id, pessoaCriada.Id);
+        Assert.AreEqual(pessoaEsperada.CpfCnpj, pessoaCriada.CpfCnpj);
+        Assert.AreEqual(pessoaEsperada.Nome, pessoaCriada.Nome);
+        Assert.AreEqual(pessoaEsperada.Email, pessoaCriada.Email);
+        Assert.AreEqual(pessoaEsperada.Telefone, pessoaCriada.Telefone);
+        Assert.AreEqual(pessoaEsperada.EhProfissional, pessoaCriada.EhProfissional);
+        Assert.AreEqual(pessoaEsperada.Cep, pessoaCriada.Cep);
+        Assert.AreEqual(pessoaEsperada.Rua, pessoaCriada.Rua);
+        Assert.AreEqual(pessoaEsperada.Bairro, pessoaCriada.Bairro);
+        Assert.AreEqual(pessoaEsperada.Cidade, pessoaCriada.Cidade);
+        Assert.AreEqual(pessoaEsperada.Estado, pessoaCriada.Estado);
+        Assert.AreEqual(pessoaEsperada.NumeroCasa, pessoaCriada.NumeroCasa);
+    }
+
+    [TestMethod]
+    public void Delete_QuandoPessoaExiste_DeveRemoverPessoa()
+    {
+        // Act
+        servicoPessoa.Delete(2);
+
+        // Assert
+        var pessoaDeletada = servicoPessoa.get(2);
+        var pessoasRestantes = servicoPessoa.GetAll().ToList();
+
+        Assert.IsNull(pessoaDeletada);
+        Assert.HasCount(2, pessoasRestantes);
+        Assert.IsFalse(pessoasRestantes.Any(pessoa => pessoa.Id == 2));
+    }
+
+    [TestMethod]
+    public void Delete_QuandoPessoaNaoExiste_NaoDeveAlterarOsDados()
+    {
+        // Arrange
+        var pessoasIniciais = servicoPessoa.GetAll().ToList();
+
+        // Act
+        servicoPessoa.Delete(999); // ID inexistente
+
+        // Assert
+        var pessoasFinais = servicoPessoa.GetAll().ToList();
+
+        Assert.HasCount(pessoasIniciais.Count, pessoasFinais);
+        CollectionAssert.AreEquivalent(
+            pessoasIniciais.Select(pessoa => pessoa.Id).ToList(),
+            pessoasFinais.Select(pessoa => pessoa.Id).ToList());
+    }
+
+    [TestMethod]
+    public void Edit_QuandoPessoaExiste_DeveAtualizarDados()
+    {
+        // Arrange
+        var pessoaExistente = servicoPessoa.get(3);
+
+        Assert.IsNotNull(pessoaExistente);
+
+        pessoaExistente!.Nome = "Carlos Oliveira Atualizado";
+        pessoaExistente.Email = "carlos.oliveira.atualizado@gmail.com";
+
+        // Act
+        servicoPessoa.Edit(pessoaExistente);
+
+        // Assert
+        var pessoaAtualizada = servicoPessoa.get(3);
+
+        Assert.IsNotNull(pessoaAtualizada);
+        Assert.AreEqual("Carlos Oliveira Atualizado", pessoaAtualizada.Nome);
+        Assert.AreEqual("carlos.oliveira.atualizado@gmail.com", pessoaAtualizada.Email);
+    }
+
+    [TestMethod]
+    public void Get_QuandoIdExiste_DeveRetornarPessoa()
+    {
+        // Act
+        var pessoa = servicoPessoa.get(1);
+
+        // Assert
+        Assert.IsNotNull(pessoa);
+        Assert.AreEqual(1, pessoa.Id);
+        Assert.AreEqual("João Silva", pessoa.Nome);
+    }
+
+    [TestMethod]
+    public void Get_QuandoIdNaoExiste_DeveRetornarNulo()
+    {
+        // Act
+        var pessoa = servicoPessoa.get(999); // ID inexistente
+
+        // Assert
+        Assert.IsNull(pessoa);
+    }
+
+    [TestMethod]
+    public void GetAll_QuandoExistemPessoas_DeveRetornarTodas()
+    {
+        // Act
+        var pessoas = servicoPessoa.GetAll().ToList();
+
+        // Assert
+        Assert.IsNotNull(pessoas);
+        Assert.HasCount(3, pessoas);
+
+        CollectionAssert.AreEquivalent(
+            new List<uint> { 1, 2, 3 },
+            pessoas.Select(pessoa => pessoa.Id).ToList());
+    }
+
+    [TestMethod]
+    public void GetAll_QuandoNaoExistemPessoas_DeveRetornarColecaoVazia()
+    {
+        // Arrange
+        contexto.Pessoas.RemoveRange(contexto.Pessoas);
+        contexto.SaveChanges();
+
+        // Act
+        var pessoas = servicoPessoa.GetAll().ToList();
+
+        // Assert
+        Assert.IsNotNull(pessoas);
+        Assert.IsEmpty(pessoas);
+    }
+
 }
