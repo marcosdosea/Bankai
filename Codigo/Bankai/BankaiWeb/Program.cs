@@ -1,4 +1,6 @@
 using Core;
+using Core.Service;
+using Service;
 using Microsoft.EntityFrameworkCore;
 
 namespace BankaiWeb
@@ -15,6 +17,8 @@ namespace BankaiWeb
             // Mensagem de erro caso a connection string não seja encontrada
             var connectionString = builder.Configuration.GetConnectionString("BankaiDatabase")
             ?? throw new InvalidOperationException("Connection string 'BankaiDatabase' não encontrada.");
+
+            builder.Services.AddTransient<IDisponibilidadeService, DisponibilidadeService>();
 
             builder.Services.AddDbContext<BankaiContext>(options =>
                 options.UseMySQL(connectionString));
