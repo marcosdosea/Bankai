@@ -244,4 +244,54 @@ public class PessoaServiceTest
         Assert.IsEmpty(pessoas);
     }
 
+    [TestMethod]
+    public void GetByNome_QuandoExisteCorrespondencia_DeveRetornarPessoasCorrespondentes()
+    {
+        // Act
+        var pessoas = servicoPessoa.GetAllByName("João").ToList();
+
+        // Assert
+        Assert.HasCount(1, pessoas);
+        Assert.AreEqual("João Silva", pessoas[0].Nome);
+    }
+
+    [TestMethod]
+    public void GetByNome_QuandoNomeCorrespondeAoInicio_DeveRetornarTodasAsPessoasCorrespontes()
+    {
+        // Arrange
+        contexto.Pessoas.Add(new Pessoa
+        {
+            Id = 4,
+            CpfCnpj = "55566677788",
+            Nome = "Ana Lima",
+            Email = "analima@gmail.com",
+            Telefone = "79876543210",
+            EhProfissional = true,
+            Cep = "98765432",
+            Rua = "Rua D",
+            Bairro = "Bairro D",
+            Cidade = "Cidade D",
+            Estado = "Estado D",
+            NumeroCasa = "321",
+        });
+        contexto.SaveChanges();
+
+        // Act
+        var pessoas = servicoPessoa.GetAllByName("A").ToList();
+
+        // Assert
+        Assert.HasCount(1, pessoas);
+        Assert.IsTrue(pessoas.All(pessoa => pessoa.Nome.StartsWith("A")));
+    }
+
+    [TestMethod]
+    public void GetByNome_QuandoNaoExisteCorrespondencia_DeveRetornarColecaoVazia()
+    {
+        // Act
+        var pessoas = servicoPessoa.GetAllByName(string.Empty).ToList();
+        
+        // Assert
+        Assert.HasCount(3, pessoas); // Retorna todas as pessoas quando o nome é vazio
+    }
+
 }
