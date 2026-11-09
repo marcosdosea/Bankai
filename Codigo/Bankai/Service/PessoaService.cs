@@ -28,7 +28,7 @@ namespace Service
         }
         public void Delete(uint id)
         {
-            var pessoa = _context.Pessoas.Find(id);
+            var pessoa = _context.Pessoas.Find((int)id);
             if(pessoa != null)
             {
                 _context.Remove(pessoa);
@@ -37,7 +37,7 @@ namespace Service
         }
         public Pessoa get(uint id)
         {
-            return _context.Pessoas.Find(id);
+            return _context.Pessoas.Find((int)id);
         }
         public IEnumerable<Pessoa> GetAll()
         {
