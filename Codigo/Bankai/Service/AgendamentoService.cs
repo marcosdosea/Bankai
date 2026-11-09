@@ -86,6 +86,7 @@ public class AgendamentoService : IAgendamentoService
 
     public IEnumerable <AgendamentoDTO> GetAllByUser(int idPessoa)
     {
+        //retorna o DTO
         return _context.Agendamentos
         .Where(a => a.IdCliente == idPessoa || a.IdProfissional == idPessoa)
         .OrderByDescending(a => a.Id)
