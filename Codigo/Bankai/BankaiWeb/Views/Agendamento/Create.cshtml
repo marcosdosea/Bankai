@@ -26,9 +26,15 @@
             </div>
 
             <div class="form-group">
-                <label asp-for="DiaSemana" class="control-label"></label>
-                <input asp-for="DiaSemana" class="form-control" />
-                <span asp-validation-for="DiaSemana" class="text-danger"></span>
+                <select asp-for="DiaSemana" class="form-control">
+                    <option value="D">Domingo</option>
+                    <option value="SF">Segunda</option>
+                    <option value="TF">Terça</option>
+                    <option value="QF">Quarta</option>
+                    <option value="QIF">Quinta</option>
+                    <option value="SXF">Sexta</option>
+                    <option value="S">Sábado</option>
+                </select>
             </div>
 
             <div class="form-group">
@@ -50,22 +56,12 @@
             </div>
 
             <div class="form-group">
-                <label asp-for="TipoCobranca" class="control-label"></label>
-                <input asp-for="TipoCobranca" class="form-control" />
-                <span asp-validation-for="TipoCobranca" class="text-danger"></span>
+                <select asp-for="TipoCobranca" class="form-control">
+                    <option value="F">Fixo</option>
+                    <option value="O">Orçamento</option>
+                </select>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Nota" class="control-label"></label>
-                <input asp-for="Nota" class="form-control" />
-                <span asp-validation-for="Nota" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Comentario" class="control-label"></label>
-                <input asp-for="Comentario" class="form-control" />
-                <span asp-validation-for="Comentario" class="text-danger"></span>
-            </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>

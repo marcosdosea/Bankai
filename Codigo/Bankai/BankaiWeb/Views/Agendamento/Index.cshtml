@@ -33,12 +33,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.TipoCobranca)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Nota)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Comentario)
-            </th>
+            <td>
+                @Html.DisplayNameFor(model => model.StatusAgendamento)
+            </td>
             <th></th>
         </tr>
     </thead>
@@ -67,10 +64,7 @@
                 @Html.DisplayFor(model => item.TipoCobranca)
             </td>
             <td>
-                @Html.DisplayFor(model => item.Nota)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Comentario)
+                @Html.DisplayFor(model => item.StatusAgendamento)
             </td>
             <td>
                     @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |

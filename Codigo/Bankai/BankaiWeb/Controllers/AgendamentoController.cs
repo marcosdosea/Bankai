@@ -28,6 +28,10 @@ namespace BankaiWeb.Controllers
         public ActionResult Details(int id)
         {
             Agendamento agendamento = _agendamentoService.Get(id);
+            if(agendamento == null)
+            {
+                return NotFound();
+            }
             AgendamentoViewModel agendamentoModel = _mapper.Map<AgendamentoViewModel>(agendamento);
             return View(agendamentoModel);
         }
@@ -121,6 +125,14 @@ namespace BankaiWeb.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: AgendamentoController/Avaliar
+        public ActionResult Avaliar(int id)
+        {
+            Agendamento agendamento = _agendamentoService.Get(id);
+            AgendamentoViewModel agendamentoViewModel = _mapper.Map<AgendamentoViewModel>(agendamento);
+            return View(agendamentoViewModel);
         }
 
         // POST: AgendamentoController/Avaliar
