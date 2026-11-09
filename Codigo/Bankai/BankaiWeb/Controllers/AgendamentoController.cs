@@ -123,14 +123,6 @@ namespace BankaiWeb.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: AgendamentoController/Avaliar
-        public ActionResult Avaliar(int id)
-        {
-            Agendamento agendamento = _agendamentoService.Get(id);
-            AgendamentoViewModel agendamentoViewModel = _mapper.Map<AgendamentoViewModel>(agendamento);
-            return View(agendamentoViewModel);
-        }
-
         // POST: AgendamentoController/Avaliar
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -139,7 +131,7 @@ namespace BankaiWeb.Controllers
             if (string.IsNullOrEmpty(agendamentoViewModel.Nota) || ModelState["Nota"]?.Errors.Count > 0)
             {
                 ModelState.AddModelError("Nota", "Informe uma nota válida.");
-                return View(agendamentoViewModel);
+                return View("Details", agendamentoViewModel);
             }
 
             try
@@ -149,7 +141,7 @@ namespace BankaiWeb.Controllers
             catch (InvalidOperationException ex)
             {
                 ModelState.AddModelError("", ex.Message);
-                return View(agendamentoViewModel);
+                return View("Details", agendamentoViewModel);
             }
 
             return RedirectToAction(nameof(Index));
