@@ -6,11 +6,11 @@ namespace Core.Service
 {
     public interface IDisponibilidadeService
     {
-        uint Create(DisponibilidadeProfissional disponibilidade);
-        void Edit(DisponibilidadeProfissional disponibilidade);
+        uint Create(Disponibilidade disponibilidade);
+        void Edit(Disponibilidade disponibilidade);
         void Delete(uint id);
-        DisponibilidadeProfissional? Get(uint id);
-        IEnumerable<DisponibilidadeProfissional> GetAll();
-        bool Validar(DisponibilidadeProfissional disponibilidade);
+        Disponibilidade? Get(uint id);
+        IEnumerable<Disponibilidade> GetAll();
+        IEnumerable<Disponibilidade> GetByIdPessoa(uint idPessoa);
     }
 }
