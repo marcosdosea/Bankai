@@ -148,7 +148,7 @@ public class PessoaServiceTest
         var pessoasRestantes = servicoPessoa.GetAll().ToList();
 
         Assert.IsNull(pessoaDeletada);
-        Assert.HasCount(2, pessoasRestantes);
+        Assert.AreEqual(1, pessoasRestantes.Count);
         Assert.IsFalse(pessoasRestantes.Any(pessoa => pessoa.Id == 2));
     }
 
@@ -174,7 +174,7 @@ public class PessoaServiceTest
     public void Edit_QuandoPessoaExiste_DeveAtualizarDados()
     {
         // Arrange
-        var pessoaExistente = servicoPessoa.get(3);
+        var pessoaExistente = servicoPessoa.get(2);
 
         Assert.IsNotNull(pessoaExistente);
 
@@ -185,7 +185,7 @@ public class PessoaServiceTest
         servicoPessoa.Edit(pessoaExistente);
 
         // Assert
-        var pessoaAtualizada = servicoPessoa.get(3);
+        var pessoaAtualizada = servicoPessoa.get(2);
 
         Assert.IsNotNull(pessoaAtualizada);
         Assert.AreEqual("Carlos Oliveira Atualizado", pessoaAtualizada.Nome);
@@ -222,10 +222,10 @@ public class PessoaServiceTest
 
         // Assert
         Assert.IsNotNull(pessoas);
-        Assert.HasCount(3, pessoas);
+        Assert.HasCount(2, pessoas);
 
         CollectionAssert.AreEquivalent(
-            new List<uint> { 1, 2, 3 },
+            new List<int> { 1, 2 },
             pessoas.Select(pessoa => pessoa.Id).ToList());
     }
 
@@ -291,7 +291,7 @@ public class PessoaServiceTest
         var pessoas = servicoPessoa.GetAllByName(string.Empty).ToList();
         
         // Assert
-        Assert.HasCount(3, pessoas); // Retorna todas as pessoas quando o nome é vazio
+        Assert.AreEqual(2, pessoas.Count); // Retorna todas as pessoas quando o nome é vazio
     }
 
 }
