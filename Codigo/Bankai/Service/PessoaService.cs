@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Service
 {
-    internal class PessoaService : IPessoaService
+    public class PessoaService : IPessoaService
     {
 
         private readonly BankaiContext _context;
