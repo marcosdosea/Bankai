@@ -1,0 +1,98 @@
+﻿@model IEnumerable<BankaiWeb.Models.DisponibilidadeViewModel>
+
+@{
+    ViewData["Title"] = "Disponibilidade semanal";
+    var profissionalId = (uint)(ViewBag.IdPessoa ?? 1);
+    var dias = new[]
+    {
+        new { Sigla = "SF", Nome = "Segunda-feira" },
+        new { Sigla = "TF", Nome = "Terça-feira" },
+        new { Sigla = "QF", Nome = "Quarta-feira" },
+        new { Sigla = "QIF", Nome = "Quinta-feira" },
+        new { Sigla = "SXF", Nome = "Sexta-feira" },
+        new { Sigla = "S", Nome = "Sábado" },
+        new { Sigla = "D", Nome = "Domingo" }
+    };
+    var configuracoes = (Model ?? Enumerable.Empty<DisponibilidadeViewModel>())
+        .GroupBy(disponibilidade => disponibilidade.DiaSemana)
+        .ToDictionary(grupo => grupo.Key, grupo => grupo.First());
+}
+
+<div class="availability-page py-4">
+    <div class="card availability-card border-0 shadow-sm">
+        <div class="card-body p-3 p-md-4">
+            <h1 class="h6 fw-bold availability-title mb-2"><span>1.</span> Disponibilidade Semanal Recorrente</h1>
+            <p class="availability-description">Defina os dias e os intervalos de horas que você deseja trabalhar:</p>
+
+            <div asp-validation-summary="All" class="text-danger small mb-3" role="alert"></div>
+
+            <form asp-action="SalvarLote" asp-route-idPessoa="@profissionalId" method="post">
+                @for (var i = 0; i < dias.Length; i++)
+                {
+                    var dia = dias[i];
+                    configuracoes.TryGetValue(dia.Sigla, out var configDia);
+                    var isAtivo = configDia?.StatusDisponibilidade == "D";
+                    var horarioInicio = configDia?.HorarioInicio?.ToString(@"hh\:mm") ?? "08:00";
+                    var horarioFim = configDia?.HorarioFim?.ToString(@"hh\:mm") ?? (dia.Sigla == "S" ? "12:00" : "18:00");
+
+                    <section class="availability-day @(isAtivo ? "is-available" : "is-unavailable")">
+                        <input type="hidden" name="disponibilidades[@i].Id" value="@(configDia?.Id ?? 0)" />
+                        <input type="hidden" name="disponibilidades[@i].DiaSemana" value="@dia.Sigla" />
+                        <input type="hidden" name="disponibilidades[@i].IdPessoa" value="@profissionalId" />
+                        <input type="hidden" name="disponibilidades[@i].StatusDisponibilidade" id="status_@i" value="@(isAtivo ? "D" : "ND")" />
+
+                        <div class="availability-day-name">
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input availability-toggle" id="dia_@i" type="checkbox" role="switch" data-status-target="status_@i" data-row-target="linha_@i" checked="@(isAtivo ? "checked" : null)" />
+                                <label class="form-check-label fw-semibold" for="dia_@i">@dia.Nome</label>
+                            </div>
+                        </div>
+
+                        <label class="visually-hidden" for="inicio_@i">Horário de início - @dia.Nome</label>
+                        <input type="text" inputmode="numeric" autocomplete="off" maxlength="5" pattern="([01][0-9]|2[0-3]):[0-5][0-9]" id="inicio_@i" name="disponibilidades[@i].HorarioInicio" class="form-control availability-time" value="@horarioInicio" placeholder="08:00" required />
+                        <span class="availability-until">até</span>
+                        <label class="visually-hidden" for="fim_@i">Horário de término - @dia.Nome</label>
+                        <input type="text" inputmode="numeric" autocomplete="off" maxlength="5" pattern="([01][0-9]|2[0-3]):[0-5][0-9]" id="fim_@i" name="disponibilidades[@i].HorarioFim" class="form-control availability-time" value="@horarioFim" placeholder="18:00" required />
+                        <span class="availability-status" id="linha_@i">@(isAtivo ? "DISPONÍVEL" : "INDISPONÍVEL")</span>
+
+                        @if (configDia != null)
+                        {
+                            <div class="dropdown availability-actions">
+                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Ações para @dia.Nome">Ações</button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a asp-action="Details" asp-route-id="@configDia.Id" class="dropdown-item">Detalhes</a></li>
+                                    <li><a asp-action="Edit" asp-route-id="@configDia.Id" class="dropdown-item">Editar</a></li>
+                                    <li><a asp-action="Delete" asp-route-id="@configDia.Id" class="dropdown-item text-danger">Excluir</a></li>
+                                </ul>
+                            </div>
+                        }
+                    </section>
+                }
+
+                <button type="submit" class="btn availability-save w-100 fw-bold mt-2">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll(".availability-toggle").forEach(function (toggle) {
+            toggle.addEventListener("change", function () {
+                document.getElementById(this.dataset.statusTarget).value = this.checked ? "D" : "ND";
+                const row = this.closest(".availability-day");
+                const status = document.getElementById(this.dataset.rowTarget);
+                row.classList.toggle("is-available", this.checked);
+                row.classList.toggle("is-unavailable", !this.checked);
+                status.textContent = this.checked ? "DISPONÍVEL" : "INDISPONÍVEL";
+            });
+        });
+
+        document.querySelectorAll(".availability-time").forEach(function (input) {
+            input.addEventListener("input", function () {
+                const digits = this.value.replace(/\D/g, "").slice(0, 4);
+                this.value = digits.length > 2 ? digits.slice(0, 2) + ":" + digits.slice(2) : digits;
+            });
+        });
+    </script>
+}

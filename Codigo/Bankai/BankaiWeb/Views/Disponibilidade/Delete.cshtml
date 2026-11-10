@@ -1,0 +1,55 @@
+﻿@model BankaiWeb.Models.DisponibilidadeViewModel
+
+@{
+    ViewData["Title"] = "Excluir disponibilidade";
+    var diaSemana = Model.DiaSemana switch
+    {
+        "D" => "Domingo",
+        "SF" => "Segunda-feira",
+        "TF" => "Terça-feira",
+        "QF" => "Quarta-feira",
+        "QIF" => "Quinta-feira",
+        "SXF" => "Sexta-feira",
+        "S" => "Sábado",
+        _ => Model.DiaSemana
+    };
+    var status = Model.StatusDisponibilidade == "D" ? "Disponível" : "Não disponível";
+}
+
+<div class="container-fluid py-4">
+    <div class="mb-4">
+        <h1 class="h2 fw-bold mb-1">Excluir disponibilidade</h1>
+        <p class="text-muted mb-0">Confirme se deseja remover este horário.</p>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-3 p-md-4">
+            <div class="alert alert-warning" role="alert">
+                Esta ação não pode ser desfeita.
+            </div>
+
+            <dl class="row mb-4">
+                <dt class="col-sm-3">Profissional</dt>
+                <dd class="col-sm-9">@Model.IdPessoa</dd>
+
+                <dt class="col-sm-3">Dia da semana</dt>
+                <dd class="col-sm-9">@diaSemana</dd>
+
+                <dt class="col-sm-3">Horário de início</dt>
+                <dd class="col-sm-9">@Model.HorarioInicio?.ToString(@"hh\:mm")</dd>
+
+                <dt class="col-sm-3">Horário de término</dt>
+                <dd class="col-sm-9">@Model.HorarioFim?.ToString(@"hh\:mm")</dd>
+
+                <dt class="col-sm-3">Status</dt>
+                <dd class="col-sm-9">@status</dd>
+            </dl>
+
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-danger">Confirmar exclusão</button>
+                <a asp-action="Index" asp-route-idPessoa="@Model.IdPessoa" class="btn btn-outline-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>

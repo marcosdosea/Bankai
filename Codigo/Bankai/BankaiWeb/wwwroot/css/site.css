@@ -1,5 +1,7 @@
 html {
   font-size: 14px;
+  position: relative;
+  min-height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -8,17 +10,157 @@ html {
   }
 }
 
+body {
+  background-color: #f7f8fa;
+}
+
+.app-navbar {
+  min-height: 48px;
+  background-color: #fff;
+  border-bottom: 1px solid #e8eaed;
+}
+
+.app-navbar .navbar-brand,
+.app-navbar .nav-link {
+  color: #202124;
+}
+
+.app-navbar .nav-link:hover,
+.app-navbar .nav-link:focus {
+  color: #d97706;
+}
+
+.app-footer {
+  background-color: #fff;
+  border-top: 1px solid #e8eaed;
+  color: #6c757d;
+}
+
+.app-footer a {
+  color: inherit;
+}
+
+.availability-page {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.availability-card {
+  border: 1px solid #e8eaed !important;
+  border-radius: 0.65rem;
+}
+
+.availability-title {
+  color: #202124;
+  font-size: 0.95rem;
+}
+
+.availability-title span {
+  color: #d97706;
+  margin-right: 0.2rem;
+}
+
+.availability-description {
+  padding: 0.45rem 0 0.7rem;
+  margin-bottom: 0.8rem;
+  border-bottom: 1px solid #edf0f2;
+  color: #77808a;
+  font-size: 0.75rem;
+}
+
+.availability-day {
+  display: grid;
+  grid-template-columns: minmax(9rem, 1.1fr) minmax(5rem, 0.8fr) auto minmax(5rem, 0.8fr) minmax(6rem, auto) auto;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.55rem 0.7rem;
+  margin-bottom: 0.55rem;
+  border: 1px solid #e9ecef;
+  border-radius: 0.5rem;
+  background-color: #fff;
+}
+
+.availability-day.is-unavailable {
+  background-color: #f8f9fa;
+}
+
+.availability-day-name .form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  padding-left: 0;
+}
+
+.availability-day-name .form-check-input {
+  float: none;
+  flex: 0 0 auto;
+  width: 2.2em;
+  height: 1.15em;
+  margin: 0;
+  cursor: pointer;
+}
+
+.availability-day-name .form-check-input:checked {
+  background-color: #22c55e;
+  border-color: #22c55e;
+}
+
+.availability-day-name .form-check-label {
+  white-space: nowrap;
+  font-size: 0.78rem;
+}
+
+.availability-time {
+  min-width: 0;
+  height: 1.9rem;
+  padding: 0.2rem 0.35rem;
+  text-align: center;
+  font-size: 0.75rem;
+}
+
+.availability-until {
+  color: #8a929a;
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.availability-status {
+  color: #16a34a;
+  font-size: 0.61rem;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.is-unavailable .availability-status {
+  color: #90979e;
+}
+
+.availability-actions .dropdown-toggle {
+  padding: 0.15rem 0.35rem;
+  font-size: 0.65rem;
+}
+
+.availability-save {
+  min-height: 2.7rem;
+  color: #fff;
+  background-color: #df7900;
+  border-color: #df7900;
+  font-size: 0.78rem;
+}
+
+.availability-save:hover,
+.availability-save:focus {
+  color: #fff;
+  background-color: #c96d00;
+  border-color: #c96d00;
+}
+
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
-body {
-  margin-bottom: 60px;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -28,4 +170,23 @@ body {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
+}
+
+@media (max-width: 767.98px) {
+  .availability-day {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    row-gap: 0.6rem;
+  }
+
+  .availability-day-name {
+    grid-column: 1 / -1;
+  }
+
+  .availability-status {
+    text-align: left;
+  }
+
+  .availability-actions {
+    justify-self: end;
+  }
 }
