@@ -106,8 +106,7 @@ public class AgendamentoService : IAgendamentoService
             HorarioFim = a.HorarioFim,
             Nota = a.Nota,
             Comentario = a.Comentario
-        })
-        .ToList();
+        });
     }
 
     public async Task Validar(Agendamento agendamento)
