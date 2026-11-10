@@ -89,14 +89,16 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
         function selecionarTipo(isProfissional) {
-            document.getElementById('hdnEhProfissional').value = EhProfissional;
+            // Atualiza o valor do campo oculto do modelo
+            document.getElementById('hdnIsprofessional').value = isProfissional;
+
             const btnC = document.getElementById('btnContratar');
             const btnT = document.getElementById('btnTrabalhar');
             const lblCpf = document.getElementById('lblCpfCnpj');
             const divEsp = document.getElementById('divEspecialidade');
             const divEmail = document.getElementById('divEmail');
 
-            if (EhProfissional) {
+            if (isProfissional) {
                 btnT.classList.add('active');
                 btnC.classList.remove('active');
                 lblCpf.innerText = 'CPF/CNPJ';
