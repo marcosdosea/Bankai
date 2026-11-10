@@ -1,0 +1,80 @@
+﻿@model IEnumerable<BankaiWeb.Models.PessoaViewModel>
+
+@{
+    ViewData["Title"] = "Gestão de Pessoas";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Gestão de Pessoas</h1>
+    <p class="mb-0">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Cadastrar Nova Pessoa
+        </a>
+    </p>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Nome)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CpfCnpj)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EhProfissional)
+            </th>
+            <th class="text-center">Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Nome)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CpfCnpj)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Email)
+                    </td>
+                    <td>
+                        @if (item.EhProfissional)
+                        {
+                            <span class="badge bg-success">Sim</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Não</span>
+                        }
+                    </td>
+                    <td class="text-center">
+                        <a asp-action="Edit" asp-route-id="@item.id" class="btn btn-sm btn-warning">Editar</a> |
+                        <a asp-action="Details" asp-route-id="@item.id" class="btn btn-sm btn-info text-white">Detalhes</a> |
+                        <a asp-action="Delete" asp-route-id="@item.id" class="btn btn-sm btn-danger">Excluir</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center text-muted">Nenhuma pessoa cadastrada.</td>
+            </tr>
+        }
+    </tbody>
+</table>

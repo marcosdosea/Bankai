@@ -1,7 +1,7 @@
-using Core;
 using Core.Service;
 using Service;
 using Microsoft.EntityFrameworkCore;
+using Core;
 
 namespace BankaiWeb
 {
@@ -22,6 +22,9 @@ namespace BankaiWeb
 
             builder.Services.AddDbContext<BankaiContext>(options =>
                 options.UseMySQL(connectionString));
+
+            // Registro da Injeção de Dependência do caso de uso Manter Pessoa
+            builder.Services.AddScoped<IPessoaService, PessoaService>();
 
             var app = builder.Build();
 
