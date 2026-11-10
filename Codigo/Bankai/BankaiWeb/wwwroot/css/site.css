@@ -1,31 +1,1043 @@
-html {
-  font-size: 14px;
+/* --- 1. VARIÁVEIS DO SISTEMA E PALETA DE CORES --- */
+:root {
+    /* Brand Tokens (Design System Bankai) */
+    --bankai-orange: #d97706;
+    --bankai-orange-hover: #b45309;
+    --bankai-bg: #f8f9fa;
+    --bankai-card-bg: #ffffff;
+    --bankai-input-bg: #f8f9fa;
+    /* Theme Tokens */
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #ffffff;
+    --bg-card: #ffffff;
+    --text-main: #1c1e21;
+    --text-muted: #65676b;
+    --accent-color: #d97706;
+    --accent-hover: #b45309;
+    --accent-light: #fffbeb;
+    --accent-border-light: #fef3c7;
+    --border-color: #e4e6eb;
+    --border-hover: #cbd5e1;
+    --status-success: #16a34a;
+    --status-success-bg: #f0fdf4;
+    --status-success-border: #86efac;
+    --status-alert: #dc2626;
+    --status-alert-bg: #fef2f2;
+    --status-info: #2563eb;
+    --status-info-bg: #eff6ff;
+    --status-info-border: #bfdbfe;
+    --status-escrow: #2563eb;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.02);
+    --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-full: 9999px;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+/* --- 2. RESET E ESTILOS BASE  --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
 body {
-  margin-bottom: 60px;
+    background-color: var(--bg-primary);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+a {
+    color: inherit;
+    text-decoration: none;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+button, input, select, textarea {
+    font-family: inherit;
+}
+
+/* --- 3. COMPONENTES DO DESIGN SYSTEM BANKAI --- */
+.bankai-card {
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    padding: 2.5rem;
+}
+
+.btn-bankai {
+    background-color: var(--accent-color);
+    color: #ffffff;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 12px 20px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+    .btn-bankai:hover {
+        background-color: var(--accent-hover);
+        color: #ffffff;
+    }
+
+.bankai-toggle-btn {
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    color: var(--text-muted);
+    background-color: var(--bg-primary);
+    border: 1px solid transparent;
+}
+
+    .bankai-toggle-btn.active {
+        background-color: #ffffff;
+        color: var(--accent-color);
+        border-color: var(--border-color);
+        box-shadow: var(--shadow-sm);
+    }
+
+.bankai-input-group .input-group-text {
+    background-color: var(--bg-primary);
+    border-right: none;
+    color: var(--accent-color);
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    border-color: var(--border-color);
+}
+
+.bankai-input-group .form-control,
+.bankai-input-group .form-select {
+    background-color: var(--bg-primary);
+    border-left: none;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    border-color: var(--border-color);
+}
+
+    .bankai-input-group .form-control:focus,
+    .bankai-input-group .form-select:focus {
+        background-color: #ffffff;
+        box-shadow: none;
+        border-color: var(--accent-color);
+    }
+
+/* --- 4. NAVBAR E NAVEGAÇÃO SUPERIOR --- */
+.navbar {
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-main);
+}
+
+    .logo span {
+        color: var(--accent-color);
+    }
+
+.btn-back {
+    color: var(--text-muted);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.2s ease;
+}
+
+    .btn-back:hover {
+        color: var(--accent-color);
+    }
+
+/* --- 5. ESTRUTURAS DE LAYOUT E CONTAINER --- */
+.execution-container,
+.results-container,
+.manage-container {
+    max-width: 1300px;
+    margin: 2.5rem auto;
+    padding: 0 2rem;
+    width: 100%;
+}
+
+.execution-container {
+    display: grid;
+    grid-template-columns: 1fr 450px;
+    gap: 2rem;
+}
+
+.results-container {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2.5rem;
+}
+
+.manage-container {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 2.5rem;
+}
+
+/* --- 6. CARDS E PAINÉIS REUTILIZÁVEIS --- */
+.exec-card,
+.client-info-card,
+.chat-box-card,
+.filters-sidebar,
+.sidebar-card,
+.main-services-panel,
+.pro-card,
+.results-header-banner {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.exec-card,
+.main-services-panel {
+    padding: 2rem;
+}
+
+.client-info-card,
+.chat-box-card,
+.filters-sidebar,
+.sidebar-card,
+.results-header-banner {
+    padding: 1.5rem;
+}
+
+.pro-card {
+    padding: 1.5rem;
+}
+
+/* --- 7. FORMULÁRIOS, INPUTS E SELETORES --- */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+}
+
+    .form-group label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-group select,
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group input[type="email"] {
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        padding: 0.75rem 1rem;
+        border-radius: var(--radius-sm);
+        color: var(--text-main);
+        outline: none;
+        font-size: 0.9rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+        }
+
+/* --- 8. BOTÕES E AÇÕES --- */
+.btn-workflow,
+.btn-select-pro,
+.btn-save-catalog-changes,
+.btn-link-new {
+    background-color: var(--accent-color);
+    color: #ffffff;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+    .btn-workflow:hover,
+    .btn-select-pro:hover,
+    .btn-save-catalog-changes:hover,
+    .btn-link-new:hover {
+        background-color: var(--accent-hover);
+    }
+
+.btn-view-profile {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+    .btn-view-profile:hover {
+        color: var(--accent-color);
+    }
+
+.btn-add-specialty {
+    width: 100%;
+    background-color: var(--bg-primary);
+    border: 1px dashed var(--border-hover);
+    color: var(--text-main);
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+    .btn-add-specialty:hover {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+        background-color: var(--accent-light);
+    }
+
+/* --- 9. LINHA DE TEMPO E STATUS --- */
+.main-execution-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.status-timeline {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+}
+
+    .status-timeline::before {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: 2rem;
+        right: 2rem;
+        height: 2px;
+        background-color: var(--border-color);
+        z-index: 1;
+    }
+
+.timeline-progress-bar {
+    position: absolute;
+    top: 15px;
+    left: 2rem;
+    width: 35%;
+    height: 2px;
+    background-color: var(--status-success);
+    z-index: 1;
+    transition: width 0.4s ease;
+}
+
+.timeline-node {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.node-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.timeline-node.active .node-dot {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    box-shadow: 0 0 10px rgba(217, 119, 6, 0.2);
+}
+
+.timeline-node.completed .node-dot {
+    border-color: var(--status-success);
+    background-color: var(--status-success);
+    color: #ffffff;
+}
+
+.timeline-node.completed {
+    color: var(--status-success);
+}
+
+.action-control-box {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.evidence-upload-zone {
+    display: none;
+    border: 2px dashed var(--status-success);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    background-color: var(--status-success-bg);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* --- 10. SIDEBAR DO CLIENTE E CHAT --- */
+.sidebar-execution-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.info-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1rem;
+}
+
+.client-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+}
+
+    .client-meta .avatar-placeholder {
+        width: 48px;
+        height: 48px;
+        background-color: var(--bg-primary);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        border: 1px solid var(--border-color);
+        color: var(--accent-color);
+    }
+
+.route-map-box {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    height: 150px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+    .route-map-box:hover {
+        border-color: var(--accent-color);
+    }
+
+.chat-box-card {
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+    padding-right: 0.3rem;
+}
+
+.msg {
+    max-width: 80%;
+    padding: 0.6rem 0.8rem;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+    .msg.client {
+        background-color: var(--bg-primary);
+        color: var(--text-main);
+        align-self: flex-start;
+        border: 1px solid var(--border-color);
+    }
+
+    .msg.pro {
+        background-color: var(--accent-light);
+        border: 1px solid var(--accent-border-light);
+        color: var(--text-main);
+        align-self: flex-end;
+    }
+
+.chat-input-wrapper {
+    display: flex;
+    gap: 0.5rem;
+}
+
+    .chat-input-wrapper input {
+        flex: 1;
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        padding: 0.6rem 1rem;
+        color: var(--text-main);
+        outline: none;
+        font-size: 0.85rem;
+        transition: border-color 0.2s ease;
+    }
+
+        .chat-input-wrapper input:focus {
+            border-color: var(--accent-color);
+        }
+
+.btn-send-chat {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--accent-color);
+    padding: 0 1rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    .btn-send-chat:hover {
+        border-color: var(--accent-color);
+        background-color: var(--accent-light);
+    }
+
+/* --- 11. LISTAGEM DE PROFISSIONAIS E FILTROS --- */
+.results-header-banner {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.banner-info h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+    color: var(--text-main);
+}
+
+.banner-info p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.badge-selected-service {
+    background-color: var(--accent-light);
+    color: var(--accent-color);
+    border: 1px solid var(--accent-border-light);
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.filters-sidebar {
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.filter-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+    .filter-group label.option-check {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 0.9rem;
+        color: var(--text-main);
+        cursor: pointer;
+    }
+
+    .filter-group input[type="checkbox"],
+    .filter-group input[type="radio"] {
+        accent-color: var(--accent-color);
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+.range-slider-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+    .range-slider-box input[type="range"] {
+        width: 100%;
+        accent-color: var(--accent-color);
+    }
+
+.pros-list-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.pro-card {
+    display: grid;
+    grid-template-columns: 90px 1fr 220px;
+    gap: 1.5rem;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+    .pro-card:hover {
+        border-color: var(--accent-color);
+        box-shadow: var(--shadow-lg);
+    }
+
+.pro-avatar-box {
+    width: 80px;
+    height: 80px;
+    background-color: var(--bg-primary);
+    border: 2px solid var(--accent-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    color: var(--accent-color);
+    margin: 0 auto;
+}
+
+.pro-main-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.pro-name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+    .pro-name-row h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+.badge-verified {
+    background-color: var(--status-success-bg);
+    color: var(--status-success);
+    border: 1px solid var(--status-success-border);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    text-transform: uppercase;
+}
+
+.pro-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.stars-gold {
+    color: var(--accent-color);
+    font-size: 0.8rem;
+}
+
+.pro-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.3rem;
+}
+
+.tag-item {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+}
+
+.pro-action-col {
+    border-left: 1px solid var(--border-color);
+    padding-left: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.6rem;
+    text-align: right;
+}
+
+.pro-price {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--status-success);
+}
+
+    .pro-price span {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        display: block;
+        font-weight: 400;
+    }
+
+/* --- 12. GERENCIAMENTO DE SERVIÇOS E ESPECIALIDADES --- */
+.specialties-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.6rem;
+    color: var(--text-main);
+}
+
+    .section-title span {
+        color: var(--accent-color);
+    }
+
+.specialties-chips-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.chip {
+    background-color: var(--accent-light);
+    border: 1px solid var(--accent-border-light);
+    color: var(--accent-color);
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+    .chip .btn-remove-chip {
+        background: transparent;
+        border: none;
+        color: var(--accent-color);
+        cursor: pointer;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+    }
+
+        .chip .btn-remove-chip:hover {
+            color: var(--status-alert);
+        }
+
+.metric-mini-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.85rem;
+}
+
+    .metric-mini-row:last-child {
+        border-bottom: none;
+    }
+
+    .metric-mini-row span.lbl {
+        color: var(--text-muted);
+    }
+
+    .metric-mini-row span.val {
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+.main-services-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.panel-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+    .panel-header-actions h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+.services-manage-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.service-manage-card {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.25rem;
+    display: grid;
+    grid-template-columns: 1fr 180px 120px;
+    gap: 1.5rem;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+    .service-manage-card:hover {
+        border-color: var(--border-hover);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    }
+
+.service-meta h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.2rem;
+}
+
+.service-meta p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.3;
+}
+
+.service-price-edit {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+    .service-price-edit label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+    }
+
+.price-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+    .price-input-wrapper span {
+        position: absolute;
+        left: 0.6rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-muted);
+    }
+
+    .price-input-wrapper input {
+        width: 100%;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        padding: 0.4rem 0.5rem 0.4rem 2rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--status-success);
+        outline: none;
+    }
+
+        .price-input-wrapper input:focus {
+            border-color: var(--accent-color);
+        }
+
+/* TOGGLE SWITCH DE ATIVAÇÃO */
+.service-toggle-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e4e6eb;
+    transition: .3s ease;
+    border-radius: 24px;
+    border: 1px solid var(--border-color);
+}
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #ffffff;
+        transition: .3s ease;
+        border-radius: 50%;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+input:checked + .slider {
+    background-color: #dcfce7;
+    border-color: var(--status-success);
+}
+
+    input:checked + .slider:before {
+        transform: translateX(20px);
+        background-color: var(--status-success);
+    }
+
+.status-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+    .status-tag.active {
+        color: var(--status-success);
+    }
+
+    .status-tag.inactive {
+        color: var(--text-muted);
+    }
+
+/* --- 13. RESPONSIVIDADE UNIVERSAL --- */
+@media (max-width: 992px) {
+    .execution-container,
+    .results-container,
+    .manage-container {
+        grid-template-columns: 1fr;
+    }
+
+    .pro-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .pro-avatar-box {
+        margin-bottom: 0.5rem;
+    }
+
+    .pro-name-row,
+    .pro-rating-row,
+    .pro-tags {
+        justify-content: center;
+    }
+
+    .pro-action-col {
+        border-left: none;
+        padding-left: 0;
+        border-top: 1px solid var(--border-color);
+        padding-top: 1rem;
+        align-items: center;
+        text-align: center;
+    }
+
+    .service-manage-card {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .service-toggle-col {
+        align-items: flex-start;
+    }
 }
