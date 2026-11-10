@@ -88,13 +88,17 @@ namespace BankaiWeb.Controllers
             return View(pessoaViewModel);
         }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(PessoaViewModel pessoaViewModel)
+        public ActionResult DeleteConfirmed(uint id)
         {
-            _pessoaService.Delete(pessoaViewModel.Codigo);
+            var pessoa = _pessoaService.get(id);
+            if (pessoa == null)
+            {
+                return NotFound();
+            }
+            _pessoaService.Delete(id);
             return RedirectToAction(nameof(Index));
         }
-
     }
 }
