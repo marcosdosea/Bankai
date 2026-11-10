@@ -44,6 +44,7 @@ public class AgendamentoService : IAgendamentoService
         atual.DescricaoServico = agendamento.DescricaoServico;
         atual.TipoCobranca = agendamento.TipoCobranca;
 
+        Validar(atual).Wait();
         _context.SaveChanges();
     }
 
@@ -111,7 +112,15 @@ public class AgendamentoService : IAgendamentoService
 
     public async Task Validar(Agendamento agendamento)
     {
-        // Regra 1: profissional disponível nesse dia/horário
+        // Regra 1: cliente e profissional não podem ser a mesma pessoa
+        if (agendamento.IdCliente == agendamento.IdProfissional)
+            throw new InvalidOperationException("Cliente e profissional não podem ser a mesma pessoa.");
+
+        // Regra 2: horário final maior que inicial
+        if (agendamento.HorarioFim <= agendamento.HorarioInicio)
+            throw new InvalidOperationException("O horário final deve ser maior que o inicial.");
+
+        // Regra 3: profissional disponível nesse dia/horário
         var disponivel = await _context.Disponibilidades.AnyAsync(d =>
             d.IdPessoa == agendamento.IdProfissional &&
             d.DiaSemana == agendamento.DiaSemana &&
@@ -122,8 +131,9 @@ public class AgendamentoService : IAgendamentoService
         if (!disponivel)
             throw new InvalidOperationException("Profissional indisponível neste dia/horário.");
 
-        // Regra 2: conflito com outro agendamento
+        // Regra 4: conflito com outro agendamento
         var conflito = await _context.Agendamentos.AnyAsync(a =>
+            a.Id != agendamento.Id &&
             a.DiaSemana == agendamento.DiaSemana &&
             a.StatusAgendamento != Cancelado &&
             (a.IdProfissional == agendamento.IdProfissional || a.IdCliente == agendamento.IdCliente) &&
@@ -132,7 +142,6 @@ public class AgendamentoService : IAgendamentoService
 
         if (conflito)
             throw new InvalidOperationException("Já existe um agendamento neste horário.");
-
     }
 
     // ---------- auxiliares ----------
