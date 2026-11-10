@@ -1,31 +1,29 @@
 ﻿@model BankaiWeb.Models.EspecialidadeViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Nova Especialidade";
 }
 
-<h1>Create</h1>
+<div class="manage-container" style="grid-template-columns: 1fr; max-width: 600px;">
+    <div class="bankai-card">
+        <h3 class="section-title"><span>➕</span> Nova Especialidade</h3>
+        <p class="text-muted mb-4">Informe o nome para adicionar uma nova especialidade ao catálogo.</p>
 
-<h4>EspecialidadeViewModel</h4>
-<hr />
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-<div class="row">
-    div class="col-md-4">
-    <form asp-action="Create">
-        <div> asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <div class="form-group">
-            <label asp-for="Nome" class="control-label"></label>
-            <input asp-for="Nome" class="form-control" />
-            <span asp-validation-for="Nome" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <input type="submit" value="Create" class="btn btn-primary" />
-        </div>
-    </form>
-</div>
+            <div class="form-group mb-4">
+                <label asp-for="Nome"></label>
+                <input asp-for="Nome" placeholder="Ex: Manutenção Elétrica" />
+                <span asp-validation-for="Nome" class="text-danger"></span>
+            </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <a asp-action="Index" class="btn-view-profile">← Voltar para a lista</a>
+                <button type="submit" class="btn-bankai">Salvar Especialidade</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 @section Scripts {
