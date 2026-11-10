@@ -18,6 +18,8 @@ namespace BankaiWeb
             var connectionString = builder.Configuration.GetConnectionString("BankaiDatabase")
             ?? throw new InvalidOperationException("Connection string 'BankaiDatabase' não encontrada.");
 
+            builder.Services.AddTransient<IEspecialidadeService, EspecialidadeService>();
+
             builder.Services.AddDbContext<BankaiContext>(options =>
                 options.UseMySQL(connectionString));
 
