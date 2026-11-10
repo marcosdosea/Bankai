@@ -4,7 +4,7 @@ namespace BankaiWeb.Models
     public class PessoaViewModel
     {
         [Display(Name = "Código")]
-        public int Codigo { get; set; }
+        public uint id { get; set; }
 
         [Required(ErrorMessage = "O campo CPF/CNPJ é obrigatório.")]
         [StringLength(14, MinimumLength = 11, ErrorMessage = "O campo CPF/CNPJ deve ter entre 11 e 14 caracteres.")]
@@ -51,11 +51,11 @@ namespace BankaiWeb.Models
 
         [StringLength(10, ErrorMessage = "O campo Número da Casa deve ter no máximo 10 caracteres.")]
         [Display(Name = "Número da Casa")]
-        public string NumeroDaCasa { get; set; } = string.Empty;
+        public string NumeroCasa { get; set; } = string.Empty;
 
         public string GetEnderecoCompleto()
         {
-            return $"{Rua}, {NumeroDaCasa} - {Bairro}, {Cidade} - {Estado}, CEP: {Cep}";
+            return $"{Rua}, {NumeroCasa} - {Bairro}, {Cidade} - {Estado}, CEP: {Cep}";
         }
     }
 }
