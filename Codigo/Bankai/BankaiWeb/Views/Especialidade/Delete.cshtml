@@ -1,0 +1,24 @@
+﻿@model BankaiWeb.Models.EspecialidadeViewModel
+
+@{
+    ViewData["Title"] = "Excluir Especialidade";
+}
+
+<div class="manage-container" style="grid-template-columns: 1fr; max-width: 600px;">
+    <div class="bankai-card border-danger">
+        <h3 class="section-title text-danger"><span>⚠️</span> Confirmar Exclusão</h3>
+        <p class="text-muted mb-4">Tem certeza de que deseja remover esta especialidade? Esta ação não poderá ser desfeita.</p>
+
+        <div class="mb-4">
+            <span class="chip fs-6">@Model.Nome</span>
+        </div>
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+                <a asp-action="Index" class="btn-view-profile">← Cancelar</a>
+                <button type="submit" class="btn btn-danger btn-bankai" style="background-color: var(--status-alert);">Confirmar Exclusão</button>
+            </div>
+        </form>
+    </div>
+</div>
