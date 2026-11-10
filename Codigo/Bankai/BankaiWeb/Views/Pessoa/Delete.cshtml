@@ -1,4 +1,4 @@
-﻿@model BankaiWEB.Models.PessoaViewModel
+﻿@model BankaiWeb.Models.PessoaViewModel
 
 @{
     ViewData["Title"] = "Excluir Pessoa";
@@ -28,7 +28,7 @@
                 </div>
                 <div class="row mb-2">
                     <div class="col-sm-4 text-muted small fw-bold">CPF/CNPJ</div>
-                    <div class="col-sm-8">@Model.Cpfcnpj</div>
+                    <div class="col-sm-8">@Model.CpfCnpj</div>
                 </div>
                 <div class="row">
                     <div class="col-sm-4 text-muted small fw-bold">EMAIL</div>
@@ -37,7 +37,7 @@
             </div>
 
             <form asp-action="Delete">
-                <input type="hidden" asp-for="Codigo" />
+                <input type="hidden" asp-for="id" />
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-danger flex-grow-1 py-3 font-weight-bold">Sim, Excluir</button>
                     <a asp-action="Index" class="btn btn-outline-secondary py-3 px-4 rounded-3">Cancelar</a>
