@@ -44,6 +44,7 @@ public class AgendamentoService : IAgendamentoService
         atual.DescricaoServico = agendamento.DescricaoServico;
         atual.TipoCobranca = agendamento.TipoCobranca;
 
+        Validar(atual).Wait();
         _context.SaveChanges();
     }
 
