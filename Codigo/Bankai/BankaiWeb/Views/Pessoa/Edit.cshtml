@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-6">
-        <form asp-action="Edit">
+        <form asp-action="Edit" asp-route-id="@Model.id" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
             <!-- Campo oculto essencial para manter o ID no POST -->

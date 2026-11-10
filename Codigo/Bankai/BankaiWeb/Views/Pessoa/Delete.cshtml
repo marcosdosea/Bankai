@@ -47,7 +47,7 @@
         </dd>
     </dl>
 
-    <form asp-action="Delete">
+    <form asp-action="Delete" asp-route-id="@Model.id" method="post">
         <input type="hidden" asp-for="id" />
         <input type="submit" value="Confirmar Exclusão" class="btn btn-danger" /> |
         <a asp-action="Index" class="btn btn-secondary">Voltar para a Lista</a>

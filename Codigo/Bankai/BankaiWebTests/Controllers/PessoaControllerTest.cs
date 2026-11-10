@@ -52,6 +52,7 @@ public class PessoaControllerTests
         var primeiraPessoa = pessoas.First();
 
         Assert.AreEqual("João Silva", primeiraPessoa.Nome);
+        Assert.AreEqual((uint)1, primeiraPessoa.id);
 
         pessoaServiceMock.Verify(
             service => service.GetAll(),
@@ -93,6 +94,7 @@ public class PessoaControllerTests
             viewResult.ViewData.Model);
 
         Assert.AreEqual("João Silva", pessoa.Nome);
+        Assert.AreEqual((uint)1, pessoa.id);
         Assert.AreEqual("12345678910", pessoa.CpfCnpj);
         Assert.AreEqual("joaosilva@gmail.com", pessoa.Email);
 
@@ -223,6 +225,7 @@ public class PessoaControllerTests
         VerificarRedirecionamentoParaIndex(resultado);
 
         Assert.IsNotNull(pessoaEditada);
+        Assert.AreEqual((int)modelo.id, pessoaEditada.Id);
         Assert.AreEqual(modelo.Nome, pessoaEditada.Nome);
         Assert.AreEqual(modelo.CpfCnpj, pessoaEditada.CpfCnpj);
 

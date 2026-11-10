@@ -90,6 +90,7 @@ namespace BankaiWeb.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ActionName(nameof(Delete))]
         public ActionResult DeleteConfirmed(uint id)
         {
             var pessoa = _pessoaService.get(id);
