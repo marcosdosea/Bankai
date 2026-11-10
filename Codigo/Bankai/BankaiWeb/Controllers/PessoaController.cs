@@ -64,7 +64,7 @@ namespace BankaiWeb.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(uint id, PessoaViewModel pessoaViewModel)
         {
-            if (id != pessoaViewModel.Codigo)
+            if (id != pessoaViewModel.id)
             {
                 return BadRequest();
             }
