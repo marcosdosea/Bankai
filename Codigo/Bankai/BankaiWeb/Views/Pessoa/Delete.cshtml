@@ -1,0 +1,55 @@
+﻿@model BankaiWeb.Models.PessoaViewModel
+
+@{
+    ViewData["Title"] = "Excluir Pessoa";
+}
+
+<h1 class="text-danger">Excluir Cadastro</h1>
+
+<h3>Tem certeza de que deseja excluir esta pessoa?</h3>
+<div>
+    <h4>PessoaViewModel</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.id)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.id)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Nome)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Nome)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.CpfCnpj)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.CpfCnpj)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.EhProfissional)
+        </dt>
+        <dd class="col-sm-9">
+            @(Model.EhProfissional ? "Sim" : "Não")
+        </dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="id" />
+        <input type="submit" value="Confirmar Exclusão" class="btn btn-danger" /> |
+        <a asp-action="Index" class="btn btn-secondary">Voltar para a Lista</a>
+    </form>
+</div>
