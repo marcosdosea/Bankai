@@ -1,4 +1,4 @@
-﻿@model BankaiWEB.Models.PessoaViewModel
+﻿@model BankaiWeb.Models.PessoaViewModel
 
 @{
     ViewData["Title"] = "Editar Pessoa";
@@ -17,7 +17,7 @@
 
             <form asp-action="Edit">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-                <input type="hidden" asp-for="Codigo" />
+                <input type="hidden" asp-for="id" />
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
@@ -30,12 +30,12 @@
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label asp-for="Cpfcnpj" class="form-label text-muted small fw-bold">CPF/CNPJ</label>
+                        <label asp-for="CpfCnpj" class="form-label text-muted small fw-bold">CPF/CNPJ</label>
                         <div class="input-group bankai-input-group">
                             <span class="input-group-text"><i class="bi bi-fingerprint"></i></span>
-                            <input asp-for="Cpfcnpj" class="form-control" />
+                            <input asp-for="CpfCnpj" class="form-control" />
                         </div>
-                        <span asp-validation-for="Cpfcnpj" class="text-danger small"></span>
+                        <span asp-validation-for="CpfCnpj" class="text-danger small"></span>
                     </div>
                 </div>
 
@@ -51,7 +51,7 @@
                 </div>
 
                 <div class="form-check form-switch mb-4 mt-2">
-                    <input class="form-check-input" type="checkbox" asp-for="Isprofessional" id="chkProf">
+                    <input class="form-check-input" type="checkbox" asp-for="EhProfissional" id="chkProf">
                     <label class="form-check-label fw-bold text-muted" for="chkProf">Perfil Profissional (Quero Trabalhar)</label>
                 </div>
 
