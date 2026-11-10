@@ -1,0 +1,39 @@
+@model IEnumerable<BankaiWeb.Models.OrcamentoViewModel>
+
+@{
+    ViewData["Title"] = "Orçamentos";
+}
+
+<h1>Ordens de Serviço para Orçamento</h1>
+<p class="text-muted">Chamados que exigem proposta de valor conforme RN01 e CSU11.</p>
+
+<table class="table table-striped table-hover mt-3">
+    <thead>
+        <tr>
+            <th>Ordem</th>
+            <th>Cliente</th>
+            <th>Serviço</th>
+            <th>Descrição Solicitada</th>
+            <th>Valor Orçado (R$)</th>
+            <th>Repasse Líquido (85%)</th>
+            <th>Ação</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>#BKS-@item.IdAgendamento</td>
+            <td>@item.NomeCliente</td>
+            <td>@item.NomeServico</td>
+            <td>@item.DescricaoServico</td>
+            <td>@(item.ValorProposto > 0 ? item.ValorProposto.ToString("C") : "Aguardando Proposta")</td>
+            <td>@(item.ValorLiquido > 0 ? item.ValorLiquido.ToString("C") : "-")</td>
+            <td>
+                <a asp-action="Orcar" asp-route-idAgendamento="@item.IdAgendamento" asp-route-idServico="@item.IdServico" class="btn btn-sm btn-warning">Orçar</a>
+                <a asp-action="Details" asp-route-idAgendamento="@item.IdAgendamento" asp-route-idServico="@item.IdServico" class="btn btn-sm btn-info">Detalhes</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+

@@ -1,0 +1,43 @@
+@model BankaiWeb.Models.OrcamentoViewModel
+
+@{
+    ViewData["Title"] = "Detalhes do Orçamento";
+}
+
+<h1>Detalhes do Orçamento</h1>
+<h4>Ordem #BKS-@Model.IdAgendamento</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <dl class="row">
+            <dt class="col-sm-4">Cliente:</dt>
+            <dd class="col-sm-8">@Model.NomeCliente</dd>
+
+            <dt class="col-sm-4">Profissional:</dt>
+            <dd class="col-sm-8">@Model.NomeProfissional</dd>
+
+            <dt class="col-sm-4">Serviço:</dt>
+            <dd class="col-sm-8">@Model.NomeServico</dd>
+
+            <dt class="col-sm-4">Descrição:</dt>
+            <dd class="col-sm-8">@Model.DescricaoServico</dd>
+        </dl>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card p-3 border-success">
+            <h5>Cálculo Financeiro (RN01)</h5>
+            <hr />
+            <p><strong>Orçamento Bruto:</strong> @Model.ValorProposto.ToString("C")</p>
+            <p class="text-danger"><strong>Taxa Bankai (15%):</strong> - @Model.TaxaPlataforma.ToString("C")</p>
+            <h5 class="text-success"><strong>Repasse Líquido (85%):</strong> @Model.ValorLiquido.ToString("C")</h5>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a asp-action="Orcar" asp-route-idAgendamento="@Model.IdAgendamento" asp-route-idServico="@Model.IdServico" class="btn btn-warning">Editar Proposta</a>
+    <a asp-action="Index" class="btn btn-secondary">Voltar para a Lista</a>
+</div>
+

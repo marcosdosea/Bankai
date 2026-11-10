@@ -1,0 +1,55 @@
+@model BankaiWeb.Models.OrcamentoViewModel
+
+@{
+    ViewData["Title"] = "Orçar Serviço";
+}
+
+<h1>Orçar Serviço</h1>
+<h4>Ordem #BKS-@Model.IdAgendamento - @Model.NomeServico</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-7">
+        <form asp-action="Orcar">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="IdAgendamento" />
+            <input type="hidden" asp-for="IdServico" />
+
+            <div class="card mb-3 p-3 bg-light">
+                <h6>Dados do Chamado</h6>
+                <p class="mb-1"><strong>Cliente:</strong> @Model.NomeCliente</p>
+                <p class="mb-1"><strong>Serviço Solicitado:</strong> @Model.NomeServico</p>
+                <p class="mb-0"><strong>Descrição Técnica:</strong> @Model.DescricaoServico</p>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ValorProposto" class="control-label fw-bold"></label>
+                <input asp-for="ValorProposto" class="form-control" type="number" step="0.01" placeholder="Ex: 450.00" />
+                <span asp-validation-for="ValorProposto" class="text-danger"></span>
+                <small class="form-text text-muted">A plataforma reterá 15% de taxa e repassará 85% líquidos.</small>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ValidadeOrcamentoDias" class="control-label"></label>
+                <input asp-for="ValidadeOrcamentoDias" class="form-control" type="number" />
+                <span asp-validation-for="ValidadeOrcamentoDias" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="LaudoParecerTecnico" class="control-label"></label>
+                <textarea asp-for="LaudoParecerTecnico" class="form-control" rows="3" placeholder="Explicação técnica do diagnóstico para o cliente"></textarea>
+                <span asp-validation-for="LaudoParecerTecnico" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-4">
+                <input type="submit" value="Enviar Orçamento" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
