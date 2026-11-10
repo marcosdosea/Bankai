@@ -87,6 +87,7 @@ public class AgendamentoService : IAgendamentoService
 
     public IEnumerable <AgendamentoDTO> GetAllByUser(int idPessoa)
     {
+        //retorna o DTO
         return _context.Agendamentos
         .Where(a => a.IdCliente == idPessoa || a.IdProfissional == idPessoa)
         .OrderByDescending(a => a.Id)
@@ -105,8 +106,7 @@ public class AgendamentoService : IAgendamentoService
             HorarioFim = a.HorarioFim,
             Nota = a.Nota,
             Comentario = a.Comentario
-        })
-        .ToList();
+        });
     }
 
     public async Task Validar(Agendamento agendamento)
