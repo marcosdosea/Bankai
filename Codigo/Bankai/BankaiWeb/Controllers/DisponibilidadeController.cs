@@ -18,10 +18,17 @@ namespace BankaiWeb.Controllers
 
         public IActionResult Index(uint? idPessoa)
         {
-            var profissionalId = idPessoa ?? 1;
-            ViewBag.IdPessoa = profissionalId;
+            var profissionalId = idPessoa ?? this.disponibilidadeService.GetFirstProfissionalId();
+            ViewBag.IdPessoa = profissionalId ?? 0;
 
-            var disponibilidades = this.disponibilidadeService.GetByIdPessoa(profissionalId);
+            if (!profissionalId.HasValue || !this.disponibilidadeService.IsProfissional(profissionalId.Value))
+            {
+                ViewBag.PessoaIndisponivel = true;
+                return View(Enumerable.Empty<DisponibilidadeViewModel>());
+            }
+
+            ViewBag.PessoaIndisponivel = false;
+            var disponibilidades = this.disponibilidadeService.GetByIdPessoa(profissionalId.Value);
             return View(DisponibilidadeMapper.ToViewModel(disponibilidades));
         }
 
@@ -35,7 +42,7 @@ namespace BankaiWeb.Controllers
                 return BadRequest();
             }
 
-            uint profissionalId = idPessoa ?? disponibilidades[0].IdPessoa ?? 1;
+            uint profissionalId = idPessoa ?? disponibilidades[0].IdPessoa ?? 0;
             var diasEsperados = new HashSet<string> { "D", "SF", "TF", "QF", "QIF", "SXF", "S" };
             var diasEnviados = disponibilidades.Select(disponibilidade => disponibilidade.DiaSemana).ToHashSet();
             var idsExistentes = disponibilidades.Where(disponibilidade => disponibilidade.Id != 0)
@@ -52,6 +59,14 @@ namespace BankaiWeb.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.IdPessoa = profissionalId;
+                ViewBag.PessoaIndisponivel = !this.disponibilidadeService.IsProfissional(profissionalId);
+                return View("Index", disponibilidades);
+            }
+
+            if (!this.disponibilidadeService.IsProfissional(profissionalId))
+            {
+                ViewBag.IdPessoa = profissionalId;
+                ViewBag.PessoaIndisponivel = true;
                 return View("Index", disponibilidades);
             }
 

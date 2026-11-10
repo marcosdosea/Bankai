@@ -71,6 +71,21 @@ namespace Service
             return this.context.Disponibilidades.AsNoTracking();
         }
 
+        public uint? GetFirstProfissionalId()
+        {
+            return this.context.Pessoas
+                .AsNoTracking()
+                .Where(pessoa => pessoa.EhProfissional)
+                .Select(pessoa => (uint?)pessoa.Id)
+                .FirstOrDefault();
+        }
+
+        public bool IsProfissional(uint idPessoa)
+        {
+            return idPessoa <= int.MaxValue
+                && this.context.Pessoas.Any(pessoa => pessoa.Id == (int)idPessoa && pessoa.EhProfissional);
+        }
+
         /// <summary>
         /// Recupera as disponibilidades de um profissional específico com base no idPessoa fornecido.
         /// </summary>

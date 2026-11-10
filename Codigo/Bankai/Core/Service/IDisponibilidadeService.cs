@@ -11,6 +11,8 @@ namespace Core.Service
         void Delete(uint id);
         Disponibilidade? Get(uint id);
         IEnumerable<Disponibilidade> GetAll();
+        uint? GetFirstProfissionalId();
+        bool IsProfissional(uint idPessoa);
         IEnumerable<Disponibilidade> GetByIdPessoa(uint idPessoa);
     }
 }

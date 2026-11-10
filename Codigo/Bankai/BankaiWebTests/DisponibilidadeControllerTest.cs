@@ -19,13 +19,16 @@ public class DisponibilidadeControllerTest
     public void Initialize()
     {
         this.serviceMock = new Mock<IDisponibilidadeService>();
+        this.serviceMock.Setup(service => service.IsProfissional(It.IsAny<uint>())).Returns(true);
+        this.serviceMock.Setup(service => service.GetFirstProfissionalId()).Returns((uint)1);
         this.controller = new DisponibilidadeController(this.serviceMock.Object);
     }
 
     [TestMethod]
-    public void Index_SemIdPessoa_UsaProfissionalPadraoERetornaViewComListaDeViewModels()
+    public void Index_SemIdPessoa_UsaPrimeiroProfissionalERetornaViewComListaDeViewModels()
     {
         var disponibilidades = new List<Disponibilidade> { CriarDisponibilidade(1) };
+        this.serviceMock.Setup(service => service.GetFirstProfissionalId()).Returns((uint)1);
         this.serviceMock.Setup(service => service.GetByIdPessoa(1)).Returns(disponibilidades);
 
         var result = this.controller.Index(null);
@@ -38,6 +41,18 @@ public class DisponibilidadeControllerTest
         Assert.AreEqual((uint)1, this.controller.ViewBag.IdPessoa);
         this.serviceMock.Verify(service => service.GetByIdPessoa(1), Times.Once);
         this.serviceMock.Verify(service => service.GetAll(), Times.Never);
+    }
+
+    [TestMethod]
+    public void Index_SemProfissionalCadastrado_MostraAvisoESemConsultarDisponibilidades()
+    {
+        this.serviceMock.Setup(service => service.GetFirstProfissionalId()).Returns((uint?)null);
+
+        var result = this.controller.Index(null);
+
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        Assert.AreEqual(true, this.controller.ViewBag.PessoaIndisponivel);
+        this.serviceMock.Verify(service => service.GetByIdPessoa(It.IsAny<uint>()), Times.Never);
     }
 
     [TestMethod]
@@ -66,6 +81,19 @@ public class DisponibilidadeControllerTest
         Assert.AreEqual(nameof(DisponibilidadeController.Index), redirect.ActionName);
         Assert.AreEqual((uint)1, redirect.RouteValues!["idPessoa"]);
         this.serviceMock.Verify(service => service.Create(It.IsAny<Disponibilidade>()), Times.Exactly(7));
+        this.serviceMock.Verify(service => service.Edit(It.IsAny<Disponibilidade>()), Times.Never);
+    }
+
+    [TestMethod]
+    public void SalvarLote_ProfissionalInexistente_RetornaTelaSemGravar()
+    {
+        this.serviceMock.Setup(service => service.IsProfissional(1)).Returns(false);
+
+        var result = this.controller.SalvarLote(CriarSemana(1), 1);
+
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        Assert.AreEqual(true, this.controller.ViewBag.PessoaIndisponivel);
+        this.serviceMock.Verify(service => service.Create(It.IsAny<Disponibilidade>()), Times.Never);
         this.serviceMock.Verify(service => service.Edit(It.IsAny<Disponibilidade>()), Times.Never);
     }
 
