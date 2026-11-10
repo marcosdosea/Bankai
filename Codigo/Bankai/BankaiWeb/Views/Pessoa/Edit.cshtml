@@ -1,103 +1,69 @@
-﻿@model BankaiWeb.Models.PessoaViewModel
+﻿@model BankaiWEB.Models.PessoaViewModel
 
 @{
     ViewData["Title"] = "Editar Pessoa";
 }
 
-<h1>Editar Pessoa</h1>
+<div class="mb-4">
+    <a asp-action="Index" class="text-decoration-none text-secondary font-weight-bold">
+        <i class="bi bi-arrow-left"></i> Voltar para a lista
+    </a>
+</div>
 
-<h4>PessoaViewModel</h4>
-<hr />
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Edit" asp-route-id="@Model.id" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="bankai-card">
+            <h3 class="text-center font-weight-bold mb-4">Editar Cadastro</h3>
 
-            <!-- Campo oculto essencial para manter o ID no POST -->
-            <input type="hidden" asp-for="id" />
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="Codigo" />
 
-            <div class="form-group mb-3">
-                <label asp-for="Nome" class="form-label"></label>
-                <input asp-for="Nome" class="form-control" />
-                <span asp-validation-for="Nome" class="text-danger"></span>
-            </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Nome" class="form-label text-muted small fw-bold">NOME COMPLETO</label>
+                        <div class="input-group bankai-input-group">
+                            <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                            <input asp-for="Nome" class="form-control" />
+                        </div>
+                        <span asp-validation-for="Nome" class="text-danger small"></span>
+                    </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="CpfCnpj" class="form-label"></label>
-                <input asp-for="CpfCnpj" class="form-control" />
-                <span asp-validation-for="CpfCnpj" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="Email" class="form-label"></label>
-                <input asp-for="Email" class="form-control" type="email" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="Telefone" class="form-label"></label>
-                <input asp-for="Telefone" class="form-control" />
-                <span asp-validation-for="Telefone" class="text-danger"></span>
-            </div>
-
-            <div class="form-check mb-3">
-                <input class="form-check-input" asp-for="EhProfissional" />
-                <label class="form-check-label" asp-for="EhProfissional"></label>
-                <span asp-validation-for="EhProfissional" class="text-danger"></span>
-            </div>
-
-            <h5 class="mt-4">Endereço</h5>
-            <hr />
-
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label asp-for="Cep" class="form-label"></label>
-                    <input asp-for="Cep" class="form-control" />
-                    <span asp-validation-for="Cep" class="text-danger"></span>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Cpfcnpj" class="form-label text-muted small fw-bold">CPF/CNPJ</label>
+                        <div class="input-group bankai-input-group">
+                            <span class="input-group-text"><i class="bi bi-fingerprint"></i></span>
+                            <input asp-for="Cpfcnpj" class="form-control" />
+                        </div>
+                        <span asp-validation-for="Cpfcnpj" class="text-danger small"></span>
+                    </div>
                 </div>
-                <div class="col-md-8 mb-3">
-                    <label asp-for="Rua" class="form-label"></label>
-                    <input asp-for="Rua" class="form-control" />
-                    <span asp-validation-for="Rua" class="text-danger"></span>
-                </div>
-            </div>
 
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label asp-for="NumeroCasa" class="form-label"></label>
-                    <input asp-for="NumeroCasa" class="form-control" />
-                    <span asp-validation-for="NumeroCasa" class="text-danger"></span>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="Email" class="form-label text-muted small fw-bold">EMAIL</label>
+                        <div class="input-group bankai-input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" class="form-control" type="email" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
                 </div>
-                <div class="col-md-8 mb-3">
-                    <label asp-for="Bairro" class="form-label"></label>
-                    <input asp-for="Bairro" class="form-control" />
-                    <span asp-validation-for="Bairro" class="text-danger"></span>
-                </div>
-            </div>
 
-            <div class="row">
-                <div class="col-md-8 mb-3">
-                    <label asp-for="Cidade" class="form-label"></label>
-                    <input asp-for="Cidade" class="form-control" />
-                    <span asp-validation-for="Cidade" class="text-danger"></span>
+                <div class="form-check form-switch mb-4 mt-2">
+                    <input class="form-check-input" type="checkbox" asp-for="Isprofessional" id="chkProf">
+                    <label class="form-check-label fw-bold text-muted" for="chkProf">Perfil Profissional (Quero Trabalhar)</label>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <label asp-for="Estado" class="form-label"></label>
-                    <input asp-for="Estado" class="form-control" />
-                    <span asp-validation-for="Estado" class="text-danger"></span>
-                </div>
-            </div>
 
-            <div class="form-group mt-4">
-                <input type="submit" value="Salvar Alterações" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary">Voltar para a Lista</a>
-            </div>
-        </form>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-bankai flex-grow-1 py-3">Salvar Alterações</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary py-3 px-4 rounded-3">Cancelar</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
