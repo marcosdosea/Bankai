@@ -1,0 +1,102 @@
+﻿@model BankaiWeb.Models.PessoaViewModel
+
+@{
+    ViewData["Title"] = "Criar Conta";
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="text-decoration-none text-secondary font-weight-bold">
+        <i class="bi bi-arrow-left"></i> Voltar para a lista
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="bankai-card">
+            <h3 class="text-center font-weight-bold mb-4">Criar Conta</h3>
+
+            <!-- Seletor Tipo de Conta -->
+            <div class="p-1 bg-light rounded-3 d-flex mb-4 border">
+                <button type="button" id="btnContratar" class="btn bankai-toggle-btn w-50 py-2 active" onclick="selecionarTipo(false)">
+                    Quero Contratar
+                </button>
+                <button type="button" id="btnTrabalhar" class="btn bankai-toggle-btn w-50 py-2" onclick="selecionarTipo(true)">
+                    Quero Trabalhar
+                </button>
+            </div>
+
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <!-- Flag Oculta do Tipo de Pessoa -->
+                <input type="hidden" asp-for="EhProfissional" id="hdnIsprofessional" value="false" />
+
+                <div class="row">
+                    <!-- NOME COMPLETO -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Nome" class="form-label text-muted small fw-bold">NOME COMPLETO</label>
+                        <div class="input-group bankai-input-group">
+                            <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                            <input asp-for="Nome" class="form-control" placeholder="Ex: João Silva" />
+                        </div>
+                        <span asp-validation-for="Nome" class="text-danger small"></span>
+                    </div>
+
+                    <!-- CPF / CNPJ -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="CpfCnpj" class="form-label text-muted small fw-bold" id="lblCpfCnpj">CPF</label>
+                        <div class="input-group bankai-input-group">
+                            <span class="input-group-text"><i class="bi bi-fingerprint"></i></span>
+                            <input asp-for="CpfCnpj" class="form-control" placeholder="000.000.000-00" />
+                        </div>
+                        <span asp-validation-for="CpfCnpj" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- EMAIL -->
+                    <div class="col-md-6 mb-3" id="divEmail">
+                        <label asp-for="Email" class="form-label text-muted small fw-bold">EMAIL</label>
+                        <div class="input-group bankai-input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" class="form-control" placeholder="nome@provedor.com" type="email" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-bankai w-100 mt-3 py-3">Finalizar Cadastro</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function selecionarTipo(isProfissional) {
+            // Atualiza o valor do campo oculto do modelo
+            document.getElementById('hdnIsprofessional').value = isProfissional;
+
+            const btnC = document.getElementById('btnContratar');
+            const btnT = document.getElementById('btnTrabalhar');
+            const lblCpf = document.getElementById('lblCpfCnpj');
+            const divEsp = document.getElementById('divEspecialidade');
+            const divEmail = document.getElementById('divEmail');
+
+            if (isProfissional) {
+                btnT.classList.add('active');
+                btnC.classList.remove('active');
+                lblCpf.innerText = 'CPF/CNPJ';
+                divEsp.style.display = 'block';
+                divEmail.className = 'col-md-6 mb-3';
+            } else {
+                btnC.classList.add('active');
+                btnT.classList.remove('active');
+                lblCpf.innerText = 'CPF';
+                divEsp.style.display = 'none';
+                divEmail.className = 'col-md-6 mb-3';
+            }
+        }
+    </script>
+}

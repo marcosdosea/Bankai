@@ -1,0 +1,33 @@
+﻿@model BankaiWeb.Models.EspecialidadeViewModel
+
+@{
+    ViewData["Title"] = "Nova Especialidade";
+}
+
+<div class="manage-container" style="grid-template-columns: 1fr; max-width: 600px;">
+    <div class="bankai-card">
+        <h3 class="section-title"><span>➕</span> Nova Especialidade</h3>
+        <p class="text-muted mb-4">Informe o nome para adicionar uma nova especialidade ao catálogo.</p>
+
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Nome"></label>
+                <input asp-for="Nome" placeholder="Ex: Manutenção Elétrica" />
+                <span asp-validation-for="Nome" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <a asp-action="Index" class="btn-view-profile">← Voltar para a lista</a>
+                <button type="submit" class="btn-bankai">Salvar Especialidade</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
