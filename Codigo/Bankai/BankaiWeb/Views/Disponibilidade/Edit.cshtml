@@ -4,11 +4,17 @@
     ViewData["Title"] = "Editar disponibilidade";
 }
 
-<div class="availability-page py-4">
-    <div class="card availability-card border-0 shadow-sm">
-        <div class="card-body p-3 p-md-4">
-            <h1 class="h6 fw-bold availability-title mb-2">Editar disponibilidade</h1>
-            <p class="availability-description">Atualize os horários deste dia.</p>
+<div class="mb-4">
+    <a asp-action="Index" asp-route-idPessoa="@Model.IdPessoa" class="text-decoration-none text-secondary font-weight-bold">
+        <i class="bi bi-arrow-left"></i> Voltar para a lista
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="bankai-card">
+            <h3 class="text-center font-weight-bold mb-2">Editar Disponibilidade</h3>
+            <p class="text-center text-muted small mb-4">Atualize os horários e o status deste dia da semana.</p>
 
             <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
                 <div asp-validation-summary="All" class="text-danger small mb-3" role="alert"></div>
@@ -16,43 +22,58 @@
                 <input type="hidden" asp-for="IdPessoa" />
 
                 <div class="mb-3">
-                    <label asp-for="DiaSemana" class="form-label"></label>
-                    <select asp-for="DiaSemana" class="form-select">
-                        <option value="D">Domingo</option>
-                        <option value="SF">Segunda-feira</option>
-                        <option value="TF">Terça-feira</option>
-                        <option value="QF">Quarta-feira</option>
-                        <option value="QIF">Quinta-feira</option>
-                        <option value="SXF">Sexta-feira</option>
-                        <option value="S">Sábado</option>
-                    </select>
-                    <span asp-validation-for="DiaSemana" class="text-danger"></span>
-                </div>
-
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label asp-for="HorarioInicio" class="form-label"></label>
-                        <input asp-for="HorarioInicio" class="form-control availability-time" type="time" />
-                        <span asp-validation-for="HorarioInicio" class="text-danger"></span>
+                    <label asp-for="DiaSemana" class="form-label text-muted small fw-bold">DIA DA SEMANA</label>
+                    <div class="input-group bankai-input-group">
+                        <span class="input-group-text"><i class="bi bi-calendar-day"></i></span>
+                        <select asp-for="DiaSemana" class="form-select">
+                            <option value="D">Domingo</option>
+                            <option value="SF">Segunda-feira</option>
+                            <option value="TF">Terça-feira</option>
+                            <option value="QF">Quarta-feira</option>
+                            <option value="QIF">Quinta-feira</option>
+                            <option value="SXF">Sexta-feira</option>
+                            <option value="S">Sábado</option>
+                        </select>
                     </div>
-                    <div class="col-md-6">
-                        <label asp-for="HorarioFim" class="form-label"></label>
-                        <input asp-for="HorarioFim" class="form-control availability-time" type="time" />
-                        <span asp-validation-for="HorarioFim" class="text-danger"></span>
+                    <span asp-validation-for="DiaSemana" class="text-danger small"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="HorarioInicio" class="form-label text-muted small fw-bold">HORÁRIO DE INÍCIO</label>
+                        <div class="input-group bankai-input-group">
+                            <span class="input-group-text"><i class="bi bi-clock"></i></span>
+                            <input asp-for="HorarioInicio" class="form-control availability-time" type="time" />
+                        </div>
+                        <span asp-validation-for="HorarioInicio" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="HorarioFim" class="form-label text-muted small fw-bold">HORÁRIO DE TÉRMINO</label>
+                        <div class="input-group bankai-input-group">
+                            <span class="input-group-text"><i class="bi bi-clock-fill"></i></span>
+                            <input asp-for="HorarioFim" class="form-control availability-time" type="time" />
+                        </div>
+                        <span asp-validation-for="HorarioFim" class="text-danger small"></span>
                     </div>
                 </div>
 
-                <div class="mb-4 mt-3">
-                    <label asp-for="StatusDisponibilidade" class="form-label"></label>
-                    <select asp-for="StatusDisponibilidade" class="form-select">
-                        <option value="D">Disponível</option>
-                        <option value="ND">Não disponível</option>
-                    </select>
-                    <span asp-validation-for="StatusDisponibilidade" class="text-danger"></span>
+                <div class="mb-4">
+                    <label asp-for="StatusDisponibilidade" class="form-label text-muted small fw-bold">STATUS</label>
+                    <div class="input-group bankai-input-group">
+                        <span class="input-group-text"><i class="bi bi-toggle-on"></i></span>
+                        <select asp-for="StatusDisponibilidade" class="form-select">
+                            <option value="D">Disponível</option>
+                            <option value="ND">Não disponível</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="StatusDisponibilidade" class="text-danger small"></span>
                 </div>
 
-                <button type="submit" class="btn availability-save fw-bold px-4">Salvar alterações</button>
-                <a asp-action="Index" asp-route-idPessoa="@Model.IdPessoa" class="btn btn-outline-secondary">Cancelar</a>
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-bankai flex-grow-1 py-3 fw-bold">Salvar alterações</button>
+                    <a asp-action="Index" asp-route-idPessoa="@Model.IdPessoa" class="btn btn-outline-secondary py-3 px-4 rounded-3">Cancelar</a>
+                </div>
             </form>
         </div>
     </div>
