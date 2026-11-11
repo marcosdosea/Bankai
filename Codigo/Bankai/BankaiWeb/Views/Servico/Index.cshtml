@@ -5,45 +5,70 @@
     var lista = Model ?? Enumerable.Empty<BankaiWeb.Models.ServicoViewModel>();
 }
 
-<div class="manage-container" style="grid-template-columns: 1fr; max-width: 950px; margin: 2rem auto;">
-    <div class="main-services-panel bankai-card">
-        
-        <div class="panel-header-actions mb-3">
-            <div>
-                <h2 class="section-title m-0"><span>🛠️</span> Catálogo de Serviços Oferecidos</h2>
-                <p class="text-muted m-0" style="font-size: 0.85rem;">Gerencie os serviços padronizados disponíveis na plataforma Bankai.</p>
+<div class="row justify-content-center py-4">
+    <div class="col-12 col-xl-10">
+        <!-- Container no padrão Design System Bankai -->
+        <div class="bankai-card">
+            
+            <!-- Cabeçalho do Painel -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 border-bottom pb-3">
+                <div>
+                    <h3 class="font-weight-bold mb-1">
+                        <span class="me-1"></span> Catálogo de Serviços Oferecidos
+                    </h3>
+                    <p class="text-muted small mb-0">Gerencie os serviços padronizados disponíveis na plataforma Bankai.</p>
+                </div>
+                <a asp-action="Create" class="btn btn-bankai px-4 py-2 text-decoration-none">
+                    <i class="bi bi-plus-lg me-1"></i> Novo Serviço
+                </a>
             </div>
-            <a asp-action="Create" class="btn-bankai text-decoration-none">
-                <span>+</span> Novo Serviço
-            </a>
+
+            <!-- Estado Vazio -->
+            @if (!lista.Any())
+            {
+                <div class="text-center py-5 text-muted bg-light rounded-3 border">
+                    <i class="bi bi-tools display-5 d-block mb-3 text-secondary"></i>
+                    <p class="fs-5 fw-bold mb-1">Nenhum serviço cadastrado no catálogo.</p>
+                    <p class="small text-muted mb-3">Comece adicionando os serviços prestados pela plataforma.</p>
+                    <a asp-action="Create" class="btn btn-bankai text-decoration-none px-4 py-2">
+                        <i class="bi bi-plus-circle me-1"></i> Cadastrar Primeiro Serviço
+                    </a>
+                </div>
+            }
+            else
+            {
+                <!-- Lista de Serviços Gerenciáveis -->
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var item in lista)
+                    {
+                        <div class="p-3 bg-light rounded-3 border d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 service-manage-card">
+                            
+                            <!-- Metadados do Serviço -->
+                            <div class="service-meta flex-grow-1">
+                                <h4 class="fw-bold fs-6 mb-1 text-dark">@item.Nome</h4>
+                                <p class="text-muted small mb-0 text-truncate" style="max-width: 500px;" title="@item.Descricao">
+                                    @item.Descricao
+                                </p>
+                            </div>
+
+                            <!-- Botões de Ação -->
+                            <div class="d-flex align-items-center justify-content-end gap-2" style="min-width: 200px;">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info rounded-2 text-dark px-3" title="Ver detalhes completos">
+                                    <i class="bi bi-eye-fill me-1"></i> Detalhes
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning text-dark px-3 fw-semibold" title="Editar serviço">
+                                    <i class="bi bi-pencil-fill me-1"></i> Editar
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger px-2 rounded-2" title="Excluir serviço">
+                                    <i class="bi bi-trash-fill"></i>
+                                </a>
+                            </div>
+
+                        </div>
+                    }
+                </div>
+            }
+
         </div>
-
-        @if (!lista.Any())
-        {
-            <div class="text-center p-5 text-muted">
-                <p class="fs-5">Nenhum serviço cadastrado no catálogo.</p>
-                <a asp-action="Create" class="btn-bankai text-decoration-none mt-2">+ Cadastrar Primeiro Serviço</a>
-            </div>
-        }
-        else
-        {
-            <div class="services-manage-list">
-                @foreach (var item in lista)
-                {
-                    <div class="service-manage-card">
-                        <div class="service-meta">
-                            <h4>@item.Nome</h4>
-                            <p>@item.Descricao</p>
-                        </div>
-
-                        <div class="d-flex align-items-center justify-content-end gap-2">
-                            <a asp-action="Details" asp-route-id="@item.Id" class="btn-view-profile" title="Ver detalhes completos">Detalhes</a>
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn-bankai btn-sm text-decoration-none px-3" style="font-size: 0.85rem;">Editar</a>
-                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Excluir serviço" style="border-radius: var(--radius-sm); font-size: 0.85rem;">✕</a>
-                        </div>
-                    </div>
-                }
-            </div>
-        }
     </div>
 </div>
