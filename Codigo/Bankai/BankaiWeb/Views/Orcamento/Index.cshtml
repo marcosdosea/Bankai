@@ -2,38 +2,79 @@
 
 @{
     ViewData["Title"] = "Orçamentos";
+    var lista = Model ?? Enumerable.Empty<BankaiWeb.Models.OrcamentoViewModel>();
 }
 
-<h1>Ordens de Serviço para Orçamento</h1>
-<p class="text-muted">Chamados que exigem proposta de valor conforme RN01 e CSU11.</p>
+<div class="manage-container" style="grid-template-columns: 1fr; max-width: 1100px; margin: 2rem auto;">
+    <div class="bankai-card">
+        <div class="panel-header-actions mb-3">
+            <div>
+                <h2 class="section-title m-0"><span>📋</span> Ordens de Serviço para Orçamento</h2>
+                <p class="text-muted m-0" style="font-size: 0.85rem;">Chamados aguardando elaboração e formalização de proposta técnica (RN01 / CSU11).</p>
+            </div>
+        </div>
 
-<table class="table table-striped table-hover mt-3">
-    <thead>
-        <tr>
-            <th>Ordem</th>
-            <th>Cliente</th>
-            <th>Serviço</th>
-            <th>Descrição Solicitada</th>
-            <th>Valor Orçado (R$)</th>
-            <th>Repasse Líquido (85%)</th>
-            <th>Ação</th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>#BKS-@item.IdAgendamento</td>
-            <td>@item.NomeCliente</td>
-            <td>@item.NomeServico</td>
-            <td>@item.DescricaoServico</td>
-            <td>@(item.ValorProposto > 0 ? item.ValorProposto.ToString("C") : "Aguardando Proposta")</td>
-            <td>@(item.ValorLiquido > 0 ? item.ValorLiquido.ToString("C") : "-")</td>
-            <td>
-                <a asp-action="Orcar" asp-route-idAgendamento="@item.IdAgendamento" asp-route-idServico="@item.IdServico" class="btn btn-sm btn-warning">Orçar</a>
-                <a asp-action="Details" asp-route-idAgendamento="@item.IdAgendamento" asp-route-idServico="@item.IdServico" class="btn btn-sm btn-info">Detalhes</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
-
+        @if (!lista.Any())
+        {
+            <div class="text-center p-5 text-muted">
+                <p class="fs-5">Nenhum chamado de orçamento pendente no momento.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive mt-3">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-color); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">
+                            <th>Ordem</th>
+                            <th>Cliente</th>
+                            <th>Serviço Solicitado</th>
+                            <th>Status</th>
+                            <th>Valor Orçado (Bruto)</th>
+                            <th>Seu Repasse Líquido (85%)</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in lista)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="fw-bold" style="color: var(--accent-color);">#BKS-@item.IdAgendamento</span>
+                                </td>
+                                <td>
+                                    <strong>@item.NomeCliente</strong>
+                                </td>
+                                <td>
+                                    <span>@item.NomeServico</span>
+                                </td>
+                                <td>
+                                    @if (item.ValorProposto > 0)
+                                    {
+                                        <span class="badge" style="background-color: var(--status-success-bg); color: var(--status-success); border: 1px solid var(--status-success-border);">Orçado</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge" style="background-color: var(--status-info-bg); color: var(--status-info); border: 1px solid var(--status-info-border);">Aguardando Proposta</span>
+                                    }
+                                </td>
+                                <td class="fw-bold">
+                                    @(item.ValorProposto > 0 ? item.ValorProposto.ToString("C") : "R$ 0,00")
+                                </td>
+                                <td class="fw-bold" style="color: var(--status-success);">
+                                    @(item.ValorLiquido > 0 ? item.ValorLiquido.ToString("C") : "R$ 0,00")
+                                </td>
+                                <td class="text-end">
+                                    <a asp-action="Orcar" asp-route-idAgendamento="@item.IdAgendamento" asp-route-idServico="@item.IdServico" class="btn-bankai btn-sm text-decoration-none px-3" style="font-size: 0.85rem;">
+                                        @(item.ValorProposto > 0 ? "Revisar" : "Orçar")
+                                    </a>
+                                    <a asp-action="Details" asp-route-idAgendamento="@item.IdAgendamento" asp-route-idServico="@item.IdServico" class="btn-view-profile ms-2">Detalhes</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

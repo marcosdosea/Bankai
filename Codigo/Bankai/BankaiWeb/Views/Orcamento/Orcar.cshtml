@@ -4,52 +4,151 @@
     ViewData["Title"] = "Orçar Serviço";
 }
 
-<h1>Orçar Serviço</h1>
-<h4>Ordem #BKS-@Model.IdAgendamento - @Model.NomeServico</h4>
-<hr />
-
-<div class="row">
-    <div class="col-md-7">
-        <form asp-action="Orcar">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="execution-container" style="max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
+    <!-- COLUNA DA ESQUERDA: FORMULÁRIO TÉCNICO (Fidelidade à Tela 010) -->
+    <div class="d-flex flex-column gap-4">
+        <form asp-action="Orcar" id="formOrcamento">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
             <input type="hidden" asp-for="IdAgendamento" />
             <input type="hidden" asp-for="IdServico" />
 
-            <div class="card mb-3 p-3 bg-light">
-                <h6>Dados do Chamado</h6>
-                <p class="mb-1"><strong>Cliente:</strong> @Model.NomeCliente</p>
-                <p class="mb-1"><strong>Serviço Solicitado:</strong> @Model.NomeServico</p>
-                <p class="mb-0"><strong>Descrição Técnica:</strong> @Model.DescricaoServico</p>
+            <!-- 1. Valores e Prazos -->
+            <div class="bankai-card mb-4">
+                <h3 class="section-title"><span>1.</span> Valores e Prazos</h3>
+
+                <div class="form-group mb-4">
+                    <label asp-for="ValorProposto">VALOR DA MÃO DE OBRA TÉCNICA</label>
+                    <div class="price-input-wrapper">
+                        <span>R$</span>
+                        <input asp-for="ValorProposto" id="inputValorProposto" type="number" step="0.01" min="0.01" placeholder="450.00" />
+                    </div>
+                    <span asp-validation-for="ValorProposto" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ValidadeOrcamentoDias">VALIDADE DESTE ORÇAMENTO</label>
+                    <select asp-for="ValidadeOrcamentoDias" class="form-select">
+                        <option value="5">5 Dias Correntes</option>
+                        <option value="10">10 Dias Correntes</option>
+                        <option value="15" selected>15 Dias Correntes</option>
+                        <option value="30">30 Dias Correntes</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="ValorProposto" class="control-label fw-bold"></label>
-                <input asp-for="ValorProposto" class="form-control" type="number" step="0.01" placeholder="Ex: 450.00" />
-                <span asp-validation-for="ValorProposto" class="text-danger"></span>
-                <small class="form-text text-muted">A plataforma reterá 15% de taxa e repassará 85% líquidos.</small>
+            <!-- 2. Fornecimento de Materiais e Peças (Opcional - Tela 010) -->
+            <div class="bankai-card mb-4">
+                <h3 class="section-title"><span>2.</span> Fornecimento de Materiais e Peças (Opcional)</h3>
+                <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1rem;">
+                    Se você for fornecer materiais comprados por sua conta, liste-os abaixo para repassar o custo ao cliente:
+                </p>
+
+                <button type="button" class="btn-add-specialty" onclick="alert('O módulo de desmembramento de materiais estará disponível na próxima versão do schema de banco de dados.');">
+                    + Adicionar Novo Material
+                </button>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="ValidadeOrcamentoDias" class="control-label"></label>
-                <input asp-for="ValidadeOrcamentoDias" class="form-control" type="number" />
-                <span asp-validation-for="ValidadeOrcamentoDias" class="text-danger"></span>
+            <!-- 3. Laudo / Parecer Descritivo -->
+            <div class="bankai-card mb-4">
+                <h3 class="section-title"><span>3.</span> Laudo / Parecer Descritivo</h3>
+
+                <div class="form-group">
+                    <label asp-for="LaudoParecerTecnico">EXPLICAÇÃO DO DIAGNÓSTICO PARA O CLIENTE</label>
+                    <textarea asp-for="LaudoParecerTecnico" rows="4" style="background-color: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem 1rem; color: var(--text-main); outline: none; font-size: 0.9rem;" placeholder="Ex: Identificado desgaste acentuado no disjuntor geral devido a sobrecarga na rede residencial interna. Será realizada a substituição completa por componentes novos respeitando o padrão técnico de segurança atual..."></textarea>
+                    <span asp-validation-for="LaudoParecerTecnico" class="text-danger"></span>
+                </div>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="LaudoParecerTecnico" class="control-label"></label>
-                <textarea asp-for="LaudoParecerTecnico" class="form-control" rows="3" placeholder="Explicação técnica do diagnóstico para o cliente"></textarea>
-                <span asp-validation-for="LaudoParecerTecnico" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mt-4">
-                <input type="submit" value="Enviar Orçamento" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            <div class="d-flex justify-content-between align-items-center">
+                <a asp-action="Index" class="btn-view-profile">← Cancelar e Voltar</a>
+                <button type="submit" class="btn-bankai d-md-none">Enviar Orçamento</button>
             </div>
         </form>
+    </div>
+
+    <!-- COLUNA DA DIREITA: PAINEL FINANCEIRO DE REPASSE (Tela 010) -->
+    <div class="d-flex flex-column gap-3">
+        <!-- Card 1: Vínculo à Chamada -->
+        <div class="client-info-card">
+            <span style="font-size: 0.75rem; font-weight: 700; color: var(--accent-color); text-transform: uppercase;">VINCULADO À CHAMADA</span>
+            <div class="mt-2">
+                <p class="mb-1" style="font-size: 0.9rem;"><strong>Ordem:</strong> <span style="color: var(--accent-color);">#BKS-@Model.IdAgendamento</span></p>
+                <p class="mb-1" style="font-size: 0.9rem;"><strong>Cliente:</strong> @Model.NomeCliente</p>
+                <p class="mb-0" style="font-size: 0.9rem;"><strong>Tipo:</strong> @Model.NomeServico</p>
+            </div>
+        </div>
+
+        <!-- Card 2: Cálculo de Repasse Financeiro (RN01) -->
+        <div class="sidebar-card">
+            <h4 class="fw-bold mb-3" style="font-size: 1rem; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.5px;">Cálculo de Repasse</h4>
+
+            <div class="d-flex justify-content-between mb-2" style="font-size: 0.9rem;">
+                <span class="text-muted">Subtotal Mão de Obra:</span>
+                <span class="fw-bold" id="displayMaoObra">@(Model.ValorProposto > 0 ? Model.ValorProposto.ToString("C") : "R$ 0,00")</span>
+            </div>
+
+            <div class="d-flex justify-content-between mb-2" style="font-size: 0.9rem;">
+                <span class="text-muted">Subtotal Materiais:</span>
+                <span class="fw-bold">R$ 0,00</span>
+            </div>
+
+            <hr style="border-color: var(--border-color); margin: 0.75rem 0;" />
+
+            <div class="d-flex justify-content-between mb-2">
+                <span class="fw-bold" style="color: var(--text-main);">Orçamento Bruto:</span>
+                <span class="fw-bold" id="displayBruto">@(Model.ValorProposto > 0 ? Model.ValorProposto.ToString("C") : "R$ 0,00")</span>
+            </div>
+
+            <div class="d-flex justify-content-between mb-3" style="font-size: 0.85rem; color: var(--status-alert);">
+                <span>% Intermediação Bankai (15%):</span>
+                <span id="displayTaxa">- @(Model.TaxaPlataforma > 0 ? Model.TaxaPlataforma.ToString("C") : "R$ 0,00")</span>
+            </div>
+
+            <!-- Caixa de Destaque: Repasse Líquido -->
+            <div class="p-3 rounded-3 mb-4" style="background-color: var(--status-success-bg); border: 1px solid var(--status-success-border);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span style="font-size: 0.7rem; font-weight: 700; color: var(--status-success); text-transform: uppercase;">SEU REPASSE LÍQUIDO</span>
+                        <h4 class="m-0 fw-bold" style="color: var(--status-success);" id="displayLiquido">@(Model.ValorLiquido > 0 ? Model.ValorLiquido.ToString("C") : "R$ 0,00")</h4>
+                    </div>
+                    <span style="font-size: 1.5rem;">💳</span>
+                </div>
+            </div>
+
+            <button type="submit" form="formOrcamento" class="btn-bankai w-100 py-3" style="font-size: 1rem; border-radius: var(--radius-md);">
+                Enviar Orçamento ✈
+            </button>
+        </div>
     </div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // Cálculo reativo em tempo real para o painel de repasse (RN01)
+        const inputValor = document.getElementById('inputValorProposto');
+        const displayMaoObra = document.getElementById('displayMaoObra');
+        const displayBruto = document.getElementById('displayBruto');
+        const displayTaxa = document.getElementById('displayTaxa');
+        const displayLiquido = document.getElementById('displayLiquido');
 
+        function formatarMoeda(valor) {
+            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        if (inputValor) {
+            inputValor.addEventListener('input', function () {
+                const valor = parseFloat(inputValor.value) || 0;
+                const taxa = valor * 0.15;
+                const liquido = valor * 0.85;
+
+                displayMaoObra.textContent = formatarMoeda(valor);
+                displayBruto.textContent = formatarMoeda(valor);
+                displayTaxa.textContent = '- ' + formatarMoeda(taxa);
+                displayLiquido.textContent = formatarMoeda(liquido);
+            });
+        }
+    </script>
+}
