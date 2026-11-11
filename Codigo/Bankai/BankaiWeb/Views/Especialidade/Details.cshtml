@@ -1,0 +1,27 @@
+﻿@model BankaiWeb.Models.EspecialidadeViewModel
+
+@{
+    ViewData["Title"] = "Detalhes da Especialidade";
+}
+
+<div class="manage-container" style="grid-template-columns: 1fr; max-width: 600px;">
+    <div class="bankai-card">
+        <h3 class="section-title"><span>🔍</span> Detalhes da Especialidade</h3>
+
+        <div class="mb-4">
+            <label class="info-title">Nome da Especialidade</label>
+            <div>
+                <span class="chip fs-6">@Model.Nome</span>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+            <a asp-action="Index" class="btn-view-profile">← Voltar para a lista</a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-bankai">Editar</a>
+        </div>
+    </div>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

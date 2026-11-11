@@ -1,0 +1,100 @@
+﻿@model IEnumerable<BankaiWeb.Models.EspecialidadeViewModel>
+
+@{
+    ViewData["Title"] = "Especialidades";
+    var lista = Model ?? Enumerable.Empty<BankaiWeb.Models.EspecialidadeViewModel>();
+    var primeiraEspecialidade = lista.FirstOrDefault();
+}
+
+<div class="specialties-sidebar" style="max-width: 500px; margin: 2rem auto;">
+
+    <!-- 1. Card: Especialidade Principal (Fidelidade à Tela 020) -->
+    <div class="sidebar-card">
+        <h3 class="section-title"><span>1.</span> Especialidade Principal</h3>
+
+        <div class="form-group">
+            <label>SUA ESPECIALIDADE DE ATUAÇÃO</label>
+            <select>
+                @if (primeiraEspecialidade != null)
+                {
+                    <option value="@primeiraEspecialidade.Id" selected>@primeiraEspecialidade.Nome</option>
+                    @foreach (var item in lista.Skip(1))
+                    {
+                        <option value="@item.Id">@item.Nome</option>
+                    }
+                }
+                else
+                {
+                    <option value="">Nenhuma especialidade cadastrada</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <!-- 2. Card: Especialidades Ativas -->
+    <div class="sidebar-card">
+        <h3 class="section-title"><span>2.</span> Especialidades Ativas</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+            Estas tags ajudam o algoritmo do Bankai Service a ranquear seu perfil nas buscas da região:
+        </p>
+
+        <!-- Lista de Tags/Chips -->
+        <div class="specialties-chips-box" style="margin-bottom: 1.2rem;">
+            @if (!lista.Any())
+            {
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Nenhuma especialidade cadastrada.</span>
+            }
+            else
+            {
+                @foreach (var item in lista)
+                {
+                    <span class="chip">
+                        <!-- Clicar no texto do nome abre o Pop-up de Detalhes / Edição -->
+                        <span role="button" data-bs-toggle="modal" data-bs-target="#modalSpec-@item.Id" data-toggle="modal" data-target="#modalSpec-@item.Id" style="cursor: pointer;" title="Clique para ver detalhes ou editar">
+                            @item.Nome
+                        </span>
+
+                        <!-- Botão 'X' para Excluir -->
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn-remove-chip" title="Excluir especialidade">✕</a>
+                    </span>
+                }
+            }
+        </div>
+
+        <!-- Botão de Adicionar Especialidade -->
+        <a asp-action="Create" class="btn-add-specialty text-decoration-none">
+            + Adicionar Especialidade
+        </a>
+    </div>
+</div>
+
+<!-- Pop-ups (Modais) para Detalhes e Edição Unificados -->
+@foreach (var item in lista)
+{
+    <div class="modal fade" id="modalSpec-@item.Id" tabindex="-1" aria-labelledby="modalSpecLabel-@item.Id" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bankai-card p-4">
+                <div class="modal-header border-0 p-0 mb-3">
+                    <h4 class="fw-bold m-0" id="modalSpecLabel-@item.Id"><span>✏️</span> Especialidade</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+
+                <form asp-action="Edit" method="post">
+                    <div class="modal-body p-0 mb-4">
+                        <input type="hidden" name="Id" value="@item.Id" />
+
+                        <div class="form-group">
+                            <label for="Nome-@item.Id">NOME DA ESPECIALIDADE</label>
+                            <input type="text" id="Nome-@item.Id" name="Nome" value="@item.Nome" required />
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button type="button" class="btn-view-profile" data-bs-dismiss="modal" data-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn-bankai">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
