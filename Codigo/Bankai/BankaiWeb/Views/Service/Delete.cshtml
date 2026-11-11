@@ -1,0 +1,26 @@
+@model BankaiWeb.Models.ServicoViewModel
+
+@{
+    ViewData["Title"] = "Excluir Serviço";
+}
+
+<div class="manage-container" style="grid-template-columns: 1fr; max-width: 650px; margin: 2rem auto;">
+    <div class="bankai-card border-danger">
+        <h3 class="section-title text-danger"><span>⚠️</span> Confirmar Exclusão</h3>
+        <p class="text-muted mb-4">Tem certeza de que deseja remover este serviço do catálogo padronizado? Esta ação removerá a opção para novos orçamentos.</p>
+
+        <div class="mb-3">
+            <label class="info-title">Serviço</label>
+            <h5 class="fw-bold">@Model.Nome</h5>
+            <p class="text-muted small">@Model.Descricao</p>
+        </div>
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+                <a asp-action="Index" class="btn-view-profile">← Cancelar</a>
+                <button type="submit" class="btn btn-danger btn-bankai" style="background-color: var(--status-alert);">Confirmar Exclusão</button>
+            </div>
+        </form>
+    </div>
+</div>
