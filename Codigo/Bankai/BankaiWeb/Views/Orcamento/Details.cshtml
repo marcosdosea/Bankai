@@ -1,0 +1,79 @@
+@model BankaiWeb.Models.OrcamentoViewModel
+
+@{
+    ViewData["Title"] = "Detalhes do Orçamento";
+}
+
+<div class="manage-container" style="grid-template-columns: 1fr 380px; max-width: 1100px; margin: 2rem auto;">
+    <!-- Detalhes do Chamado e Diagnóstico -->
+    <div class="bankai-card">
+        <h3 class="section-title"><span>🔍</span> Orçamento #BKS-@Model.IdAgendamento</h3>
+        <p class="text-muted mb-4">Proposta técnica formalizada para o cliente através da plataforma.</p>
+
+        <div class="mb-4">
+            <label class="info-title">Serviço</label>
+            <h5 class="fw-bold m-0" style="color: var(--text-main);">@Model.NomeServico</h5>
+        </div>
+
+        <div class="mb-4">
+            <label class="info-title">Cliente Solicitante</label>
+            <p class="m-0 fw-semibold">@Model.NomeCliente</p>
+        </div>
+
+        <div class="mb-4">
+            <label class="info-title">Descrição Original do Problema</label>
+            <p class="text-muted" style="line-height: 1.5; font-size: 0.95rem;">@Model.DescricaoServico</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.LaudoParecerTecnico))
+        {
+            <div class="mb-4">
+                <label class="info-title">Laudo Técnico / Parecer do Prestador</label>
+                <div class="p-3 rounded-2" style="background-color: var(--bg-primary); border: 1px solid var(--border-color); font-size: 0.9rem;">
+                    @Model.LaudoParecerTecnico
+                </div>
+            </div>
+        }
+
+        <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+            <a asp-action="Index" class="btn-view-profile">← Voltar para a lista</a>
+            <a asp-action="Orcar" asp-route-idAgendamento="@Model.IdAgendamento" asp-route-idServico="@Model.IdServico" class="btn-bankai text-decoration-none">
+                Revisar Proposta
+            </a>
+        </div>
+    </div>
+
+    <!-- Resumo Financeiro Oficial (RN01) -->
+    <div>
+        <div class="sidebar-card">
+            <h4 class="fw-bold mb-3" style="font-size: 1rem; color: var(--text-main); text-transform: uppercase;">Resumo Financeiro (RN01)</h4>
+
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Valor da Mão de Obra:</span>
+                <span class="fw-bold">@Model.ValorProposto.ToString("C")</span>
+            </div>
+
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Materiais / Peças:</span>
+                <span class="fw-bold">R$ 0,00</span>
+            </div>
+
+            <hr style="border-color: var(--border-color); margin: 0.75rem 0;" />
+
+            <div class="d-flex justify-content-between mb-2">
+                <span class="fw-bold">Total Bruto Aprovado:</span>
+                <span class="fw-bold">@Model.ValorProposto.ToString("C")</span>
+            </div>
+
+            <div class="d-flex justify-content-between mb-3 text-danger" style="font-size: 0.85rem;">
+                <span>Taxa Bankai (15%):</span>
+                <span>- @Model.TaxaPlataforma.ToString("C")</span>
+            </div>
+
+            <div class="p-3 rounded-3" style="background-color: var(--status-success-bg); border: 1px solid var(--status-success-border);">
+                <span style="font-size: 0.7rem; font-weight: 700; color: var(--status-success); text-transform: uppercase;">REPASSE LÍQUIDO DO PRESTADOR</span>
+                <h4 class="m-0 fw-bold" style="color: var(--status-success);">@Model.ValorLiquido.ToString("C")</h4>
+            </div>
+        </div>
+    </div>
+</div>
