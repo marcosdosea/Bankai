@@ -34,7 +34,18 @@ namespace Service
         /// <param name="disponibilidade">A disponibilidade com as informações atualizadas.</param>
         public void Edit(Disponibilidade disponibilidade)
         {
-            this.context.Update(disponibilidade);
+            var disponibilidadeRastreada = this.context.Disponibilidades.Local
+                .FirstOrDefault(item => item.Id == disponibilidade.Id);
+
+            if (disponibilidadeRastreada == null)
+            {
+                this.context.Update(disponibilidade);
+            }
+            else
+            {
+                this.context.Entry(disponibilidadeRastreada).CurrentValues.SetValues(disponibilidade);
+            }
+
             this.context.SaveChanges();
         }
 

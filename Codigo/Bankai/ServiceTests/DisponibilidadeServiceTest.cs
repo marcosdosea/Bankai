@@ -115,6 +115,37 @@ public class DisponibilidadeServiceTest
     }
 
     [TestMethod]
+    public void Edit_OutraInstanciaComMesmoIdAtualizaDisponibilidadeRastreada()
+    {
+        var original = new Disponibilidade
+        {
+            IdPessoa = 1,
+            DiaSemana = "Quarta-Feira",
+            HorarioInicio = new TimeSpan(8, 0, 0),
+            HorarioFim = new TimeSpan(12, 0, 0),
+            StatusDisponibilidade = "D"
+        };
+        var id = this.service.Create(original);
+        var rastreada = this.service.Get(id);
+        Assert.IsNotNull(rastreada);
+
+        var disponibilidadeParaEditar = new Disponibilidade
+        {
+            Id = (int)id,
+            IdPessoa = 1,
+            DiaSemana = "Quarta-Feira",
+            HorarioInicio = new TimeSpan(8, 0, 0),
+            HorarioFim = new TimeSpan(18, 0, 0),
+            StatusDisponibilidade = "D"
+        };
+
+        this.service.Edit(disponibilidadeParaEditar);
+
+        Assert.AreEqual(new TimeSpan(18, 0, 0), rastreada.HorarioFim);
+        Assert.AreEqual(new TimeSpan(18, 0, 0), this.service.Get(id)!.HorarioFim);
+    }
+
+    [TestMethod]
     public void Delete_IdExistente_RemoveDoBanco()
     {
         // Arrange
