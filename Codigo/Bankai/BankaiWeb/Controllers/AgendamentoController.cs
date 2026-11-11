@@ -28,6 +28,10 @@ namespace BankaiWeb.Controllers
         public ActionResult Details(int id)
         {
             Agendamento agendamento = _agendamentoService.Get(id);
+            if(agendamento == null)
+            {
+                return NotFound();
+            }
             AgendamentoViewModel agendamentoModel = _mapper.Map<AgendamentoViewModel>(agendamento);
             return View(agendamentoModel);
         }
@@ -139,7 +143,7 @@ namespace BankaiWeb.Controllers
             if (string.IsNullOrEmpty(agendamentoViewModel.Nota) || ModelState["Nota"]?.Errors.Count > 0)
             {
                 ModelState.AddModelError("Nota", "Informe uma nota válida.");
-                return View(agendamentoViewModel);
+                return View("Details", agendamentoViewModel);
             }
 
             try
@@ -149,7 +153,7 @@ namespace BankaiWeb.Controllers
             catch (InvalidOperationException ex)
             {
                 ModelState.AddModelError("", ex.Message);
-                return View(agendamentoViewModel);
+                return View("Details", agendamentoViewModel);
             }
 
             return RedirectToAction(nameof(Index));
