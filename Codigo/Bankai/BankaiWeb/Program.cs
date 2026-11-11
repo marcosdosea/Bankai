@@ -1,5 +1,10 @@
+using BankaiWeb.Mappers;
 using Core;
+using Core.Service;
+using Mapster;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Service;
 
 namespace BankaiWeb
 {
@@ -12,12 +17,28 @@ namespace BankaiWeb
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            TypeAdapterConfig.GlobalSettings.Scan(typeof(AgendamentoServicoProfile).Assembly);
+            builder.Services.AddSingleton(TypeAdapterConfig.GlobalSettings);
+            builder.Services.AddScoped<IAgendamentoService, AgendamentoService>();
+            builder.Services.AddScoped<IMapper, ServiceMapper>();
+
             // Mensagem de erro caso a connection string não seja encontrada
             var connectionString = builder.Configuration.GetConnectionString("BankaiDatabase")
             ?? throw new InvalidOperationException("Connection string 'BankaiDatabase' não encontrada.");
 
+            builder.Services.AddTransient<IDisponibilidadeService, DisponibilidadeService>();
+            builder.Services.AddTransient<IEspecialidadeService, EspecialidadeService>();
+            builder.Services.AddTransient<IServicoService, ServicoService>();
+
             builder.Services.AddDbContext<BankaiContext>(options =>
                 options.UseMySQL(connectionString));
+
+	    // Registro da Injeção de Dependência do caso de uso Manter Pessoa
+            builder.Services.AddScoped<IPessoaService, PessoaService>();
+
+
+	    // Registro da Injeção de Dependência do caso de uso Manter Especialidade
+            builder.Services.AddTransient<IEspecialidadeService, EspecialidadeService>();
 
             var app = builder.Build();
 

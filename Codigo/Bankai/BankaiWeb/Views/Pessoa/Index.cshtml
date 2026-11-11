@@ -1,0 +1,91 @@
+﻿@model IEnumerable<BankaiWeb.Models.PessoaViewModel>
+
+@{
+    ViewData["Title"] = "Gestão de Pessoas";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-10">
+        <!-- Container no padrão Design System Bankai -->
+        <div class="bankai-card">
+            
+            <!-- Cabeçalho com Título e Botão Novo Cadastro -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                <div>
+                    <h3 class="font-weight-bold mb-1">Gestão de Pessoas</h3>
+                    <p class="text-muted small mb-0">Gerencie todos os clientes e profissionais cadastrados no Bankai.</p>
+                </div>
+                <a asp-action="Create" class="btn btn-bankai px-4 py-2">
+                    <i class="bi bi-plus-lg me-1"></i> Cadastrar Nova Pessoa
+                </a>
+            </div>
+
+            <!-- Tabela Estilizada -->
+            <div class="table-responsive">
+                <table class="table table-borderless align-middle mb-0">
+                    <thead class="border-bottom">
+                        <tr class="text-muted small fw-bold">
+                            <th scope="col" class="pb-3">CÓDIGO</th>
+                            <th scope="col" class="pb-3">NOME COMPLETO</th>
+                            <th scope="col" class="pb-3">CPF / CNPJ</th>
+                            <th scope="col" class="pb-3">E-MAIL</th>
+                            <th scope="col" class="pb-3">PERFIL</th>
+                            <th scope="col" class="pb-3 text-end">AÇÕES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr class="border-bottom">
+                                <td class="fw-bold text-secondary">#@item.id</td>
+                                <td class="fw-bold">@item.Nome</td>
+                                <td>@item.CpfCnpj</td>
+                                <td class="text-muted">@item.Email</td>
+                                <td>
+                                    @if (item.EhProfissional)
+                                    {
+                                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
+                                            <i class="bi bi-tools me-1"></i> Profissional
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill">
+                                            <i class="bi bi-person me-1"></i> Cliente
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.id" class="btn btn-sm btn-outline-warning rounded-2 me-1" title="Editar">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.id" class="btn btn-sm btn-outline-info rounded-2 me-1 text-dark" title="Detalhes">
+                                            <i class="bi bi-eye-fill"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.id" class="btn btn-sm btn-outline-danger rounded-2" title="Excluir">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox display-6 d-block mb-2"></i>
+                                Nenhuma pessoa cadastrada até o momento.
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>

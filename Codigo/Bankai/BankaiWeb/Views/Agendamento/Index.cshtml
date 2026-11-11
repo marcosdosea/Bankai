@@ -1,0 +1,10 @@
+﻿@model IEnumerable<Core.DTO.AgendamentoDTO>
+
+<h2>Agendamentos</h2>
+
+<ul>
+    @foreach (var item in Model)
+    {
+        <li>@item.Id - @item.DescricaoServico - @item.StatusAgendamento</li>
+    }
+</ul>
