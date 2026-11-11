@@ -1,0 +1,33 @@
+@model BankaiWeb.Models.ServicoViewModel
+
+@{
+    ViewData["Title"] = "Detalhes do Serviço";
+}
+
+<div class="manage-container" style="grid-template-columns: 1fr; max-width: 650px; margin: 2rem auto;">
+    <div class="bankai-card">
+        <h3 class="section-title"><span>🔍</span> Detalhes do Serviço</h3>
+
+        <div class="mb-4">
+            <label class="info-title">Nome do Serviço</label>
+            <h4 class="fw-bold" style="color: var(--text-main); margin-top: 0.25rem;">@Model.Nome</h4>
+        </div>
+
+        <div class="mb-4">
+            <label class="info-title">Descrição e Escopo de Atendimento</label>
+            <p class="text-muted" style="line-height: 1.5; font-size: 0.95rem;">@Model.Descricao</p>
+        </div>
+
+        <div class="mb-4">
+            <label class="info-title">Identificador do Sistema</label>
+            <div>
+                <span class="chip fs-6">Código #@Model.Id</span>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
+            <a asp-action="Index" class="btn-view-profile">← Voltar para a lista</a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-bankai text-decoration-none">Editar Serviço</a>
+        </div>
+    </div>
+</div>
