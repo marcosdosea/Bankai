@@ -18,5 +18,6 @@ public partial class Agendamentoservico
 
     public virtual Servico IdServicoNavigation { get; set; } = null!;
 
+    
    
 }
