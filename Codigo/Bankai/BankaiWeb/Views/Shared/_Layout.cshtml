@@ -5,45 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - BankaiWeb</title>
 
-    <!-- Bootstrap CSS Base -->
+    <!-- Bootstrap CSS Base & Bootstrap Icons -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- Estilos do Design System Bankai -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BankaiWeb.styles.css" asp-append-version="true" />
+
     @await RenderSectionAsync("Head", required: false)
 </head>
 <body class="d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-sm navbar-light app-navbar shadow-sm">
             <div class="container">
+                <!-- Logotipo do Design System Bankai -->
                 <a class="navbar-brand logo" asp-area="" asp-controller="Home" asp-action="Index">Bankai<span>Web</span></a>
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavigation" aria-controls="mainNavigation"
                         aria-expanded="false" aria-label="Abrir menu de navegação">
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand fw-bold text-warning" asp-area="" asp-controller="Home" asp-action="Index">BankaiWeb</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div id="mainNavigation" class="navbar-collapse collapse">
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav ms-auto gap-1">
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Início</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Pessoa" asp-action="Index">Pessoas</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Disponibilidade" asp-action="Index">Disponibilidade</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Agendamento" asp-action="Index">Agendamentos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Especialidade" asp-action="Index">Especialidades</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Servico" asp-action="Index">Serviços</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacidade</a>
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Pessoa" asp-action="Index">Pessoas</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Agendamento" asp-action="Index">Agendamento</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacidade</a>
                         </li>
                     </ul>
                 </div>
@@ -51,30 +56,24 @@
         </nav>
     </header>
 
-    <main role="main" class="container flex-grow-1 pb-3">
+    <!-- Conteúdo Principal Dinâmico -->
+    <main role="main" class="container flex-grow-1 py-4">
         @RenderBody()
     </main>
 
+    <!-- Rodapé Global -->
     <footer class="app-footer mt-auto py-3">
-        <div class="container d-flex flex-wrap justify-content-between gap-2">
-            <span>&copy; @DateTime.Now.Year - BankaiWeb</span>
-            <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacidade</a>
-
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted py-3">
-        <div class="container text-center">
-            © 2026 - BankaiWeb - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacidade</a>
+        <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2 small">
+            <span>© @DateTime.Now.Year - BankaiWeb</span>
+            <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-decoration-none">Políticas de Privacidade</a>
         </div>
     </footer>
 
+    <!-- Scripts JavaScript Globais -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -1,77 +1,93 @@
 @model IEnumerable<Core.DTO.AgendamentoDTO>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Gestão de Agendamentos";
 }
 
-<h1>Index</h1>
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-11">
+        <!-- Container no padrão Design System Bankai -->
+        <div class="bankai-card">
+            
+            <!-- Cabeçalho da Página com Título e Botão de Ação -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                <div>
+                    <h3 class="font-weight-bold mb-1">Gestão de Agendamentos</h3>
+                    <p class="text-muted small mb-0">Consulte e gerencie todos os agendamentos de serviços registrados no sistema.</p>
+                </div>
+                <a asp-action="Create" class="btn btn-bankai px-4 py-2">
+                    <i class="bi bi-plus-lg me-1"></i> Novo Agendamento
+                </a>
+            </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.IdCliente)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IdProfissional)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DiaSemana)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HorarioInicio)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HorarioFim)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DescricaoServico)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TipoCobranca)
-            </th>
-            <td>
-                @Html.DisplayNameFor(model => model.StatusAgendamento)
-            </td>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.IdCliente)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.IdProfissional)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DiaSemana)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.HorarioInicio)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.HorarioFim)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DescricaoServico)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.TipoCobranca)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.StatusAgendamento)
-            </td>
-            <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+            <!-- Tabela Estilizada -->
+            <div class="table-responsive">
+                <table class="table table-borderless align-middle mb-0">
+                    <thead class="border-bottom">
+                        <tr class="text-muted small fw-bold">
+                            <th scope="col" class="pb-3">@Html.DisplayNameFor(model => model.IdCliente)</th>
+                            <th scope="col" class="pb-3">@Html.DisplayNameFor(model => model.IdProfissional)</th>
+                            <th scope="col" class="pb-3">@Html.DisplayNameFor(model => model.DiaSemana)</th>
+                            <th scope="col" class="pb-3">@Html.DisplayNameFor(model => model.HorarioInicio)</th>
+                            <th scope="col" class="pb-3">@Html.DisplayNameFor(model => model.HorarioFim)</th>
+                            <th scope="col" class="pb-3">@Html.DisplayNameFor(model => model.DescricaoServico)</th>
+                            <th scope="col" class="pb-3">@Html.DisplayNameFor(model => model.TipoCobranca)</th>
+                            <th scope="col" class="pb-3">@Html.DisplayNameFor(model => model.StatusAgendamento)</th>
+                            <th scope="col" class="pb-3 text-end">AÇÕES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model) {
+                            <tr class="border-bottom">
+                                <td class="fw-bold">@Html.DisplayFor(modelItem => item.IdCliente)</td>
+                                <td class="fw-bold">@Html.DisplayFor(modelItem => item.IdProfissional)</td>
+                                <td>@Html.DisplayFor(modelItem => item.DiaSemana)</td>
+                                <td>@Html.DisplayFor(modelItem => item.HorarioInicio)</td>
+                                <td>@Html.DisplayFor(modelItem => item.HorarioFim)</td>
+                                <td class="text-truncate" style="max-width: 180px;" title="@item.DescricaoServico">
+                                    @Html.DisplayFor(modelItem => item.DescricaoServico)
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border px-2 py-1">
+                                        @Html.DisplayFor(modelItem => item.TipoCobranca)
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 rounded-pill fw-bold">
+                                        @Html.DisplayFor(modelItem => item.StatusAgendamento)
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group" role="group">
+                                        <a href="@Url.Action("Edit", "Agendamento", new { id = item.Id })" class="btn btn-sm btn-outline-warning rounded-2 me-1" title="Editar">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </a>
+                                        <a href="@Url.Action("Details", "Agendamento", new { id = item.Id })" class="btn btn-sm btn-outline-info rounded-2 me-1 text-dark" title="Detalhes">
+                                            <i class="bi bi-eye-fill"></i>
+                                        </a>
+                                        <a href="@Url.Action("Delete", "Agendamento", new { id = item.Id })" class="btn btn-sm btn-outline-danger rounded-2" title="Excluir">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center py-5 text-muted">
+                                <i class="bi bi-calendar-x display-6 d-block mb-2"></i>
+                                Nenhum agendamento encontrado.
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
