@@ -11,7 +11,11 @@ public partial class Servico
 
     public string Descricao { get; set; } = null!;
 
+    public int IdEspecialidade { get; set; }
+
     public virtual ICollection<Agendamentoservico> Agendamentoservicos { get; set; } = new List<Agendamentoservico>();
+
+    public virtual Especialidade IdEspecialidadeNavigation { get; set; } = null!;
 
     public virtual ICollection<Profissionalservico> Profissionalservicos { get; set; } = new List<Profissionalservico>();
 }

@@ -7,13 +7,13 @@ public partial class Agendamento
 {
     public int Id { get; set; }
 
-    public string DescricaoServico { get; set; } = null!;
-
+    /// <summary>
+    /// F - FIXO
+    /// O - ORÇAMENTO
+    /// </summary>
     public string TipoCobranca { get; set; } = null!;
 
     public string StatusAgendamento { get; set; } = null!;
-
-    public string Nota { get; set; } = null!;
 
     public string? Comentario { get; set; }
 
@@ -21,17 +21,25 @@ public partial class Agendamento
 
     public int IdCliente { get; set; }
 
-    public TimeSpan HorarioInicio { get; set; }
+    public DateTime HorarioInicio { get; set; }
 
-    public TimeSpan HorarioFim { get; set; }
+    public DateTime HorarioFim { get; set; }
 
-    public string DiaSemana { get; set; } = null!;
+    public DateTime Data { get; set; }
+
+    public byte[]? Foto { get; set; }
+
+    public int? IdOrcamento { get; set; }
 
     public virtual ICollection<Agendamentoservico> Agendamentoservicos { get; set; } = new List<Agendamentoservico>();
+
+    public virtual ICollection<Avaliacao> Avaliacaos { get; set; } = new List<Avaliacao>();
 
     public virtual ICollection<Chamadogarantium> Chamadogarantia { get; set; } = new List<Chamadogarantium>();
 
     public virtual Pessoa IdClienteNavigation { get; set; } = null!;
+
+    public virtual Orcamento? IdOrcamentoNavigation { get; set; }
 
     public virtual Pessoa IdProfissionalNavigation { get; set; } = null!;
 
