@@ -16,13 +16,13 @@ namespace Core.DTO
         public string StatusAgendamento { get; set; } = null!;
 
         [Display(Name = "Dia da Semana")]
-        public string DiaSemana { get; set; } = null!; 
+        public DateTime DiaSemana { get; set; }
 
         [Display(Name = "Horário de Início")]
-        public TimeSpan HorarioInicio { get; set; }
+        public DateTime HorarioInicio { get; set; }
 
         [Display(Name = "Horário de Fim")]
-        public TimeSpan HorarioFim { get; set; }
+        public DateTime HorarioFim { get; set; }
 
         [Display(Name = "Descrição do Serviço")]
         public string DescricaoServico { get; set; } = null!;

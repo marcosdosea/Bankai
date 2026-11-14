@@ -18,36 +18,38 @@ namespace BankaiWeb.Models
         [Display(Name = "Dia da semana")]
         [Required(ErrorMessage = "O dia da semana é obrigatório")]
         [RegularExpression("^(D|SF|TF|QF|QIF|SXF|S)$", ErrorMessage = "Informe um dia da semana válido")]
-        public string DiaSemana { get; set; } = null!;
+        public DateTime DiaSemana { get; set; }
 
         [Display(Name = "Horário de início")]
         [Required(ErrorMessage = "O horário de início é obrigatório")]
         [DataType(DataType.Time)]
         [DisplayFormat(DataFormatString = "{0:hh\\:mm}", ApplyFormatInEditMode = true)]
-        public TimeSpan HorarioInicio { get; set; }
+        public DateTime HorarioInicio { get; set; }
 
         [Display(Name = "Horário de término")]
         [Required(ErrorMessage = "O horário de término é obrigatório")]
         [DataType(DataType.Time)]
         [DisplayFormat(DataFormatString = "{0:hh\\:mm}", ApplyFormatInEditMode = true)]
-        public TimeSpan HorarioFim { get; set; }
+        public DateTime HorarioFim { get; set; }
 
-        [Display(Name = "Descrição do serviço")]
+        /*[Display(Name = "Descrição do serviço")]
         [Required(ErrorMessage = "A descrição do serviço é obrigatória")]
         [StringLength(255, ErrorMessage = "A descrição do serviço deve ter no máximo 255 caracteres")]
         public string DescricaoServico { get; set; } = null!;
+        */
 
         [Display(Name = "Tipo de cobrança")]
         [Required(ErrorMessage = "O tipo de cobrança é obrigatório")]
         [RegularExpression("^(F|O)$", ErrorMessage = "Informe um tipo de cobrança válido")]
         public string TipoCobranca { get; set; } = null!;
 
-        [Display(Name = "Nota")]
+        /*[Display(Name = "Nota")]
         [RegularExpression("^(MR|R|B|MB|E)?$", ErrorMessage = "Informe uma nota válida")]
         public string? Nota { get; set; }
 
         [Display(Name = "Comentário")]
         [StringLength(255, ErrorMessage = "O comentário deve ter no máximo 255 caracteres")]
         public string? Comentario { get; set; }
+        */
     }
 }

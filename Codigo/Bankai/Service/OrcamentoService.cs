@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Service
 {
-    public class OrcamentoService : IOrcamentoService
+    public class OrcamentoService //: IOrcamentoService
     {
         private const decimal TAXA_INTERMEDIACAO = 0.15m; // 15% retido pela plataforma conforme RN01
         private readonly BankaiContext context;
@@ -43,7 +43,7 @@ namespace Service
         /// <summary>
         /// Registra a proposta financeira de orçamento para a ordem de serviço.
         /// </summary>
-        public bool EnviarOrcamento(int idAgendamento, int idServico, decimal valorProposto)
+        /*public bool EnviarOrcamento(int idAgendamento, int idServico, decimal valorProposto)
         {
             if (valorProposto <= 0)
             {
@@ -177,6 +177,7 @@ namespace Service
                 })
                 .ToList();
         }
+        */
     }
 }
 
