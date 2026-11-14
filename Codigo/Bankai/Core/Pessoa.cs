@@ -29,6 +29,10 @@ public partial class Pessoa
 
     public string NumeroCasa { get; set; } = null!;
 
+    public decimal Saldo { get; set; }
+
+    public byte[]? RegistroTecnico { get; set; }
+
     public virtual ICollection<Agendamento> AgendamentoIdClienteNavigations { get; set; } = new List<Agendamento>();
 
     public virtual ICollection<Agendamento> AgendamentoIdProfissionalNavigations { get; set; } = new List<Agendamento>();
