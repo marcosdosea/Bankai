@@ -38,10 +38,9 @@ public class AgendamentoService : IAgendamentoService
         var atual = ObterOuFalhar(agendamento.Id);
         ExigirStatus(atual, EmExecucao, "Só é possível editar agendamentos em execução.");
 
-        atual.DiaSemana = agendamento.DiaSemana;
+        atual.Data = agendamento.Data;
         atual.HorarioInicio = agendamento.HorarioInicio;
         atual.HorarioFim = agendamento.HorarioFim;
-        atual.DescricaoServico = agendamento.DescricaoServico;
         atual.TipoCobranca = agendamento.TipoCobranca;
 
         Validar(atual).Wait();
@@ -60,21 +59,6 @@ public class AgendamentoService : IAgendamentoService
         _context.SaveChanges();
     }
        
-    /// <summary>
-    /// Salva avaliação no banco de dados
-    /// </summary>
-    /// <param name="idAgendamento"></param>
-    /// <param name="nota"></param>
-    /// <param name="comentario"></param>
-    public void Avaliar(int idAgendamento, string nota, string? comentario)
-    {
-        var ag = ObterOuFalhar(idAgendamento);
-        ExigirStatus(ag, Concluido, "Só é possível avaliar agendamentos concluídos.");
-
-        ag.Nota = nota.ToString();
-        ag.Comentario = comentario;
-        _context.SaveChanges();
-    }
     /// <summary>
     /// Consulta agendamento no banco de dados
     /// </summary>
@@ -98,13 +82,11 @@ public class AgendamentoService : IAgendamentoService
             NomeCliente = a.IdClienteNavigation.Nome,
             IdProfissional = a.IdProfissional,
             NomeProfissional = a.IdProfissionalNavigation.Nome,
-            DescricaoServico = a.DescricaoServico,
             TipoCobranca = a.TipoCobranca,
             StatusAgendamento = a.StatusAgendamento,
-            DiaSemana = a.DiaSemana,
+            DiaSemana = a.Data,
             HorarioInicio = a.HorarioInicio,
             HorarioFim = a.HorarioFim,
-            Nota = a.Nota,
             Comentario = a.Comentario
         });
     }
@@ -122,10 +104,10 @@ public class AgendamentoService : IAgendamentoService
         // Regra 3: profissional disponível nesse dia/horário
         var disponivel = await _context.Disponibilidades.AnyAsync(d =>
             d.IdPessoa == agendamento.IdProfissional &&
-            d.DiaSemana == agendamento.DiaSemana &&
             d.StatusDisponibilidade == "D" &&
-            d.HorarioInicio <= agendamento.HorarioInicio &&
-            d.HorarioFim >= agendamento.HorarioFim);
+            d.DiaSemana == agendamento.Data.DayOfWeek.ToString().Substring(0, 2).ToUpper() &&
+            d.HorarioInicio <= agendamento.HorarioInicio.TimeOfDay &&
+            d.HorarioFim >= agendamento.HorarioFim.TimeOfDay);
 
         if (!disponivel)
             throw new InvalidOperationException("Profissional indisponível neste dia/horário.");
@@ -133,7 +115,7 @@ public class AgendamentoService : IAgendamentoService
         // Regra 4: conflito com outro agendamento
         var conflito = await _context.Agendamentos.AnyAsync(a =>
             a.Id != agendamento.Id &&
-            a.DiaSemana == agendamento.DiaSemana &&
+            a.Data == agendamento.Data &&
             a.StatusAgendamento != Cancelado &&
             (a.IdProfissional == agendamento.IdProfissional || a.IdCliente == agendamento.IdCliente) &&
             a.HorarioInicio < agendamento.HorarioFim &&

@@ -135,7 +135,7 @@ namespace BankaiWeb.Controllers
             return View(agendamentoViewModel);
         }
 
-        // POST: AgendamentoController/Avaliar
+        /* POST: AgendamentoController/Avaliar
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Avaliar(int id, AgendamentoViewModel agendamentoViewModel)
@@ -159,6 +159,7 @@ namespace BankaiWeb.Controllers
             return RedirectToAction(nameof(Index));
 
         }
+        */
 
     }
 }
