@@ -15,8 +15,8 @@ namespace Core.DTO
         [Display(Name = "Situação")]
         public string StatusAgendamento { get; set; } = null!;
 
-        [Display(Name = "Dia da Semana")]
-        public DateTime DiaSemana { get; set; }
+        [Display(Name = "Data")]
+        public DateTime Data { get; set; }
 
         [Display(Name = "Horário de Início")]
         public DateTime HorarioInicio { get; set; }
@@ -24,13 +24,9 @@ namespace Core.DTO
         [Display(Name = "Horário de Fim")]
         public DateTime HorarioFim { get; set; }
 
-        [Display(Name = "Descrição do Serviço")]
-        public string DescricaoServico { get; set; } = null!;
-
         [Display(Name = "Tipo de Cobrança")]
         public string TipoCobranca { get; set; } = null!;
 
-        public string? Nota { get; set; }
         public string? Comentario { get; set; }
 
     }

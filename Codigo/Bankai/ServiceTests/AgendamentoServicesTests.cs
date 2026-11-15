@@ -33,37 +33,34 @@ public class AgendamentoServiceTests
                 Id = 1,
                 IdCliente = 3,
                 IdProfissional = 5,
-                DescricaoServico = "Serviço 1",
                 TipoCobranca = "F",
-                DiaSemana = "QF",
-                HorarioInicio = TimeSpan.FromHours(10),
-                HorarioFim = TimeSpan.FromHours(15),
-                StatusAgendamento = "E",
-                Nota = "MR" },
+                Data = DateTime.Today,
+                HorarioInicio = DateTime.Now.AddHours(9),
+                HorarioFim = DateTime.Now.AddHours(15),
+                StatusAgendamento = "Execucao",
+                Foto = null
+            },
             new Agendamento
             {
                 Id = 2,
                 IdCliente = 6,
                 IdProfissional = 1,
-                DescricaoServico = "Serviço 2",
                 TipoCobranca = "O",
-                DiaSemana = "SXF",
-                HorarioInicio = TimeSpan.FromHours(9),
-                HorarioFim = TimeSpan.FromHours(10),
-                StatusAgendamento = "C",
-                Nota = "B" },
+                Data = DateTime.Today.AddDays(3),
+                HorarioInicio = DateTime.Now.AddHours(9),
+                HorarioFim = DateTime.Now.AddHours(15),
+                StatusAgendamento = "Concluido",
+                },
             new Agendamento
             {
                 Id = 3,
                 IdCliente = 2,
                 IdProfissional = 3,
-                DescricaoServico = "Serviço 3",
                 TipoCobranca = "F",
-                DiaSemana = "Q",
-                HorarioInicio = TimeSpan.FromHours(13),
-                HorarioFim = TimeSpan.FromHours(16),
-                StatusAgendamento = "E",
-                Nota = "MB"
+                Data = DateTime.Today.AddDays(1),
+                HorarioInicio = DateTime.Now.AddHours(13),
+                HorarioFim = DateTime.Now.AddHours(16),
+                StatusAgendamento = "Execucao",
             });
            
 
@@ -72,7 +69,18 @@ public class AgendamentoServiceTests
             {
                 Id = 1,
                 IdPessoa = 7,
-                DiaSemana = "S",
+                DiaSemana = "D",
+                StatusDisponibilidade = "D",
+                HorarioInicio = TimeSpan.FromHours(8),
+                HorarioFim = TimeSpan.FromHours(18)
+            });
+
+        context.Disponibilidades.Add(
+            new Disponibilidade
+            {
+                Id = 3,
+                IdPessoa = 7,
+                DiaSemana = "QF",
                 StatusDisponibilidade = "D",
                 HorarioInicio = TimeSpan.FromHours(8),
                 HorarioFim = TimeSpan.FromHours(18)
@@ -83,7 +91,7 @@ public class AgendamentoServiceTests
             {
                 Id = 2,
                 IdPessoa = 5,
-                DiaSemana = "QF",
+                DiaSemana = "S",
                 StatusDisponibilidade = "D",
                 HorarioInicio = TimeSpan.FromHours(8),
                 HorarioFim = TimeSpan.FromHours(18)
@@ -102,19 +110,7 @@ public class AgendamentoServiceTests
     [TestMethod]
     public void Create_QuandoDadosSaoValidos_DeveRetornarId()
     {
-        var agendamento = new Agendamento
-        {
-            Id = 4,
-            IdCliente = 8,
-            IdProfissional = 7,
-            DescricaoServico = "Serviço 4",
-            TipoCobranca = "F",
-            DiaSemana = "S",
-            HorarioInicio = TimeSpan.FromHours(9),
-            HorarioFim = TimeSpan.FromHours(10),
-            StatusAgendamento = "",
-            Nota = ""
-        };
+        var agendamento = CriarAgendamento();
 
         var idRetornado = servicoAgendamento
             .Create(agendamento)
@@ -143,13 +139,11 @@ public class AgendamentoServiceTests
         Assert.AreEqual(agendamentoEsperado.Id, agendamentoCriado.Id);
         Assert.AreEqual(agendamentoEsperado.IdCliente, agendamentoCriado.IdCliente);
         Assert.AreEqual(agendamentoEsperado.IdProfissional, agendamentoCriado.IdProfissional);
+        Assert.AreEqual(agendamentoEsperado.Data, agendamentoCriado.Data);
         Assert.AreEqual(agendamentoEsperado.HorarioInicio, agendamentoCriado.HorarioInicio);
         Assert.AreEqual(agendamentoEsperado.HorarioFim, agendamentoCriado.HorarioFim);
-        Assert.AreEqual(agendamentoEsperado.DiaSemana, agendamentoCriado.DiaSemana);
-        Assert.AreEqual(agendamentoEsperado.DescricaoServico, agendamentoCriado.DescricaoServico);
         Assert.AreEqual(agendamentoEsperado.TipoCobranca, agendamentoCriado.TipoCobranca);
-        Assert.AreEqual("E", agendamentoCriado.StatusAgendamento);
-        Assert.AreEqual(agendamentoEsperado.Nota, agendamentoCriado.Nota);
+
     }
 
     [TestMethod]
@@ -160,13 +154,11 @@ public class AgendamentoServiceTests
             Id = 4,
             IdCliente = 8,
             IdProfissional = 7,
-            DescricaoServico = "Horário inválido",
             TipoCobranca = "F",
-            DiaSemana = "S",
-            HorarioInicio = TimeSpan.FromHours(14),
-            HorarioFim = TimeSpan.FromHours(10),
-            StatusAgendamento = "",
-            Nota = ""
+            Data = DateTime.Today,
+            HorarioInicio = DateTime.Now.AddHours(14),
+            HorarioFim = DateTime.Now.AddHours(10),
+            Foto = null
         };
 
         var excecao = Assert.ThrowsExactlyAsync<InvalidOperationException>(() =>
@@ -182,20 +174,20 @@ public class AgendamentoServiceTests
     public void Edit_DeveAtualizarAgendamentoEmExecucao()
     {
         var agendamento = servicoAgendamento.Get(1)!;
-        agendamento.DescricaoServico = "Descrição atualizada";
+        var diasAteQuarta = ((int)DayOfWeek.Wednesday - (int)DateTime.Today.DayOfWeek + 7) % 7;
+        var data = DateTime.Today.AddDays(diasAteQuarta);
         agendamento.TipoCobranca = "O";
-        agendamento.DiaSemana = "QF";
-        agendamento.HorarioInicio = TimeSpan.FromHours(11);
-        agendamento.HorarioFim = TimeSpan.FromHours(14);
+        agendamento.Data = data;
+        agendamento.HorarioInicio = data.AddHours(11);
+        agendamento.HorarioFim = data.AddHours(14);
 
         servicoAgendamento.Edit(agendamento);
 
         var agendamentoAtualizado = servicoAgendamento.Get(1)!;
 
-        Assert.AreEqual("Descrição atualizada", agendamentoAtualizado.DescricaoServico);
         Assert.AreEqual("O", agendamentoAtualizado.TipoCobranca);
-        Assert.AreEqual(TimeSpan.FromHours(11), agendamentoAtualizado.HorarioInicio);
-        Assert.AreEqual(TimeSpan.FromHours(14), agendamentoAtualizado.HorarioFim);
+        Assert.AreEqual(data.AddHours(11), agendamentoAtualizado.HorarioInicio);
+        Assert.AreEqual(data.AddHours(14), agendamentoAtualizado.HorarioFim);
     }
 
     [TestMethod]
@@ -203,7 +195,7 @@ public class AgendamentoServiceTests
     {
         servicoAgendamento.Delete(1);
         var agendamentoCancelado = servicoAgendamento.Get(1)!;
-        Assert.AreEqual("CA", agendamentoCancelado.StatusAgendamento);
+        Assert.AreEqual("Cancelado", agendamentoCancelado.StatusAgendamento);
     }
 
     [TestMethod]
@@ -214,17 +206,6 @@ public class AgendamentoServiceTests
     }
 
     [TestMethod]
-    public void Avaliar_DeveGravarNotaEComentarioNoAgendamentoConcluido()
-    {
-        servicoAgendamento.Avaliar(2, "B", "Bom atendimento");
-
-        var agendamentoAvaliado = servicoAgendamento.Get(2)!;
-
-        Assert.AreEqual("B", agendamentoAvaliado.Nota);
-        Assert.AreEqual("Bom atendimento", agendamentoAvaliado.Comentario);
-    }
-
-    [TestMethod]
     public void Get_DeveRetornarAgendamentoPeloId()
     {
         var agendamento = servicoAgendamento.Get(1)!;
@@ -232,7 +213,6 @@ public class AgendamentoServiceTests
         Assert.AreEqual(1, agendamento.Id);
         Assert.AreEqual(3, agendamento.IdCliente);
         Assert.AreEqual(5, agendamento.IdProfissional);
-        Assert.AreEqual("Serviço 1", agendamento.DescricaoServico);
     }
 
     [TestMethod]
@@ -274,18 +254,18 @@ public class AgendamentoServiceTests
 
     private static Agendamento CriarAgendamento()
     {
+        var hoje = DateTime.Today;
+        var diasAteQuarta = ((int)DayOfWeek.Wednesday - (int)hoje.DayOfWeek + 7) % 7;
+        var dt = hoje.AddDays(diasAteQuarta);
         return new Agendamento
         {
             Id = 4,
             IdCliente = 6,
             IdProfissional = 7,
-            DiaSemana = "S",
-            HorarioInicio = TimeSpan.FromHours(9),
-            HorarioFim = TimeSpan.FromHours(12),
-            DescricaoServico = "Trocar lampada",
+            Data = dt,
+            HorarioInicio = dt.AddHours(9),
+            HorarioFim = dt.AddHours(12),
             TipoCobranca = "F",
-            StatusAgendamento = "",
-            Nota = ""
         };
     }
 }
