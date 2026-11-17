@@ -26,7 +26,10 @@ namespace Core.DTO
 
         [Display(Name = "Tipo de Cobrança")]
         public string TipoCobranca { get; set; } = null!;
+        [Display(Name = "Foto")]
+        public string? Foto { get; set; }
 
+        [Display(Name = "Comentário")]
         public string? Comentario { get; set; }
 
     }

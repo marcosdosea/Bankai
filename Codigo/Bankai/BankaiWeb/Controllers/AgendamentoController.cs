@@ -135,31 +135,6 @@ namespace BankaiWeb.Controllers
             return View(agendamentoViewModel);
         }
 
-        /* POST: AgendamentoController/Avaliar
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Avaliar(int id, AgendamentoViewModel agendamentoViewModel)
-        {
-            if (string.IsNullOrEmpty(agendamentoViewModel.Nota) || ModelState["Nota"]?.Errors.Count > 0)
-            {
-                ModelState.AddModelError("Nota", "Informe uma nota válida.");
-                return View("Details", agendamentoViewModel);
-            }
-
-            try
-            {
-                _agendamentoService.Avaliar(id, agendamentoViewModel.Nota, agendamentoViewModel.Comentario);
-            }
-            catch (InvalidOperationException ex)
-            {
-                ModelState.AddModelError("", ex.Message);
-                return View("Details", agendamentoViewModel);
-            }
-
-            return RedirectToAction(nameof(Index));
-
-        }
-        */
 
     }
 }
