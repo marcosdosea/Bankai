@@ -17,19 +17,25 @@ namespace BankaiWeb.Models
 
         [Display(Name = "Dia da semana")]
         [Required(ErrorMessage = "O dia da semana é obrigatório")]
+        [RegularExpression("^(D|SF|TF|QF|QIF|SXF|S)$", ErrorMessage = "Dia da semana inválido")]
+        public string DiaSemana { get; set; } = null!;
+
+        // Calculada a partir de DiaSemana (não vem do formulário)
+        [Display(Name = "Data do agendamento")]
+        [DataType(DataType.Date)]
         public DateTime Data { get; set; }
 
         [Display(Name = "Horário de início")]
         [Required(ErrorMessage = "O horário de início é obrigatório")]
         [DataType(DataType.Time)]
         [DisplayFormat(DataFormatString = "{0:hh\\:mm}", ApplyFormatInEditMode = true)]
-        public DateTime HorarioInicio { get; set; }
+        public TimeSpan HorarioInicio { get; set; }
 
         [Display(Name = "Horário de término")]
         [Required(ErrorMessage = "O horário de término é obrigatório")]
         [DataType(DataType.Time)]
         [DisplayFormat(DataFormatString = "{0:hh\\:mm}", ApplyFormatInEditMode = true)]
-        public DateTime HorarioFim { get; set; }
+        public TimeSpan HorarioFim { get; set; }
 
         [Display(Name = "Tipo de cobrança")]
         [Required(ErrorMessage = "O tipo de cobrança é obrigatório")]
@@ -43,8 +49,11 @@ namespace BankaiWeb.Models
         [StringLength(255, ErrorMessage = "O comentário deve ter no máximo 255 caracteres")]
         public string? Comentario { get; set; }
 
-        [Display(Name = "Foto")]
+        // Dados salvos no banco
         public byte[]? Foto { get; set; }
 
+        // Arquivo enviado pelo formulário
+        [Display(Name = "Foto")]
+        public IFormFile? FotoUpload { get; set; }
     }
 }

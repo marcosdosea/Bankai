@@ -10,4 +10,5 @@ public interface IAgendamentoService
     Task Validar(Agendamento agendamento);
     Agendamento Get(int idAgendamento);
     IEnumerable<AgendamentoDTO> GetAllByUser(int idPessoa);
+    DateTime ObterDataNaSemanaAtual(string diaSemana);
 }

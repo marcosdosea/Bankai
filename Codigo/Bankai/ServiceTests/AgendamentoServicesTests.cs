@@ -34,9 +34,9 @@ public class AgendamentoServiceTests
                 IdCliente = 3,
                 IdProfissional = 5,
                 TipoCobranca = "F",
-                Data = DateTime.Today.AddDays(6),
-                HorarioInicio = DateTime.Today.AddHours(15).AddDays(6),
-                HorarioFim = DateTime.Today.AddHours(17).AddDays(6),
+                Data = DateTime.Today.AddDays(4),
+                HorarioInicio = DateTime.Today.AddHours(15).AddDays(4),
+                HorarioFim = DateTime.Today.AddHours(17).AddDays(4),
                 StatusAgendamento = "Novo",
                 Foto = null
             },

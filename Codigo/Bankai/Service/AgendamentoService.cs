@@ -114,6 +114,13 @@ public class AgendamentoService : IAgendamentoService
                (agendamento.Data.Date == DateTime.Today && agendamento.HorarioInicio < DateTime.Now))
             throw new InvalidOperationException("Não é permitido agendar em datas ou horários passados.");
 
+        // Regra 4.1: só é possível agendar dentro da semana atual (segunda a domingo)
+        var inicioSemana = InicioDaSemana(DateTime.Today);
+        var fimSemana = inicioSemana.AddDays(6);
+
+        if (agendamento.Data.Date < inicioSemana || agendamento.Data.Date > fimSemana)
+            throw new InvalidOperationException("Só é possível agendar para a semana atual.");
+
         // Regra 5: profissional disponível nesse dia/horário
         var diaSemana = ObterDiaSemanaString(agendamento.Data.DayOfWeek);
 
@@ -171,5 +178,37 @@ public class AgendamentoService : IAgendamentoService
             DayOfWeek.Saturday => "S",
             _ => throw new ArgumentOutOfRangeException(nameof(dia), dia, null)
         };
+    }
+    // converte o código do dia ("SF", "TF"...) em DayOfWeek
+    public static DayOfWeek ObterDayOfWeek(string codigo)
+    {
+        return codigo switch
+        {
+            "D" => DayOfWeek.Sunday,
+            "SF" => DayOfWeek.Monday,
+            "TF" => DayOfWeek.Tuesday,
+            "QF" => DayOfWeek.Wednesday,
+            "QIF" => DayOfWeek.Thursday,
+            "SXF" => DayOfWeek.Friday,
+            "S" => DayOfWeek.Saturday,
+            _ => throw new InvalidOperationException("Dia da semana inválido.")
+        };
+    }
+
+    // Segunda = 0 ... Domingo = 6
+    private static int PosicaoNaSemana(DayOfWeek dia) => ((int)dia + 6) % 7;
+
+    // segunda-feira da semana da data informada
+    private static DateTime InicioDaSemana(DateTime data) =>
+        data.Date.AddDays(-PosicaoNaSemana(data.DayOfWeek));
+
+    /// <summary>
+    /// Retorna a data do dia informado dentro da semana atual (segunda a domingo).
+    /// Pode ser uma data passada; quem barra é o Validar.
+    /// </summary>
+    public DateTime ObterDataNaSemanaAtual(string diaSemana)
+    {
+        var alvo = ObterDayOfWeek(diaSemana);
+        return InicioDaSemana(DateTime.Today).AddDays(PosicaoNaSemana(alvo));
     }
 }
