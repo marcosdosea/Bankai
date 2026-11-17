@@ -43,7 +43,7 @@ namespace Service
         /// <param name="id"></param>
         public void Delete(uint id)
         {
-            var chamado = context.Chamadogarantia.Find(id);
+            var chamado = context.Chamadogarantia.FirstOrDefault(g => g.Id == id);
             if (chamado != null)
             {
                 context.Remove(chamado);
