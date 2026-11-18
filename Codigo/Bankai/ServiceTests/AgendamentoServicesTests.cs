@@ -62,40 +62,27 @@ public class AgendamentoServiceTests
                 HorarioFim = DateTime.Today.AddHours(16),
                 StatusAgendamento = "Execucao",
             });
-           
 
-        context.Disponibilidades.Add(
-            new Disponibilidade
-            {
-                Id = 1,
-                IdPessoa = 7,
-                DiaSemana = "D",
-                StatusDisponibilidade = "D",
-                HorarioInicio = TimeSpan.FromHours(8),
-                HorarioFim = TimeSpan.FromHours(18)
-            });
 
-        context.Disponibilidades.Add(
-            new Disponibilidade
-            {
-                Id = 3,
-                IdPessoa = 7,
-                DiaSemana = "QF",
-                StatusDisponibilidade = "D",
-                HorarioInicio = TimeSpan.FromHours(8),
-                HorarioFim = TimeSpan.FromHours(18)
-            });
+        string[] diasSemana = { "D", "SF", "TF", "QF", "QIF", "SXF", "S" };
+        int[] profissionais = { 5, 7 };
 
-        context.Disponibilidades.Add(
-            new Disponibilidade
+        var idDisponibilidade = 1;
+        foreach (var idPessoa in profissionais)
+        {
+            foreach (var dia in diasSemana)
             {
-                Id = 2,
-                IdPessoa = 5,
-                DiaSemana = "S",
-                StatusDisponibilidade = "D",
-                HorarioInicio = TimeSpan.FromHours(8),
-                HorarioFim = TimeSpan.FromHours(18)
-            });
+                context.Disponibilidades.Add(new Disponibilidade
+                {
+                    Id = idDisponibilidade++,
+                    IdPessoa = idPessoa,
+                    DiaSemana = dia,
+                    StatusDisponibilidade = "D",
+                    HorarioInicio = TimeSpan.FromHours(8),
+                    HorarioFim = TimeSpan.FromHours(18)
+                });
+            }
+        }
 
         context.SaveChanges();
         servicoAgendamento = new AgendamentoService(context);
