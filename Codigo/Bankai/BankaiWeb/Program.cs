@@ -17,7 +17,7 @@ namespace BankaiWeb
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            TypeAdapterConfig.GlobalSettings.Scan(typeof(AgendamentoServicoProfile).Assembly);
+            TypeAdapterConfig.GlobalSettings.Scan(typeof(AgendamentoMapper).Assembly);
             builder.Services.AddSingleton(TypeAdapterConfig.GlobalSettings);
             builder.Services.AddScoped<IAgendamentoService, AgendamentoService>();
             builder.Services.AddScoped<IMapper, ServiceMapper>();

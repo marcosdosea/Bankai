@@ -47,9 +47,23 @@ namespace BankaiWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(AgendamentoViewModel agendamentoViewModel)
         {
+            //é necessario, pois data é tratado depois e não na viewmodel, ja que nao aparecerá o campo
+            //no formulário
+            ModelState.Remove(nameof(agendamentoViewModel.Data));
+            ModelState.Remove(nameof(agendamentoViewModel.Foto));
+
             if (!ModelState.IsValid)
-            {
                 return View(agendamentoViewModel);
+
+            // Dia da semana -> data dentro da semana atual
+            agendamentoViewModel.Data = _agendamentoService.ObterDataNaSemanaAtual(agendamentoViewModel.DiaSemana);
+
+            // Foto
+            if (agendamentoViewModel.FotoUpload is { Length: > 0 })
+            {
+                using var ms = new MemoryStream();
+                await agendamentoViewModel.FotoUpload.CopyToAsync(ms);
+                agendamentoViewModel.Foto = ms.ToArray();
             }
 
             var agendamento = _mapper.Map<Agendamento>(agendamentoViewModel);
@@ -66,30 +80,36 @@ namespace BankaiWeb.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
         // GET: AgendamentoController/Edit
+        [HttpGet]
         public ActionResult Edit(int id)
         {
             Agendamento agendamento = _agendamentoService.Get(id);
+            if (agendamento == null) return NotFound();
             AgendamentoViewModel agendamentoViewModel = _mapper.Map<AgendamentoViewModel>(agendamento);
             return View(agendamentoViewModel);
         }
+
         // POST: AgendamentoController/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id, AgendamentoViewModel agendamentoViewModel)
         {
+            ModelState.Remove(nameof(agendamentoViewModel.Data));
+            ModelState.Remove(nameof(agendamentoViewModel.Foto));
 
             if (!ModelState.IsValid)
-            {
                 return View(agendamentoViewModel);
-            }
+
+            agendamentoViewModel.Data = _agendamentoService.ObterDataNaSemanaAtual(agendamentoViewModel.DiaSemana);
 
             var agendamento = _mapper.Map<Agendamento>(agendamentoViewModel);
             agendamento.Id = id;
 
             try
             {
-                 _agendamentoService.Edit(agendamento);
+                _agendamentoService.Edit(agendamento);
             }
             catch (InvalidOperationException ex)
             {
@@ -98,19 +118,21 @@ namespace BankaiWeb.Controllers
             }
 
             return RedirectToAction(nameof(Index));
-            
         }
 
         // GET: AgendamentoController/Delete
+        [HttpGet]
         public ActionResult Delete(int id)
         {
             Agendamento agendamento = _agendamentoService.Get(id);
+            if (agendamento == null) return NotFound();
             AgendamentoViewModel agendamentoViewModel = _mapper.Map<AgendamentoViewModel>(agendamento);
             return View(agendamentoViewModel);
         }
 
         // POST: AgendamentoController/Delete
         [HttpPost]
+        [HttpDelete]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, AgendamentoViewModel agendamentoViewModel)
         {
@@ -126,40 +148,6 @@ namespace BankaiWeb.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
-        // GET: AgendamentoController/Avaliar
-        public ActionResult Avaliar(int id)
-        {
-            Agendamento agendamento = _agendamentoService.Get(id);
-            AgendamentoViewModel agendamentoViewModel = _mapper.Map<AgendamentoViewModel>(agendamento);
-            return View(agendamentoViewModel);
-        }
-
-        /* POST: AgendamentoController/Avaliar
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Avaliar(int id, AgendamentoViewModel agendamentoViewModel)
-        {
-            if (string.IsNullOrEmpty(agendamentoViewModel.Nota) || ModelState["Nota"]?.Errors.Count > 0)
-            {
-                ModelState.AddModelError("Nota", "Informe uma nota válida.");
-                return View("Details", agendamentoViewModel);
-            }
-
-            try
-            {
-                _agendamentoService.Avaliar(id, agendamentoViewModel.Nota, agendamentoViewModel.Comentario);
-            }
-            catch (InvalidOperationException ex)
-            {
-                ModelState.AddModelError("", ex.Message);
-                return View("Details", agendamentoViewModel);
-            }
-
-            return RedirectToAction(nameof(Index));
-
-        }
-        */
 
     }
 }
