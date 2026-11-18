@@ -7,9 +7,8 @@ namespace Service;
 
 public class AgendamentoService : IAgendamentoService
 {
-    private const string EmExecucao = "E";
-    private const string Concluido = "C";
-    private const string Cancelado = "CA";
+    private const string Novo = "Novo";
+    private const string Cancelado = "Cancelado";
 
     private readonly BankaiContext _context;
     public AgendamentoService(BankaiContext context) => _context = context;
@@ -22,7 +21,8 @@ public class AgendamentoService : IAgendamentoService
     public async Task<int> Create(Agendamento agendamento)
     {
         await Validar(agendamento);
-        agendamento.StatusAgendamento = EmExecucao;
+
+        agendamento.StatusAgendamento = "Novo";
 
         _context.Agendamentos.Add(agendamento);
         await _context.SaveChangesAsync();
@@ -36,14 +36,16 @@ public class AgendamentoService : IAgendamentoService
     public void Edit(Agendamento agendamento)
     {
         var atual = ObterOuFalhar(agendamento.Id);
-        ExigirStatus(atual, EmExecucao, "Só é possível editar agendamentos em execução.");
+        ExigirStatus(atual, "Só é possível editar agendamentos que ainda não foram iniciados.", Novo);
 
+        //Esses são os unicos campos que podem ser alterados. A ver no futuro se isso muda.
         atual.Data = agendamento.Data;
         atual.HorarioInicio = agendamento.HorarioInicio;
         atual.HorarioFim = agendamento.HorarioFim;
         atual.TipoCobranca = agendamento.TipoCobranca;
+        atual.Comentario = agendamento.Comentario;
 
-        Validar(atual).Wait();
+        Validar(atual).GetAwaiter().GetResult();
         _context.SaveChanges();
     }
 
@@ -54,7 +56,7 @@ public class AgendamentoService : IAgendamentoService
     public void Delete(int idAgendamento)
     {
         var ag = ObterOuFalhar(idAgendamento);
-        ExigirStatus(ag, EmExecucao, "Só é possível cancelar agendamentos em execução.");
+        ExigirStatus(ag, "Só é possível cancelar agendamentos que não foram executados.", Novo);
         ag.StatusAgendamento = Cancelado;
         _context.SaveChanges();
     }
@@ -84,7 +86,7 @@ public class AgendamentoService : IAgendamentoService
             NomeProfissional = a.IdProfissionalNavigation.Nome,
             TipoCobranca = a.TipoCobranca,
             StatusAgendamento = a.StatusAgendamento,
-            DiaSemana = a.Data,
+            Data = a.Data,
             HorarioInicio = a.HorarioInicio,
             HorarioFim = a.HorarioFim,
             Comentario = a.Comentario
@@ -101,28 +103,42 @@ public class AgendamentoService : IAgendamentoService
         if (agendamento.HorarioFim <= agendamento.HorarioInicio)
             throw new InvalidOperationException("O horário final deve ser maior que o inicial.");
 
-        // Regra 3: profissional disponível nesse dia/horário
+        // Regra 3: horários devem estar no mesmo dia da data do agendamento
+        var data = agendamento.Data.Date;
+
+        if (agendamento.HorarioInicio.Date != data || agendamento.HorarioFim.Date != data)
+            throw new InvalidOperationException("Os horários devem estar no dia da data do agendamento.");
+
+        // Regra 4: não permitir agendamento em datas passadas e horários passados 
+        if (agendamento.Data.Date < DateTime.Today ||
+               (agendamento.Data.Date == DateTime.Today && agendamento.HorarioInicio < DateTime.Now))
+            throw new InvalidOperationException("Não é permitido agendar em datas ou horários passados.");
+
+        // Regra 5: profissional disponível nesse dia/horário
+        var diaSemana = ObterDiaSemanaString(agendamento.Data.DayOfWeek);
+
         var disponivel = await _context.Disponibilidades.AnyAsync(d =>
             d.IdPessoa == agendamento.IdProfissional &&
             d.StatusDisponibilidade == "D" &&
-            d.DiaSemana == agendamento.Data.DayOfWeek.ToString().Substring(0, 2).ToUpper() &&
+            d.DiaSemana == diaSemana &&
             d.HorarioInicio <= agendamento.HorarioInicio.TimeOfDay &&
             d.HorarioFim >= agendamento.HorarioFim.TimeOfDay);
 
         if (!disponivel)
             throw new InvalidOperationException("Profissional indisponível neste dia/horário.");
 
-        // Regra 4: conflito com outro agendamento
+        // Regra 6: conflito com outro agendamento
         var conflito = await _context.Agendamentos.AnyAsync(a =>
             a.Id != agendamento.Id &&
             a.Data == agendamento.Data &&
-            a.StatusAgendamento != Cancelado &&
+            a.StatusAgendamento != Cancelado && //caso um agendamento esteja cancelado no mesmo dia e hora, não há conflito
             (a.IdProfissional == agendamento.IdProfissional || a.IdCliente == agendamento.IdCliente) &&
             a.HorarioInicio < agendamento.HorarioFim &&
             a.HorarioFim > agendamento.HorarioInicio);
 
         if (conflito)
             throw new InvalidOperationException("Já existe um agendamento neste horário.");
+
     }
 
     // ---------- auxiliares ----------
@@ -135,9 +151,25 @@ public class AgendamentoService : IAgendamentoService
     }
 
     //vefica se o agendamento está no status esperado, caso contrário lança exceção
-    private static void ExigirStatus(Agendamento ag, string esperado, string msg)
+    private static void ExigirStatus(Agendamento ag, string msg, string esperado)
     {
         if (ag.StatusAgendamento != esperado)
             throw new InvalidOperationException(msg);
+    }
+
+    // retornar strings do dia da semana para comparação com a tabela de disponibilidade
+    public static string ObterDiaSemanaString(DayOfWeek dia)
+    {
+        return dia switch
+        {
+            DayOfWeek.Sunday => "D",
+            DayOfWeek.Monday => "SF",
+            DayOfWeek.Tuesday => "TF",
+            DayOfWeek.Wednesday => "QF",
+            DayOfWeek.Thursday => "QIF",
+            DayOfWeek.Friday => "SXF",
+            DayOfWeek.Saturday => "S",
+            _ => throw new ArgumentOutOfRangeException(nameof(dia), dia, null)
+        };
     }
 }
