@@ -29,6 +29,7 @@ namespace BankaiWeb
             builder.Services.AddTransient<IDisponibilidadeService, DisponibilidadeService>();
             builder.Services.AddTransient<IEspecialidadeService, EspecialidadeService>();
             builder.Services.AddTransient<IServicoService, ServicoService>();
+            builder.Services.AddTransient<IGarantiaService, GarantiaService>();
 
             builder.Services.AddDbContext<BankaiContext>(options =>
                 options.UseMySQL(connectionString));
