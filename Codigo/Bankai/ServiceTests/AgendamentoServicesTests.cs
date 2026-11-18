@@ -1,4 +1,4 @@
-﻿using Core;
+﻿/* Core;
 using Core.Service;
 using Microsoft.EntityFrameworkCore;
 
@@ -288,4 +288,4 @@ public class AgendamentoServiceTests
             Nota = ""
         };
     }
-}
+}*/

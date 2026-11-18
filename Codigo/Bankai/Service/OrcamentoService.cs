@@ -41,10 +41,28 @@ namespace Service
         }
 
 
-        public uint Create(Orcamento orcamento)
+        public uint Create(Orcamento orcamento, uint idAgendamento)
         {
+            if (orcamento.ValorProposto <= 0)
+                throw new ArgumentException("O valor do orçamento deve ser maior que zero.");
+
+            if (orcamento.Validade <= 0)
+                throw new ArgumentException("A validade deve ser maior que zero.");
+
+            var agendamento = context.Agendamentos.Find((int)idAgendamento);
+            if (agendamento == null)
+                throw new ArgumentException("Agendamento não encontrado.");
+
+            if (agendamento.TipoCobranca != "O")
+                throw new InvalidOperationException("O agendamento não é do tipo orçamento.");
+
             context.Orcamentos.Add(orcamento);
+            context.SaveChanges(); // Gera o Id do orçamento
+
+            // Vincula o orçamento recém-criado ao agendamento
+            agendamento.IdOrcamento = orcamento.Id;
             context.SaveChanges();
+
             return (uint)orcamento.Id;
         }
 
@@ -52,52 +70,30 @@ namespace Service
         /// <summary>
         /// Registra uma proposta de orçamento, desde que o agendamento esteja configurado para cobrança por orçamento ('O').
         /// </summary>
-        public bool EnviarOrcamento(uint Id, uint idAgendamento, decimal valorProposto, uint validade, string descricao, byte[] MateriaisAdicionais)
-        {
-            if (valorProposto <= 0)
-            {
-                throw new ArgumentException("O valor do orçamento deve ser estritamente maior que zero.", nameof(valorProposto));
-            }
 
-            var agendamento = context.Agendamentos.Find(idAgendamento);
-            if (agendamento == null)
-            {
-                return false;
-            }
-
-            if (agendamento.TipoCobranca != "O")
-            {
-                throw new InvalidOperationException("Apenas agendamentos definidos com cobrança por Orçamento ('O') permitem inserção de proposta orçamentária.");
-            }
-
-            if (validade <= 0)
-            {
-                throw new ArgumentException("O prazo de validade do orçamento deve ser estritamente maior que zero.", nameof(validade));
-            }
-
-            var orcamentoServico = context.Orcamentos.Find(Id);
-            
-            if (orcamentoServico == null)
-            {
-                return false;
-            }
-
-            
-
-            orcamentoServico.ValorProposto = valorProposto;
-            orcamentoServico.Validade = (int)validade;
-            orcamentoServico.Descricao = descricao;
-            orcamentoServico.MateriaisAdicionais = MateriaisAdicionais;
-
-
-            context.SaveChanges();
-
-            return true;
-        }
 
         public void Edit(Orcamento orcamento)
         {
-            context.Update(orcamento);
+            if (orcamento.ValorProposto <= 0)
+                throw new ArgumentException("O valor do orçamento deve ser maior que zero.");
+
+            if (orcamento.Validade <= 0)
+                throw new ArgumentException("A validade deve ser maior que zero.");
+
+            var orcamentoExistente = context.Orcamentos.Find(orcamento.Id);
+            if (orcamentoExistente == null)
+                throw new ArgumentException("Orçamento não encontrado.");
+
+            var agendamento = context.Agendamentos.FirstOrDefault(a => a.IdOrcamento == orcamento.Id);
+            if (agendamento == null || agendamento.TipoCobranca != "O")
+                throw new InvalidOperationException("O orçamento não está vinculado a um agendamento válido do tipo orçamento ('O').");
+
+            // Atualiza apenas os campos permitidos na entidade já rastreada pelo EF
+            orcamentoExistente.ValorProposto = orcamento.ValorProposto;
+            orcamentoExistente.Validade = orcamento.Validade;
+            orcamentoExistente.Descricao = orcamento.Descricao;
+            orcamentoExistente.MateriaisAdicionais = orcamento.MateriaisAdicionais;
+
             context.SaveChanges();
         }
 
@@ -128,8 +124,8 @@ namespace Service
             return context.Orcamentos.AsNoTracking();
         }
 
-        
-        
+
+
     }
 }
 

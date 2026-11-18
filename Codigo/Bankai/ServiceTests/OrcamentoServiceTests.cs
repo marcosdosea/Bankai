@@ -1,7 +1,6 @@
 using Core;
 using Core.Service;
 using Microsoft.EntityFrameworkCore;
-using MySqlX.XDevAPI;
 using Service;
 using System;
 using System.Linq;
@@ -25,7 +24,8 @@ public class OrcamentoServiceTests
 
         contexto = new BankaiContext(opcoes);
 
-        contexto.Orcamentos.AddRange(
+        // Apenas 1 orçamento cadastrado inicialmente (vinculado ao Agendamento 1)
+        contexto.Orcamentos.Add(
             new Orcamento
             {
                 Id = 1,
@@ -33,25 +33,17 @@ public class OrcamentoServiceTests
                 Validade = 7,
                 MateriaisAdicionais = null,
                 Descricao = "Orçamento para reforma de quadro residencial"
-            },
-             new Orcamento
-             {
-                 Id = 2,
-                 ValorProposto = 600.00m,
-                 Validade = 14,
-                 MateriaisAdicionais = null,
-                 Descricao = "Orçamento para instalação de iluminação"
-             }
+            }
         );
 
-        // Agendamento 1: Tipo Orçamento ('O') 
         contexto.Agendamentos.AddRange(
+            // Agendamento 1: Tipo Orçamento ('O') já com orçamento vinculado
             new Agendamento
             {
                 Id = 1,
                 IdProfissional = 2,
                 IdCliente = 1,
-                TipoCobranca = "O", // Orçamento
+                TipoCobranca = "O",
                 StatusAgendamento = "Execucao",
                 HorarioInicio = new DateTime(2024, 6, 10, 9, 0, 0),
                 HorarioFim = new DateTime(2024, 6, 10, 11, 0, 0),
@@ -60,27 +52,40 @@ public class OrcamentoServiceTests
                 IdOrcamento = 1
             },
 
-            // Agendamento 2: Tipo Fixo ('F')
+            // Agendamento 2: Tipo Fixo ('F') - Não pode ter orçamento
             new Agendamento
             {
                 Id = 2,
                 IdProfissional = 2,
                 IdCliente = 1,
-                TipoCobranca = "F", // Fixo
+                TipoCobranca = "F",
                 StatusAgendamento = "Execucao",
                 HorarioInicio = new DateTime(2024, 6, 11, 14, 0, 0),
                 HorarioFim = new DateTime(2024, 6, 11, 16, 0, 0),
                 Data = new DateTime(2024, 6, 11),
                 Comentario = "Agendamento para serviço fixo instalação de iluminação",
-                IdOrcamento = 2
+                IdOrcamento = null
+            },
+
+            // Agendamento 3: Tipo Orçamento ('O') aguardando criação do orçamento
+            new Agendamento
+            {
+                Id = 3,
+                IdProfissional = 2,
+                IdCliente = 1,
+                TipoCobranca = "O",
+                StatusAgendamento = "Pendente",
+                HorarioInicio = new DateTime(2024, 6, 12, 10, 0, 0),
+                HorarioFim = new DateTime(2024, 6, 12, 12, 0, 0),
+                Data = new DateTime(2024, 6, 12),
+                Comentario = "Agendamento para troca de fiação",
+                IdOrcamento = null
             }
         );
-       
+
         contexto.SaveChanges();
 
         orcamentoService = new OrcamentoService(contexto);
-
-
     }
 
     [TestCleanup]
@@ -90,38 +95,57 @@ public class OrcamentoServiceTests
     }
 
     [TestMethod]
-    public void EnviarOrcamento_QuandoDadosValidos_DeveRetornarTrue()
+    public void Create_QuandoDadosValidos_DeveCriarOrcamentoEVincularAoAgendamento()
     {
-        // Act
-        var resultado = orcamentoService.EnviarOrcamento(1, 1, 500, 7, "Orçamento para reforma de quadro residencial", null!);
+        // Arrange
+        var novoOrcamento = new Orcamento
+        {
+            ValorProposto = 350.00m,
+            Validade = 10,
+            Descricao = "Orçamento para troca de fiação",
+            MateriaisAdicionais = null
+        };
+
+        // Act (vinculando ao Agendamento 3, que é do tipo 'O')
+        var idCriado = orcamentoService.Create(novoOrcamento, 3);
+        var agendamentoAtualizado = contexto.Agendamentos.Find(3);
 
         // Assert
-        Assert.IsTrue(resultado);
+        Assert.IsTrue(idCriado > 0);
+        Assert.IsNotNull(agendamentoAtualizado);
+        Assert.AreEqual((int)idCriado, agendamentoAtualizado.IdOrcamento);
     }
 
     [TestMethod]
-    public void EnviarOrcamento_QuandoValorZeroOuNegativo_DeveLancarArgumentException()
+    public void Create_QuandoValorOuValidadeZeroOuNegativo_DeveLancarArgumentException()
     {
+        // Arrange
+        var orcamentoValorInvalido = new Orcamento { ValorProposto = 0, Validade = 7, Descricao = "Teste" };
+        var orcamentoValidadeInvalida = new Orcamento { ValorProposto = 500, Validade = 0, Descricao = "Teste" };
+
         // Act & Assert
-        Assert.ThrowsExactly<ArgumentException>(() => orcamentoService.EnviarOrcamento(1, 1, 0, 7, "Orçamento para reforma de quadro residencial", null!));
-        Assert.ThrowsExactly<ArgumentException>(() => orcamentoService.EnviarOrcamento(1, 1, 700, 0, "Orçamento para reforma de quadro residencial", null!));
+        Assert.ThrowsExactly<ArgumentException>(() => orcamentoService.Create(orcamentoValorInvalido, 3));
+        Assert.ThrowsExactly<ArgumentException>(() => orcamentoService.Create(orcamentoValidadeInvalida, 3));
     }
 
     [TestMethod]
-    public void EnviarOrcamento_QuandoNaoExisteAgendamento_DeveRetornarFalse()
+    public void Create_QuandoNaoExisteAgendamento_DeveLancarArgumentException()
     {
-        // Act
-        var resultado = orcamentoService.EnviarOrcamento(1, 999, 300, 7, "Orçamento para reforma de quadro residencial", null!);
+        // Arrange
+        var novoOrcamento = new Orcamento { ValorProposto = 300, Validade = 7, Descricao = "Teste" };
 
-        // Assert
-        Assert.IsFalse(resultado);
+        // Act & Assert
+        Assert.ThrowsExactly<ArgumentException>(() => orcamentoService.Create(novoOrcamento, 999));
     }
 
     [TestMethod]
-    public void EnviarOrcamento_QuandoTipoCobrancaNaoForOrcamento_DeveLancarInvalidOperationException()
+    public void Create_QuandoTipoCobrancaNaoForOrcamento_DeveLancarInvalidOperationException()
     {
+        // Arrange
+        var novoOrcamento = new Orcamento { ValorProposto = 200, Validade = 7, Descricao = "Teste" };
+
         // Act & Assert (Agendamento 2 é tipo 'F' - Fixo)
-        Assert.ThrowsExactly<InvalidOperationException>(() => orcamentoService.EnviarOrcamento(2, 2, 200, 7, "Orçamento para reforma de quadro residencial", null!));
+        Assert.ThrowsExactly<InvalidOperationException>(() => orcamentoService.Create(novoOrcamento, 2));
     }
 
     [TestMethod]
@@ -153,10 +177,10 @@ public class OrcamentoServiceTests
         // Assert
         Assert.IsNotNull(orcamento);
         Assert.AreEqual(1, orcamento.Id);
-        Assert.AreEqual(500.00M, orcamento.ValorProposto);
+        Assert.AreEqual(500.00m, orcamento.ValorProposto);
         Assert.AreEqual(7, orcamento.Validade);
         Assert.AreEqual("Orçamento para reforma de quadro residencial", orcamento.Descricao);
-        Assert.AreEqual(null, orcamento.MateriaisAdicionais);
+        Assert.IsNull(orcamento.MateriaisAdicionais);
     }
 
     [TestMethod]
@@ -170,12 +194,12 @@ public class OrcamentoServiceTests
     }
 
     [TestMethod]
-    public void GetAll_QuandoChamado_DeveRetornarApenasAgendamentosTipoOrcamento()
+    public void GetAll_QuandoChamado_DeveRetornarTodosOrcamentosCadastrados()
     {
         // Act
         var orcamentos = orcamentoService.GetAll().ToList();
 
         // Assert
         Assert.AreEqual(1, orcamentos.Count);
-    }   
+    }
 }

@@ -5,7 +5,7 @@ namespace Core.Service
 {
     public interface IOrcamentoService
     {
-        uint Create(Orcamento orcamento);
+        uint Create(Orcamento orcamento, uint idAgendamento);
 
         void Edit(Orcamento orcamento);
 
@@ -14,10 +14,6 @@ namespace Core.Service
         Orcamento? Get(uint Id);
 
         IEnumerable<Orcamento> GetAll();
-
-
-
-        bool EnviarOrcamento(uint Id, uint idAgendamento, decimal valorProposto, uint validade, string descricao, byte[] MateriaisAdicionais);
 
      
         decimal CalcularTaxaPlataforma(decimal valorBruto);
