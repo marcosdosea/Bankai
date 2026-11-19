@@ -38,7 +38,7 @@ namespace BankaiWeb.Controllers
             var viewModel = new PagamentoViewModel
             {
                 CodigoAgendamento = idAgendamento,
-                ValorTransacao = valor
+                ValorTransacao = valor,
                 FormaPagamento = "Pix", // Valor padrão
                 StatusPagamento = "Aguardando Processamento" // Valor padrão
             };
@@ -63,7 +63,7 @@ namespace BankaiWeb.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, $"Ocorreu um erro ao processar o pagamento: {ex.Message}");
+                ModelState.AddModelError(string.Empty, "Pagamento não autorizado pela instituição financeira.");
                 return View(pagamentoViewModel);
             }
         }

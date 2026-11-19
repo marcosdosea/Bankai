@@ -17,7 +17,7 @@ namespace BankaiWeb.Models
         [Display(Name = "Forma de Pagamento")]
         public string FormaPagamento { get; set; } = "Pix"; // Valores válidos DD: "Pix" ou "Cartao de credito"
 
-        [StringLength(20)]
+        [StringLength(30)]
         [Display(Name = "Status do Pagamento")]
         public string StatusPagamento { get; set; } = "Aguardando Processamento"; // Valores válidos: "Aguardando Processamento", "Processando", "Recusado", "Aprovado", "Cancelado"
 

@@ -60,7 +60,7 @@ namespace BankaiWEBTests.Controllers
             Assert.AreEqual(5, model.CodigoAgendamento);
             Assert.AreEqual(180.00m, model.ValorTransacao);
             Assert.AreEqual("Pix", model.FormaPagamento);
-            Assert.AreEqual("Pendente", model.StatusPagamento);
+            Assert.AreEqual("Aguardando Processamento", model.StatusPagamento);
         }
 
         [TestMethod]
