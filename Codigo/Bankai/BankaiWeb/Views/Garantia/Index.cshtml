@@ -1,0 +1,86 @@
+﻿@model IEnumerable<BankaiWeb.Models.GarantiaViewModel>
+
+@{
+    ViewData["Title"] = "Chamados de Garantia";
+}
+
+<div class="results-container mt-4" style="grid-template-columns: 1fr;">
+    <div class="main-services-panel">
+        <div class="panel-header-actions">
+            <div>
+                <h2 class="m-0">Chamados de Garantia</h2>
+                <small class="text-muted">Acompanhe as solicitações de retorno e suporte de serviços em garantia</small>
+            </div>
+            <a asp-action="Create" class="btn-workflow">
+                + Solicitar Nova Garantia
+            </a>
+        </div>
+
+        <div class="table-responsive mt-3">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Código</th>
+                        <th>Agendamento</th>
+                        <th>Descrição do Problema</th>
+                        <th>Data Abertura</th>
+                        <th>Status</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                Nenhum chamado de garantia registrado até o momento.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td><strong class="text-dark">#GAR-@item.Id</strong></td>
+                                <td><span class="badge bg-light text-dark border">#BKS-@item.IdAgendamento</span></td>
+                                <td>
+                                    @(item.Descricao.Length > 50 ? item.Descricao.Substring(0, 50) + "..." : item.Descricao)
+                                </td>
+                                <td>@item.DataChamado.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    @switch (item.StatusGarantia)
+                                    {
+                                        case "S":
+                                            <span class="badge bg-warning text-dark">Solicitada</span>
+                                            break;
+                                        case "A":
+                                            <span class="badge bg-info text-white">Agendado</span>
+                                            break;
+                                        case "R":
+                                            <span class="badge bg-primary">Em Rota</span>
+                                            break;
+                                        case "E":
+                                            <span class="badge bg-secondary">Em Execução</span>
+                                            break;
+                                        case "C":
+                                            <span class="badge bg-success">Concluído</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-dark">@item.StatusGarantia</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary me-1">Detalhes</a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning me-1">Editar</a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Excluir</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
