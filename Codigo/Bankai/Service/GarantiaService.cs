@@ -18,12 +18,22 @@ namespace Service
         /// </summary>
         /// <param name="chamadoGarantia"></param>
         /// <returns>Id do chamado de garantia criado</returns>
-        public uint Create(Chamadogarantium chamadoGarantia)
+        public uint Create(Chamadogarantium chamado)
         {
-            Validar(chamadoGarantia);
-            context.Add(chamadoGarantia);
+            // 1. Validação da Descrição
+            if (string.IsNullOrWhiteSpace(chamado.Descricao))
+                throw new ArgumentException("A descrição do chamado de garantia é obrigatória.");
+
+            // 2. Validação da Existência do Agendamento
+            var agendamentoExiste = context.Agendamentos.Any(a => a.Id == chamado.IdAgendamento);
+            if (!agendamentoExiste)
+            {
+                throw new ArgumentException($"O agendamento com ID #{chamado.IdAgendamento} não foi encontrado no sistema.");
+            }
+
+            context.Add(chamado);
             context.SaveChanges();
-            return (uint)chamadoGarantia.Id;
+            return (uint)chamado.Id;
         }
 
         /// <summary>
