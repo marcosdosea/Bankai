@@ -36,7 +36,7 @@ namespace BankaiWeb.Controllers
             var garantiaViewModel = new GarantiaViewModel
             {
                 DataChamado = DateTime.Now,
-                Status = "S"
+                StatusGarantia = "S"
             };
             return View(garantiaViewModel);
         }
