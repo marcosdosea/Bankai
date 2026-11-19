@@ -1,16 +1,14 @@
 @model BankaiWeb.Models.AgendamentoViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Novo agendamento";
 }
 
-<h1>Create</h1>
-
-<h4>AgendamentoViewModel</h4>
+<h1>Novo agendamento</h1>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
@@ -26,7 +24,9 @@
             </div>
 
             <div class="form-group">
+                <label asp-for="DiaSemana" class="control-label"></label>
                 <select asp-for="DiaSemana" class="form-control">
+                    <option value="">Selecione...</option>
                     <option value="D">Domingo</option>
                     <option value="SF">Segunda</option>
                     <option value="TF">Terça</option>
@@ -35,6 +35,8 @@
                     <option value="SXF">Sexta</option>
                     <option value="S">Sábado</option>
                 </select>
+                <span asp-validation-for="DiaSemana" class="text-danger"></span>
+                <small class="text-muted">O agendamento será feito na próxima data que cair nesse dia.</small>
             </div>
 
             <div class="form-group">
@@ -50,19 +52,28 @@
             </div>
 
             <div class="form-group">
+                <label asp-for="TipoCobranca" class="control-label"></label>
                 <select asp-for="TipoCobranca" class="form-control">
                     <option value="F">Fixo</option>
                     <option value="O">Orçamento</option>
                 </select>
+                <span asp-validation-for="TipoCobranca" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <label asp-for="FotoUpload" class="control-label"></label>
+                <input asp-for="FotoUpload" type="file" class="form-control" accept="image/*" />
             </div>
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Agendar" class="btn btn-primary" />
+            </div>
+
+            <div asp-validation-summary="All" class="text-danger"></div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Voltar</a>
 </div>

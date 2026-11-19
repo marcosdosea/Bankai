@@ -1,9 +1,11 @@
-﻿using BankaiWeb.Models;
+﻿using BankaiWeb.Mappers;
+using BankaiWeb.Models;
 using Core;
 using Core.DTO;
 using Core.Service;
 using Mapster;
 using MapsterMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -35,15 +37,51 @@ namespace BankaiWeb.Controllers.Tests
 
             agendamentoServiceMock
                 .Setup(service => service.Get(999))
-                .Returns(ObterAgendamentoAlvo());
+                .Returns((Agendamento)null!);
 
             agendamentoServiceMock
-                .Setup(service => service.Create(It.IsAny<Agendamento>()))
-                .ReturnsAsync(10);
+                .Setup(service => service.ObterDataNaSemanaAtual("QIF"))
+                .Returns(new DateTime(2026, 11, 19));
 
             controller = new AgendamentoController(agendamentoServiceMock.Object, mapper);
         }
+        [TestCleanup]
+        public void Limpar()
+        {
+            agendamentoServiceMock?.Reset();
+        }
 
+        [TestMethod]
+        public void Mapper_DeveMapearViewModelParaAgendamento()
+        {
+            var config = TypeAdapterConfig.GlobalSettings;
+            config.Scan(typeof(AgendamentoMapper).Assembly);
+            var mapper = new Mapper(config);
+
+            var modelo = CriarModeloDeAgendamentoExistente();
+
+            var agendamento = mapper.Map<Agendamento>(modelo);
+
+            Assert.IsNotNull(agendamento);
+
+            Assert.AreEqual(modelo.IdCliente, agendamento.IdCliente);
+            Assert.AreEqual(modelo.IdProfissional, agendamento.IdProfissional);
+        }
+
+        [TestMethod]
+        public void Mapper_DeveMapearDiaSemanaDaDataParaViewModel()
+        {
+            var config = new TypeAdapterConfig();
+            config.Scan(typeof(AgendamentoMapper).Assembly);
+            var mapper = new Mapper(config);
+
+            var agendamento = ObterAgendamentoAlvo();
+            agendamento.Data = new DateTime(2026, 11, 19); // quinta-feira
+
+            var viewModel = mapper.Map<AgendamentoViewModel>(agendamento);
+
+            Assert.AreEqual("QIF", viewModel.DiaSemana);
+        }
         [TestMethod]
         public void Index_QuandoPessoaTemAgendamentos_DeveRetornarViewComLista()
         {
@@ -72,7 +110,6 @@ namespace BankaiWeb.Controllers.Tests
                 viewResult.ViewData.Model);
 
             Assert.AreEqual(1, agendamento.Id);
-            Assert.AreEqual("Serviço 1", agendamento.DescricaoServico);
 
             agendamentoServiceMock.Verify(service => service.Get(1), Times.Once);
         }
@@ -88,47 +125,89 @@ namespace BankaiWeb.Controllers.Tests
         }
 
         [TestMethod]
-        public void Create_QuandoModeloValido_DeveCriarAgendamentoERedirecionarParaIndex()
+        public async Task Create_QuandoModeloValido_DeveConverterDiaSemanaEmDataEMapearHorarios()
         {
-            // Arrange
+            var dataEsperada = new DateTime(2026, 11, 19);
             var modelo = CriarModeloDeNovoAgendamento();
-            Agendamento? agendamentoCriado = null;
+            Agendamento? criado = null;
 
             agendamentoServiceMock
                 .Setup(service => service.Create(It.IsAny<Agendamento>()))
-                .Callback<Agendamento>(agendamento => agendamentoCriado = agendamento)
+                .Callback<Agendamento>(a => criado = a)
                 .ReturnsAsync(10);
 
-            // Act
-            var resultado = controller.Create(modelo).GetAwaiter().GetResult();
+            var resultado = await controller.Create(modelo);
 
-            // Assert
             VerificarRedirecionamentoParaIndex(resultado);
+            Assert.IsNotNull(criado);
+            Assert.AreEqual(dataEsperada, criado.Data);
+            Assert.AreEqual(dataEsperada.AddHours(8), criado.HorarioInicio);
+            Assert.AreEqual(dataEsperada.AddHours(13), criado.HorarioFim);
 
-            Assert.IsNotNull(agendamentoCriado);
-            Assert.AreEqual(modelo.IdCliente, agendamentoCriado.IdCliente);
-            Assert.AreEqual(modelo.IdProfissional, agendamentoCriado.IdProfissional);
-
-            agendamentoServiceMock.Verify(
-                service => service.Create(It.IsAny<Agendamento>()), Times.Once);
+            agendamentoServiceMock.Verify(s => s.ObterDataNaSemanaAtual("QIF"), Times.Once);
         }
 
         [TestMethod]
-        public void Create_QuandoModeloInvalido_DeveRetornarViewENaoCriarAgendamento()
+        public async Task Create_QuandoModelStateInvalido_DeveRetornarViewSemCriar()
         {
-            // Arrange
-            controller.ModelState.AddModelError(
-                nameof(AgendamentoViewModel.DescricaoServico),
-                "A descrição do serviço é obrigatória");
+            controller.ModelState.AddModelError("IdCliente", "O cliente é obrigatório");
 
-            // Act
-            var resultado = controller.Create(CriarModeloDeNovoAgendamento()).GetAwaiter().GetResult();
+            var resultado = await controller.Create(CriarModeloDeNovoAgendamento());
 
-            // Assert
             Assert.IsInstanceOfType<ViewResult>(resultado);
+            agendamentoServiceMock.Verify(s => s.Create(It.IsAny<Agendamento>()), Times.Never);
+        }
 
-            agendamentoServiceMock.Verify(
-                service => service.Create(It.IsAny<Agendamento>()), Times.Never);
+        [TestMethod]
+        public async Task Create_QuandoServiceLancaRegraDeNegocio_DeveRetornarViewComErro()
+        {
+            agendamentoServiceMock
+                .Setup(s => s.Create(It.IsAny<Agendamento>()))
+                .ThrowsAsync(new InvalidOperationException("Profissional indisponível neste dia/horário."));
+
+            var resultado = await controller.Create(CriarModeloDeNovoAgendamento());
+
+            Assert.IsInstanceOfType<ViewResult>(resultado);
+            Assert.IsFalse(controller.ModelState.IsValid);
+        }
+
+        [TestMethod]
+        public async Task Create_QuandoEnviaFoto_DeveGravarBytesNaEntidade()
+        {
+            var bytes = new byte[] { 1, 2, 3 };
+            var modelo = CriarModeloDeNovoAgendamento();
+
+            var stream = new MemoryStream(bytes);
+            modelo.FotoUpload = new FormFile(stream, 0, bytes.Length, "FotoUpload", "foto.png");
+            Agendamento? criado = null;
+
+            agendamentoServiceMock
+                .Setup(s => s.Create(It.IsAny<Agendamento>()))
+                .Callback<Agendamento>(a => criado = a)
+                .ReturnsAsync(10);
+
+            Assert.IsNotNull(modelo.FotoUpload, "FotoUpload está nulo antes do Create");
+            Assert.AreEqual(3, modelo.FotoUpload.Length, "FormFile com tamanho errado");
+
+            await controller.Create(modelo);
+
+
+            Assert.IsNotNull(modelo.Foto, "O controller não preencheu Foto no ViewModel");
+            Assert.IsNotNull(criado);
+            Assert.IsNotNull(criado.Foto, "O mapper não copiou Foto para a entidade");
+        }
+
+        [TestMethod]
+        public void Edit_QuandoServiceLancaRegraDeNegocio_DeveRetornarViewComErro()
+        {
+            agendamentoServiceMock
+                .Setup(s => s.Edit(It.IsAny<Agendamento>()))
+                .Throws(new InvalidOperationException("Só é possível agendar para a semana atual."));
+
+            var resultado = controller.Edit(1, CriarModeloDeAgendamentoExistente());
+
+            Assert.IsInstanceOfType<ViewResult>(resultado);
+            Assert.IsFalse(controller.ModelState.IsValid);
         }
 
         [TestMethod]
@@ -143,7 +222,6 @@ namespace BankaiWeb.Controllers.Tests
                 viewResult.ViewData.Model);
 
             Assert.AreEqual(1, agendamento.Id);
-            Assert.AreEqual("Serviço 1", agendamento.DescricaoServico);
         }
 
         [TestMethod]
@@ -171,21 +249,9 @@ namespace BankaiWeb.Controllers.Tests
         }
 
         [TestMethod]
-        public void Edit_QuandoModeloInvalido_DeveRetornarViewENaoAtualizar()
+        public void Edit_QuandoAgendamentoNaoExiste_DeveRetornarNotFound()
         {
-            // Arrange
-            controller.ModelState.AddModelError(
-                nameof(AgendamentoViewModel.DescricaoServico),
-                "A descrição do serviço é obrigatória");
-
-            // Act
-            var resultado = controller.Edit(1, CriarModeloDeAgendamentoExistente());
-
-            // Assert
-            Assert.IsInstanceOfType<ViewResult>(resultado);
-
-            agendamentoServiceMock.Verify(
-                service => service.Edit(It.IsAny<Agendamento>()), Times.Never);
+            Assert.IsInstanceOfType<NotFoundResult>(controller.Edit(999));
         }
 
         [TestMethod]
@@ -218,51 +284,16 @@ namespace BankaiWeb.Controllers.Tests
         }
 
         [TestMethod]
-        public void Avaliar_QuandoRequisicaoGet_DeveRetornarViewComViewModel()
+        public void Delete_QuandoAgendamentoNaoExiste_DeveRetornarNotFound()
         {
-            // Act
-            var resultado = controller.Avaliar(1);
-
-            // Assert
-            var viewResult = Assert.IsInstanceOfType<ViewResult>(resultado);
-            Assert.IsInstanceOfType<AgendamentoViewModel>(viewResult.ViewData.Model);
+            Assert.IsInstanceOfType<NotFoundResult>(controller.Delete(999));
         }
 
         [TestMethod]
-        /*public void Avaliar_QuandoNotaInformada_DeveAvaliarERedirecionarParaIndex()
+        public void Details_QuandoAgendamentoNaoExiste_DeveRetornarNotFound()
         {
-            // Arrange
-            var modelo = CriarModeloDeAgendamentoExistente();
-            modelo.Nota = "B";
-            modelo.Comentario = "Bom atendimento";
-
-            // Act
-            var resultado = controller.Avaliar(1, modelo);
-
-            // Assert
-            VerificarRedirecionamentoParaIndex(resultado);
-
-            agendamentoServiceMock.Verify(
-                service => service.Avaliar(1, "B", "Bom atendimento"), Times.Once);
+            Assert.IsInstanceOfType<NotFoundResult>(controller.Details(999));
         }
-
-        [TestMethod]
-        public void Avaliar_QuandoNotaVazia_DeveRetornarViewENaoAvaliar()
-        {
-            // Arrange
-            var modelo = CriarModeloDeAgendamentoExistente();
-            modelo.Nota = null;
-
-            // Act
-            var resultado = controller.Avaliar(1, modelo);
-
-            // Assert
-            Assert.IsInstanceOfType<ViewResult>(resultado);
-
-            agendamentoServiceMock.Verify(
-                service => service.Avaliar(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string?>()),
-                Times.Never);
-        }*/
 
         private static void VerificarRedirecionamentoParaIndex(ActionResult resultado)
         {
@@ -278,11 +309,10 @@ namespace BankaiWeb.Controllers.Tests
             {
                 IdCliente = 8,
                 IdProfissional = 7,
-                DescricaoServico = "Serviço 4",
                 TipoCobranca = "F",
-                DiaSemana = "S",
-                HorarioInicio = TimeSpan.FromHours(9),
-                HorarioFim = TimeSpan.FromHours(10)
+                DiaSemana = "QIF",
+                HorarioInicio = TimeSpan.FromHours(8),
+                HorarioFim = TimeSpan.FromHours(13)
             };
         }
 
@@ -290,13 +320,11 @@ namespace BankaiWeb.Controllers.Tests
         {
             return new AgendamentoViewModel
             {
-                Id = 1,
                 IdCliente = 3,
                 IdProfissional = 5,
-                DescricaoServico = "Serviço 1",
                 TipoCobranca = "F",
-                DiaSemana = "QF",
-                HorarioInicio = TimeSpan.FromHours(10),
+                DiaSemana = "QIF",
+                HorarioInicio = TimeSpan.FromHours(13),
                 HorarioFim = TimeSpan.FromHours(15)
             };
         }
@@ -309,10 +337,9 @@ namespace BankaiWeb.Controllers.Tests
                 IdCliente = 3,
                 IdProfissional = 5,
                 TipoCobranca = "F",
-                Data = DateTime.Today,
+                Data = DateTime.Today.AddDays(3),
                 HorarioInicio = DateTime.Today.AddHours(10),
                 HorarioFim = DateTime.Today.AddHours(15),
-                StatusAgendamento = "E"
             };
         }
 
@@ -320,8 +347,8 @@ namespace BankaiWeb.Controllers.Tests
         {
             return
             [
-                new AgendamentoDTO { Id = 1, IdCliente = 3, IdProfissional = 5, StatusAgendamento = "E" },
-            new AgendamentoDTO { Id = 3, IdCliente = 2, IdProfissional = 3, StatusAgendamento = "E" }
+                new AgendamentoDTO { Id = 1, IdCliente = 3, IdProfissional = 5, StatusAgendamento = "EmExecucao" },
+                new AgendamentoDTO { Id = 3, IdCliente = 2, IdProfissional = 3, StatusAgendamento = "EmExecucao" }
             ];
         }
     }

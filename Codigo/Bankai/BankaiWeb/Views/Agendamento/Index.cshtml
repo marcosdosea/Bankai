@@ -27,10 +27,8 @@
                         <tr class="text-muted small fw-bold">
                             <th scope="col" class="pb-3">@Html.DisplayNameFor(model => model.IdCliente)</th>
                             <th scope="col" class="pb-3">@Html.DisplayNameFor(model => model.IdProfissional)</th>
-                            <th scope="col" class="pb-3">@Html.DisplayNameFor(model => model.DiaSemana)</th>
                             <th scope="col" class="pb-3">@Html.DisplayNameFor(model => model.HorarioInicio)</th>
                             <th scope="col" class="pb-3">@Html.DisplayNameFor(model => model.HorarioFim)</th>
-                            <th scope="col" class="pb-3">@Html.DisplayNameFor(model => model.DescricaoServico)</th>
                             <th scope="col" class="pb-3">@Html.DisplayNameFor(model => model.TipoCobranca)</th>
                             <th scope="col" class="pb-3">@Html.DisplayNameFor(model => model.StatusAgendamento)</th>
                             <th scope="col" class="pb-3 text-end">AÇÕES</th>
@@ -43,12 +41,8 @@
                             <tr class="border-bottom">
                                 <td class="fw-bold">@Html.DisplayFor(modelItem => item.IdCliente)</td>
                                 <td class="fw-bold">@Html.DisplayFor(modelItem => item.IdProfissional)</td>
-                                <td>@Html.DisplayFor(modelItem => item.DiaSemana)</td>
                                 <td>@Html.DisplayFor(modelItem => item.HorarioInicio)</td>
                                 <td>@Html.DisplayFor(modelItem => item.HorarioFim)</td>
-                                <td class="text-truncate" style="max-width: 180px;" title="@item.DescricaoServico">
-                                    @Html.DisplayFor(modelItem => item.DescricaoServico)
-                                </td>
                                 <td>
                                     <span class="badge bg-light text-dark border px-2 py-1">
                                         @Html.DisplayFor(modelItem => item.TipoCobranca)
@@ -91,3 +85,4 @@
         </div>
     </div>
 </div>
+

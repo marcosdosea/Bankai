@@ -16,7 +16,7 @@
             <input type="hidden" asp-for="IdCliente" />
             <input type="hidden" asp-for="IdProfissional" />
             <div class="form-group">
-                <select asp-for="DiaSemana" class="form-control">
+                <select asp-for="Data" class="form-control">
                     <option value="D">Domingo</option>
                     <option value="SF">Segunda</option>
                     <option value="TF">Terça</option>
@@ -42,6 +42,10 @@
                     <option value="F">Fixo</option>
                     <option value="O">Orçamento</option>
                 </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Comentario" class="control-label"></label>
+                <input asp-for="Comentario" class="form-control"/>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
