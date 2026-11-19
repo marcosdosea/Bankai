@@ -3,7 +3,7 @@ using BankaiWeb.Models;
 using Core.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
+using System.Linq;
 
 namespace BankaiWeb.Controllers
 {
@@ -14,63 +14,6 @@ namespace BankaiWeb.Controllers
         public ServicoController(IServicoService servicoService)
         {
             this.servicoService = servicoService;
-        }
-
-        // GET: Servico/Buscar
-        public ActionResult Buscar(string? termo, int? idEspecialidade, DateTime? dataDesejada)
-        {
-            var especialidades = servicoService.ObterEspecialidades();
-            var resultados = servicoService.BuscarServicos(termo, idEspecialidade, dataDesejada);
-
-            var viewModel = new BuscarServicoViewModel
-            {
-                Termo = termo,
-                IdEspecialidade = idEspecialidade,
-                DataDesejada = dataDesejada,
-                Especialidades = EspecialidadeMapper.ToViewModel(especialidades),
-                Resultados = ServicoMapper.ToResultadoViewModel(resultados)
-            };
-
-            return View(viewModel);
-        }
-
-        // GET: Servico/ProfissionaisDisponiveis/5
-        public ActionResult ProfissionaisDisponiveis(
-            int idServico,
-            DateTime? dataDesejada,
-            string? ordenarPor = "melhor_avaliado",
-            bool apenasVerificados = false,
-            bool apenasDisponiveisNaData = false,
-            decimal? precoMaximo = null)
-        {
-            var servico = servicoService.Get(idServico);
-            if (servico == null)
-            {
-                return NotFound();
-            }
-
-            var profissionais = servicoService.BuscarProfissionaisPorServico(
-                idServico,
-                dataDesejada,
-                ordenarPor,
-                apenasVerificados,
-                apenasDisponiveisNaData,
-                precoMaximo);
-
-            var viewModel = new ProfissionaisDisponiveisViewModel
-            {
-                IdServico = servico.Id,
-                NomeServico = servico.Nome,
-                DescricaoServico = servico.Descricao,
-                DataDesejada = dataDesejada,
-                OrdenarPor = string.IsNullOrWhiteSpace(ordenarPor) ? "melhor_avaliado" : ordenarPor,
-                ApenasVerificados = apenasVerificados,
-                ApenasDisponiveisNaData = apenasDisponiveisNaData,
-                PrecoMaximo = precoMaximo,
-                Profissionais = ServicoMapper.ToProfissionalResultadoViewModel(profissionais)
-            };
-
-            return View(viewModel);
         }
 
         // GET: ServicoController
