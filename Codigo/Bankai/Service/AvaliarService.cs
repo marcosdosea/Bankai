@@ -14,7 +14,7 @@ namespace Service
         private const int NotaMaxima = 5;
         private const int TamanhoMaximoDepoimento = 255;
 
-        // Pesos da reputação multifatorial conforme RN05
+        // Pesos da reputaçao multifatorial conforme RN05
         private const double PesoNotaClientes = 5.0;
         private const double PesoSemGarantia = 3.0;
         private const double PesoPontualidade = 2.0;
