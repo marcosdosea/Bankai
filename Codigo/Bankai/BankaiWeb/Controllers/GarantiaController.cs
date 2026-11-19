@@ -48,9 +48,17 @@ namespace BankaiWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                var chamado = GarantiaMapper.ToEntity(garantiaViewModel);
-                garantiaService.Create(chamado);
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    var chamado = GarantiaMapper.ToEntity(garantiaViewModel);
+                    garantiaService.Create(chamado);
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (ArgumentException ex)
+                {
+                    // Adiciona o erro da Service diretamente na validação do campo na View
+                    ModelState.AddModelError("IdAgendamento", ex.Message);
+                }
             }
             return View(garantiaViewModel);
         }

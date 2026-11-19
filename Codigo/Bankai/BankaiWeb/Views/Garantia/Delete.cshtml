@@ -1,0 +1,38 @@
+﻿@model BankaiWeb.Models.GarantiaViewModel
+
+@{
+    ViewData["Title"] = "Excluir Chamado de Garantia";
+}
+
+<div class="execution-container mt-4" style="grid-template-columns: 1fr;">
+    <div class="exec-card border-danger">
+        <div class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+            <span class="fs-4">⚠️</span>
+            <div>
+                <strong>Atenção:</strong> Tem certeza de que deseja excluir este chamado de garantia? Esta operação não poderá ser desfeita.
+            </div>
+        </div>
+
+        <h3 class="fw-bold mb-3">Chamado #GAR-@Model.Id</h3>
+
+        <dl class="row fs-6">
+            <dt class="col-sm-3 text-muted">Ordem de Agendamento:</dt>
+            <dd class="col-sm-9">#BKS-@Model.IdAgendamento</dd>
+
+            <dt class="col-sm-3 text-muted">Data da Solicitação:</dt>
+            <dd class="col-sm-9">@Model.DataChamado.ToString("dd/MM/yyyy HH:mm")</dd>
+
+            <dt class="col-sm-3 text-muted">Status:</dt>
+            <dd class="col-sm-9">@Model.StatusGarantiaDescricao</dd>
+
+            <dt class="col-sm-3 text-muted">Descrição:</dt>
+            <dd class="col-sm-9 bg-light p-3 rounded">@Model.Descricao</dd>
+        </dl>
+
+        <form asp-action="Delete" method="post" class="mt-4 pt-3 border-top">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger fw-bold me-2">Confirmar Exclusão</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
