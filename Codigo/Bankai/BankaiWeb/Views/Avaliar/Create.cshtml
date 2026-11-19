@@ -1,0 +1,186 @@
+@model BankaiWeb.Models.AvaliarViewModel
+
+@{
+    ViewData["Title"] = "Avaliação";
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="text-decoration-none text-secondary fw-semibold">
+        <i class="bi bi-arrow-left me-1"></i> Voltar para a lista
+    </a>
+</div>
+
+<div class="row justify-content-center pb-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="bankai-card">
+            <div class="text-center mb-4">
+                <h3 class="fw-bold mb-1">Avaliação</h3>
+                <p class="text-muted small mb-0">Seu feedback nos ajuda a manter a qualidade da plataforma</p>
+            </div>
+
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 mb-3" role="alert"></div>
+
+                <!-- Card Resumo do Serviço / Ordem (Tela 016) -->
+                <div class="p-3 bg-light rounded-3 border mb-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-white border rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
+                            <i class="bi bi-person-gear fs-4" style="color: var(--accent-color);"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            @if (Model.IdAgendamento > 0)
+                            {
+                                <div class="fw-bold text-dark">Serviço Concluído</div>
+                                <div class="text-muted small">Ordem #@Model.IdAgendamento</div>
+                                <input type="hidden" asp-for="IdAgendamento" />
+                            }
+                            else
+                            {
+                                <label asp-for="IdAgendamento" class="form-label text-muted small fw-bold mb-1">ORDEM / AGENDAMENTO CONCLUÍDO</label>
+                                <div class="input-group bankai-input-group">
+                                    <span class="input-group-text"><i class="bi bi-hash"></i></span>
+                                    <input asp-for="IdAgendamento" type="number" min="1" class="form-control" value="@(Model.IdAgendamento > 0 ? Model.IdAgendamento.ToString() : string.Empty)" placeholder="Informe o código do agendamento" />
+                                </div>
+                                <span asp-validation-for="IdAgendamento" class="text-danger small"></span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Critério 1: Pontualidade e Assiduidade -->
+                <div class="border-bottom pb-3 mb-3">
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+                        <div>
+                            <label class="fw-bold text-dark d-block mb-1" style="font-size: 0.95rem;">Pontualidade e Assiduidade</label>
+                            <p class="text-muted small mb-0">O profissional compareceu na janela de horário acordada no agendamento técnico?</p>
+                        </div>
+                        <div class="star-rating d-flex align-items-center gap-1 flex-shrink-0" data-field="Pontualidade">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <input type="radio" class="btn-check" asp-for="Pontualidade" value="@i" id="Pontualidade_@i" />
+                                <label class="star-label cursor-pointer fs-4 px-1" for="Pontualidade_@i" data-value="@i" title="@i estrela(s)">
+                                    <i class="bi bi-star-fill"></i>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                    <span asp-validation-for="Pontualidade" class="text-danger small d-block mt-1"></span>
+                </div>
+
+                <!-- Critério 2: Limpeza e Organização do Local -->
+                <div class="border-bottom pb-3 mb-3">
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+                        <div>
+                            <label class="fw-bold text-dark d-block mb-1" style="font-size: 0.95rem;">Limpeza e Organização do Local</label>
+                            <p class="text-muted small mb-0">O ambiente onde o reparo foi executado foi mantido organizado e deixado limpo?</p>
+                        </div>
+                        <div class="star-rating d-flex align-items-center gap-1 flex-shrink-0" data-field="LimpezaLocal">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <input type="radio" class="btn-check" asp-for="LimpezaLocal" value="@i" id="LimpezaLocal_@i" />
+                                <label class="star-label cursor-pointer fs-4 px-1" for="LimpezaLocal_@i" data-value="@i" title="@i estrela(s)">
+                                    <i class="bi bi-star-fill"></i>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                    <span asp-validation-for="LimpezaLocal" class="text-danger small d-block mt-1"></span>
+                </div>
+
+                <!-- Critério 3: Qualidade Técnica do Reparo -->
+                <div class="border-bottom pb-3 mb-4">
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+                        <div>
+                            <label class="fw-bold text-dark d-block mb-1" style="font-size: 0.95rem;">Qualidade Técnica do Reparo</label>
+                            <p class="text-muted small mb-0">A execução prática do serviço resolveu o problema e demonstrou segurança e domínio técnico?</p>
+                        </div>
+                        <div class="star-rating d-flex align-items-center gap-1 flex-shrink-0" data-field="QualidadeReparo">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <input type="radio" class="btn-check" asp-for="QualidadeReparo" value="@i" id="QualidadeReparo_@i" />
+                                <label class="star-label cursor-pointer fs-4 px-1" for="QualidadeReparo_@i" data-value="@i" title="@i estrela(s)">
+                                    <i class="bi bi-star-fill"></i>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                    <span asp-validation-for="QualidadeReparo" class="text-danger small d-block mt-1"></span>
+                </div>
+
+                <!-- Depoimento Adicional (Opcional) -->
+                <div class="mb-4">
+                    <label asp-for="Depoimento" class="form-label text-muted small fw-bold text-uppercase">Depoimento Adicional (Opcional)</label>
+                    <textarea asp-for="Depoimento" class="form-control bg-light" rows="3" maxlength="255" placeholder="Conte em poucas palavras como foi sua experiência com este atendimento técnico..."></textarea>
+                    <span asp-validation-for="Depoimento" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn btn-bankai w-100 py-3 fw-bold">
+                    <i class="bi bi-file-earmark-check me-2"></i> Enviar Avaliação
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Head {
+    <style>
+        .star-label {
+            color: #cbd5e1;
+            transition: color 0.15s ease, transform 0.1s ease;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .star-label.active,
+        .star-label.hovered {
+            color: #f59e0b;
+        }
+
+        .star-label:hover {
+            transform: scale(1.1);
+        }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.querySelectorAll('.star-rating').forEach(function (group) {
+            const labels = Array.from(group.querySelectorAll('.star-label'));
+            const radios = Array.from(group.querySelectorAll('input[type="radio"]'));
+
+            function paintStars(limit, className) {
+                labels.forEach(function (label) {
+                    const val = parseInt(label.dataset.value, 10);
+                    label.classList.toggle(className, val <= limit);
+                });
+            }
+
+            function getSelectedValue() {
+                const checked = radios.find(function (r) { return r.checked; });
+                return checked ? parseInt(checked.value, 10) : 0;
+            }
+
+            paintStars(getSelectedValue(), 'active');
+
+            labels.forEach(function (label) {
+                label.addEventListener('mouseenter', function () {
+                    paintStars(parseInt(label.dataset.value, 10), 'hovered');
+                });
+            });
+
+            group.addEventListener('mouseleave', function () {
+                paintStars(0, 'hovered');
+            });
+
+            radios.forEach(function (radio) {
+                radio.addEventListener('change', function () {
+                    paintStars(getSelectedValue(), 'active');
+                });
+            });
+        });
+    </script>
+}
+

@@ -1,0 +1,92 @@
+@model BankaiWeb.Models.AvaliarViewModel
+
+@{
+    ViewData["Title"] = "Detalhes da Avaliação";
+    var media = ((Model.Pontualidade + Model.LimpezaLocal + Model.QualidadeReparo) / 3.0).ToString("0.0");
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="text-decoration-none text-secondary fw-semibold">
+        <i class="bi bi-arrow-left me-1"></i> Voltar para a lista
+    </a>
+</div>
+
+<div class="row justify-content-center pb-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="bankai-card">
+            <div class="text-center mb-4">
+                <h3 class="fw-bold mb-1">Detalhes da Avaliação</h3>
+                <p class="text-muted small mb-0">Resumo completo do feedback registrado para o atendimento</p>
+            </div>
+
+            <!-- Card Resumo + Média -->
+            <div class="p-3 bg-light rounded-3 border mb-4 d-flex align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-white border rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
+                        <i class="bi bi-person-gear fs-4" style="color: var(--accent-color);"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">Ordem #@Model.IdAgendamento</div>
+                        <div class="text-muted small">Avaliação #@Model.Id</div>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="fw-bold fs-4" style="color: var(--accent-color);">
+                        <i class="bi bi-star-fill text-warning me-1"></i>@media
+                    </div>
+                    <div class="text-muted small">Média Geral</div>
+                </div>
+            </div>
+
+            <!-- Critérios Avaliados -->
+            <div class="border-bottom pb-3 mb-3 d-flex justify-content-between align-items-center">
+                <span class="fw-semibold text-dark">Pontualidade e Assiduidade</span>
+                <span class="text-warning fs-6">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <i class="bi @(i <= Model.Pontualidade ? "bi-star-fill text-warning" : "bi-star text-secondary")"></i>
+                    }
+                    <span class="text-muted small ms-1">(@Model.Pontualidade/5)</span>
+                </span>
+            </div>
+
+            <div class="border-bottom pb-3 mb-3 d-flex justify-content-between align-items-center">
+                <span class="fw-semibold text-dark">Limpeza e Organização do Local</span>
+                <span class="text-warning fs-6">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <i class="bi @(i <= Model.LimpezaLocal ? "bi-star-fill text-warning" : "bi-star text-secondary")"></i>
+                    }
+                    <span class="text-muted small ms-1">(@Model.LimpezaLocal/5)</span>
+                </span>
+            </div>
+
+            <div class="border-bottom pb-3 mb-4 d-flex justify-content-between align-items-center">
+                <span class="fw-semibold text-dark">Qualidade Técnica do Reparo</span>
+                <span class="text-warning fs-6">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <i class="bi @(i <= Model.QualidadeReparo ? "bi-star-fill text-warning" : "bi-star text-secondary")"></i>
+                    }
+                    <span class="text-muted small ms-1">(@Model.QualidadeReparo/5)</span>
+                </span>
+            </div>
+
+            <!-- Depoimento -->
+            <div class="mb-4">
+                <label class="form-label text-muted small fw-bold text-uppercase">Depoimento Adicional</label>
+                <div class="p-3 bg-light rounded-3 border text-muted" style="line-height: 1.5;">
+                    @(string.IsNullOrWhiteSpace(Model.Depoimento) ? "Nenhum depoimento informado." : $"\"{Model.Depoimento}\"")
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2 rounded-3">Voltar</a>
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-bankai px-4 py-2 text-decoration-none">
+                    <i class="bi bi-pencil-fill me-1"></i> Editar Avaliação
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
