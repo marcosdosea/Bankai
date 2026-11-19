@@ -41,6 +41,9 @@ namespace BankaiWeb
 	    // Registro da Injeção de Dependência do caso de uso Manter Especialidade
             builder.Services.AddTransient<IEspecialidadeService, EspecialidadeService>();
 
+        // Registro de Injeção de Dependência do caso de uso Realizar Pagamento
+            builder.Services.AddTransient<IPagamentoService, PagamentoService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
