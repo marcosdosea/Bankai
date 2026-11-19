@@ -4,30 +4,55 @@
     ViewData["Title"] = "Detalhes do Serviço";
 }
 
-<div class="manage-container" style="grid-template-columns: 1fr; max-width: 650px; margin: 2rem auto;">
-    <div class="bankai-card">
-        <h3 class="section-title"><span>🔍</span> Detalhes do Serviço</h3>
+<div class="mb-4">
+    <a asp-action="Index" class="text-decoration-none text-secondary fw-bold">
+        <i class="bi bi-arrow-left"></i> Voltar para o catálogo
+    </a>
+</div>
 
-        <div class="mb-4">
-            <label class="info-title">Nome do Serviço</label>
-            <h4 class="fw-bold" style="color: var(--text-main); margin-top: 0.25rem;">@Model.Nome</h4>
-        </div>
-
-        <div class="mb-4">
-            <label class="info-title">Descrição e Escopo de Atendimento</label>
-            <p class="text-muted" style="line-height: 1.5; font-size: 0.95rem;">@Model.Descricao</p>
-        </div>
-
-        <div class="mb-4">
-            <label class="info-title">Identificador do Sistema</label>
-            <div>
-                <span class="chip fs-6">Código #@Model.Id</span>
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="bankai-card">
+            <div class="text-center mb-4">
+                <div class="d-inline-block p-3 rounded-circle bg-light text-warning mb-2 fs-2">
+                    <i class="bi bi-tools"></i>
+                </div>
+                <h3 class="fw-bold mb-1">@Model.Nome</h3>
+                @if (!string.IsNullOrWhiteSpace(Model.NomeEspecialidade))
+                {
+                    <span class="service-badge-pill">
+                        <i class="bi bi-wrench-adjustable-circle"></i> @Model.NomeEspecialidade
+                    </span>
+                }
             </div>
-        </div>
 
-        <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
-            <a asp-action="Index" class="btn-view-profile">← Voltar para a lista</a>
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-bankai text-decoration-none">Editar Serviço</a>
+            <div class="bg-light p-4 rounded-3 mb-4 border">
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted small fw-bold">CÓDIGO</div>
+                    <div class="col-sm-8 fw-bold">#@Model.Id</div>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.NomeEspecialidade))
+                {
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted small fw-bold">ESPECIALIDADE</div>
+                        <div class="col-sm-8 fw-semibold">@Model.NomeEspecialidade</div>
+                    </div>
+                }
+                <div class="row">
+                    <div class="col-sm-4 text-muted small fw-bold">DESCRIÇÃO</div>
+                    <div class="col-sm-8 text-muted">@Model.Descricao</div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-bankai flex-grow-1 py-2 fw-bold">
+                    <i class="bi bi-pencil me-1"></i> Editar Serviço
+                </a>
+                <a asp-action="ProfissionaisDisponiveis" asp-route-idServico="@Model.Id" class="btn btn-outline-warning text-dark py-2 px-3 rounded-3 fw-semibold">
+                    <i class="bi bi-people me-1"></i> Profissionais
+                </a>
+                <a asp-action="Index" class="btn btn-outline-secondary py-2 px-4 rounded-3">Voltar</a>
+            </div>
         </div>
     </div>
 </div>
