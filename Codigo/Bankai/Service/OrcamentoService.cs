@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Service
 {
-    public class OrcamentoService //: IOrcamentoService
+    public class OrcamentoService : IOrcamentoService
     {
         private const decimal TAXA_INTERMEDIACAO = 0.15m; // 15% retido pela plataforma conforme RN01
         private readonly BankaiContext context;
@@ -21,163 +21,111 @@ namespace Service
         /// <summary>
         /// Calcula a taxa de intermediação retida pela Bankai (15%) conforme RN01.
         /// </summary>
-        public decimal CalcularTaxaPlataforma(decimal valorBruto)
+        public decimal CalcularTaxaPlataforma(decimal valorProposto)
         {
-            if (valorBruto < 0)
+            if (valorProposto < 0)
                 return 0;
 
-            return Math.Round(valorBruto * TAXA_INTERMEDIACAO, 2);
+            return Math.Round(valorProposto * TAXA_INTERMEDIACAO, 2);
         }
 
         /// <summary>
         /// Calcula o repasse líquido devido ao profissional (85%) conforme RN01.
         /// </summary>
-        public decimal CalcularValorLiquido(decimal valorBruto)
+        public decimal CalcularValorLiquido(decimal valorProposto)
         {
-            if (valorBruto < 0)
+            if (valorProposto < 0)
                 return 0;
 
-            return Math.Round(valorBruto * (1.0m - TAXA_INTERMEDIACAO), 2);
+            return Math.Round(valorProposto * (1.0m - TAXA_INTERMEDIACAO), 2);
         }
 
-        /// <summary>
-        /// Registra a proposta financeira de orçamento para a ordem de serviço.
-        /// </summary>
-        /*public bool EnviarOrcamento(int idAgendamento, int idServico, decimal valorProposto)
-        {
-            if (valorProposto <= 0)
-            {
-                throw new ArgumentException("O valor do orçamento deve ser estritamente maior que zero.", nameof(valorProposto));
-            }
 
-            var agendamento = context.Agendamentos.Find(idAgendamento);
+        public uint Create(Orcamento orcamento, uint idAgendamento)
+        {
+            if (orcamento.ValorProposto <= 0)
+                throw new ArgumentException("O valor do orçamento deve ser maior que zero.");
+
+            if (orcamento.Validade <= 0)
+                throw new ArgumentException("A validade deve ser maior que zero.");
+
+            var agendamento = context.Agendamentos.Find((int)idAgendamento);
             if (agendamento == null)
-            {
-                return false;
-            }
+                throw new ArgumentException("Agendamento não encontrado.");
 
             if (agendamento.TipoCobranca != "O")
-            {
-                throw new InvalidOperationException("Apenas agendamentos definidos com cobrança por Orçamento ('O') permitem inserção de proposta orçamentária.");
-            }
+                throw new InvalidOperationException("O agendamento não é do tipo orçamento.");
 
-            var agendamentoServico = context.Agendamentoservicos.Find(idAgendamento, idServico);
-            if (agendamentoServico == null)
-            {
-                return false;
-            }
+            context.Orcamentos.Add(orcamento);
+            context.SaveChanges(); // Gera o Id do orçamento
 
-            agendamentoServico.ValorProposto = valorProposto;
-            agendamentoServico.StatusServico = "E"; // Em Execução / Orçado
+            // Vincula o orçamento recém-criado ao agendamento
+            agendamento.IdOrcamento = orcamento.Id;
             context.SaveChanges();
 
-            return true;
+            return (uint)orcamento.Id;
+        }
+
+
+        /// <summary>
+        /// Registra uma proposta de orçamento, desde que o agendamento esteja configurado para cobrança por orçamento ('O').
+        /// </summary>
+
+
+        public void Edit(Orcamento orcamento)
+        {
+            if (orcamento.ValorProposto <= 0)
+                throw new ArgumentException("O valor do orçamento deve ser maior que zero.");
+
+            if (orcamento.Validade <= 0)
+                throw new ArgumentException("A validade deve ser maior que zero.");
+
+            var orcamentoExistente = context.Orcamentos.Find(orcamento.Id);
+            if (orcamentoExistente == null)
+                throw new ArgumentException("Orçamento não encontrado.");
+
+            var agendamento = context.Agendamentos.FirstOrDefault(a => a.IdOrcamento == orcamento.Id);
+            if (agendamento == null || agendamento.TipoCobranca != "O")
+                throw new InvalidOperationException("O orçamento não está vinculado a um agendamento válido do tipo orçamento ('O').");
+
+            // Atualiza apenas os campos permitidos na entidade já rastreada pelo EF
+            orcamentoExistente.ValorProposto = orcamento.ValorProposto;
+            orcamentoExistente.Validade = orcamento.Validade;
+            orcamentoExistente.Descricao = orcamento.Descricao;
+            orcamentoExistente.MateriaisAdicionais = orcamento.MateriaisAdicionais;
+
+            context.SaveChanges();
         }
 
         /// <summary>
-        /// Busca o orçamento de um serviço específico dentro de um agendamento.
+        /// Obtem um orçamento específico pelo seu ID. Retorna null se não encontrado.           
         /// </summary>
-        public OrcamentoDTO? Get(int idAgendamento, int idServico)
+        public Orcamento? Get(uint Id)
         {
-            var item = context.Agendamentoservicos
-                .Include(asv => asv.IdAgendamentoNavigation)
-                    .ThenInclude(ag => ag.IdClienteNavigation)
-                .Include(asv => asv.IdAgendamentoNavigation)
-                    .ThenInclude(ag => ag.IdProfissionalNavigation)
-                .Include(asv => asv.IdServicoNavigation)
-                .AsNoTracking()
-                .FirstOrDefault(asv => asv.IdAgendamento == idAgendamento && asv.IdServico == idServico);
+            return context.Orcamentos.FirstOrDefault(o => o.Id == Id);
+        }
 
-            if (item == null)
+        public void Delete(uint Id)
+        {
+            var orcamento = context.Orcamentos.Find((int)Id);
+            if (orcamento != null)
             {
-                return null;
+                context.Remove(orcamento);
+                context.SaveChanges();
             }
-
-            return new OrcamentoDTO
-            {
-                IdAgendamento = item.IdAgendamento,
-                IdServico = item.IdServico,
-                NomeServico = item.IdServicoNavigation?.Nome ?? string.Empty,
-                DescricaoServico = item.IdAgendamentoNavigation?.DescricaoServico ?? string.Empty,
-                IdCliente = item.IdAgendamentoNavigation?.IdCliente ?? 0,
-                NomeCliente = item.IdAgendamentoNavigation?.IdClienteNavigation?.Nome ?? string.Empty,
-                IdProfissional = item.IdAgendamentoNavigation?.IdProfissional ?? 0,
-                NomeProfissional = item.IdAgendamentoNavigation?.IdProfissionalNavigation?.Nome ?? string.Empty,
-                TipoCobranca = item.IdAgendamentoNavigation?.TipoCobranca ?? string.Empty,
-                StatusAgendamento = item.IdAgendamentoNavigation?.StatusAgendamento ?? string.Empty,
-                StatusServico = item.StatusServico,
-                ValorProposto = item.ValorProposto,
-                TaxaPlataforma = CalcularTaxaPlataforma(item.ValorProposto),
-                ValorLiquido = CalcularValorLiquido(item.ValorProposto)
-            };
         }
+
 
         /// <summary>
-        /// Retorna todos os agendamentos registrados como Orçamento ('O').
+        /// Retorna todos os orçamentos cadastrados no banco de dados.
         /// </summary>
-        public IEnumerable<OrcamentoDTO> GetAll()
+        public IEnumerable<Orcamento> GetAll()
         {
-            return context.Agendamentoservicos
-                .Include(asv => asv.IdAgendamentoNavigation)
-                    .ThenInclude(ag => ag.IdClienteNavigation)
-                .Include(asv => asv.IdAgendamentoNavigation)
-                    .ThenInclude(ag => ag.IdProfissionalNavigation)
-                .Include(asv => asv.IdServicoNavigation)
-                .Where(asv => asv.IdAgendamentoNavigation.TipoCobranca == "O")
-                .AsNoTracking()
-                .Select(item => new OrcamentoDTO
-                {
-                    IdAgendamento = item.IdAgendamento,
-                    IdServico = item.IdServico,
-                    NomeServico = item.IdServicoNavigation.Nome,
-                    DescricaoServico = item.IdAgendamentoNavigation.DescricaoServico,
-                    IdCliente = item.IdAgendamentoNavigation.IdCliente,
-                    NomeCliente = item.IdAgendamentoNavigation.IdClienteNavigation.Nome,
-                    IdProfissional = item.IdAgendamentoNavigation.IdProfissional,
-                    NomeProfissional = item.IdAgendamentoNavigation.IdProfissionalNavigation.Nome,
-                    TipoCobranca = item.IdAgendamentoNavigation.TipoCobranca,
-                    StatusAgendamento = item.IdAgendamentoNavigation.StatusAgendamento,
-                    StatusServico = item.StatusServico,
-                    ValorProposto = item.ValorProposto,
-                    TaxaPlataforma = Math.Round(item.ValorProposto * TAXA_INTERMEDIACAO, 2),
-                    ValorLiquido = Math.Round(item.ValorProposto * (1.0m - TAXA_INTERMEDIACAO), 2)
-                })
-                .ToList();
+            return context.Orcamentos.AsNoTracking();
         }
 
-        /// <summary>
-        /// Retorna todos os orçamentos vinculados a um determinado profissional.
-        /// </summary>
-        public IEnumerable<OrcamentoDTO> GetByProfissional(int idProfissional)
-        {
-            return context.Agendamentoservicos
-                .Include(asv => asv.IdAgendamentoNavigation)
-                    .ThenInclude(ag => ag.IdClienteNavigation)
-                .Include(asv => asv.IdAgendamentoNavigation)
-                    .ThenInclude(ag => ag.IdProfissionalNavigation)
-                .Include(asv => asv.IdServicoNavigation)
-                .Where(asv => asv.IdAgendamentoNavigation.TipoCobranca == "O" && asv.IdAgendamentoNavigation.IdProfissional == idProfissional)
-                .AsNoTracking()
-                .Select(item => new OrcamentoDTO
-                {
-                    IdAgendamento = item.IdAgendamento,
-                    IdServico = item.IdServico,
-                    NomeServico = item.IdServicoNavigation.Nome,
-                    DescricaoServico = item.IdAgendamentoNavigation.DescricaoServico,
-                    IdCliente = item.IdAgendamentoNavigation.IdCliente,
-                    NomeCliente = item.IdAgendamentoNavigation.IdClienteNavigation.Nome,
-                    IdProfissional = item.IdAgendamentoNavigation.IdProfissional,
-                    NomeProfissional = item.IdAgendamentoNavigation.IdProfissionalNavigation.Nome,
-                    TipoCobranca = item.IdAgendamentoNavigation.TipoCobranca,
-                    StatusAgendamento = item.IdAgendamentoNavigation.StatusAgendamento,
-                    StatusServico = item.StatusServico,
-                    ValorProposto = item.ValorProposto,
-                    TaxaPlataforma = Math.Round(item.ValorProposto * TAXA_INTERMEDIACAO, 2),
-                    ValorLiquido = Math.Round(item.ValorProposto * (1.0m - TAXA_INTERMEDIACAO), 2)
-                })
-                .ToList();
-        }
-        */
+
+
     }
 }
 
