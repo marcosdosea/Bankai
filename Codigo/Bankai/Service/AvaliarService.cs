@@ -25,7 +25,7 @@ namespace Service
         public AvaliarService(BankaiContext context)
         {
             this.context = context;
-        }
+        } 
 
         /// <summary>
         /// Insere uma nova avaliação no banco de dados após validar as regras de negócio.

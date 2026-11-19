@@ -1,0 +1,88 @@
+@model IEnumerable<BankaiWeb.Models.AvaliarViewModel>
+
+@{
+    ViewData["Title"] = "Avaliações de Serviços";
+    var lista = Model ?? Enumerable.Empty<BankaiWeb.Models.AvaliarViewModel>();
+}
+
+<div class="row justify-content-center py-4">
+    <div class="col-12 col-xl-10">
+        <!-- Container no padrão Design System Bankai -->
+        <div class="bankai-card">
+
+            <!-- Cabeçalho do Painel -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 border-bottom pb-3">
+                <div>
+                    <h3 class="font-weight-bold mb-1">
+                        <i class="bi bi-star-fill text-warning me-2"></i>Avaliações de Serviços
+                    </h3>
+                    <p class="text-muted small mb-0">Consulte e gerencie as avaliações registradas pelos clientes na plataforma Bankai.</p>
+                </div>
+                <a asp-action="Create" class="btn btn-bankai px-4 py-2 text-decoration-none">
+                    <i class="bi bi-plus-lg me-1"></i> Nova Avaliação
+                </a>
+            </div>
+
+            <!-- Estado Vazio -->
+            @if (!lista.Any())
+            {
+                <div class="text-center py-5 text-muted bg-light rounded-3 border">
+                    <i class="bi bi-star display-5 d-block mb-3 text-secondary"></i>
+                    <p class="fs-5 fw-bold mb-1">Nenhuma avaliação registrada até o momento.</p>
+                    <p class="small text-muted mb-3">Avalie um serviço concluído para ajudar a manter a qualidade da plataforma.</p>
+                    <a asp-action="Create" class="btn btn-bankai text-decoration-none px-4 py-2">
+                        <i class="bi bi-plus-circle me-1"></i> Registrar Primeira Avaliação
+                    </a>
+                </div>
+            }
+            else
+            {
+                <!-- Lista de Avaliações -->
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var item in lista)
+                    {
+                        var media = ((item.Pontualidade + item.LimpezaLocal + item.QualidadeReparo) / 3.0).ToString("0.0");
+
+                        <div class="p-3 bg-light rounded-3 border d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 service-manage-card">
+                            <div class="d-flex align-items-start gap-3 flex-grow-1">
+                                <div class="bg-white border rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 46px; height: 46px;">
+                                    <i class="bi bi-person-gear fs-4" style="color: var(--accent-color);"></i>
+                                </div>
+
+                                <div class="service-meta flex-grow-1">
+                                    <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                        <h4 class="fw-bold fs-6 mb-0 text-dark">Ordem #@item.IdAgendamento</h4>
+                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1 rounded-pill fw-bold">
+                                            <i class="bi bi-star-fill text-warning me-1"></i>@media
+                                        </span>
+                                        <span class="text-muted small">
+                                            Pontualidade: @item.Pontualidade/5 • Limpeza: @item.LimpezaLocal/5 • Qualidade: @item.QualidadeReparo/5
+                                        </span>
+                                    </div>
+                                    <p class="text-muted small mb-0 text-truncate" style="max-width: 550px;" title="@item.Depoimento">
+                                        @(string.IsNullOrWhiteSpace(item.Depoimento) ? "Sem depoimento adicional." : $"\"{item.Depoimento}\"")
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Botões de Ação -->
+                            <div class="d-flex align-items-center justify-content-end gap-2" style="min-width: 210px;">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info rounded-2 text-dark px-3" title="Ver detalhes completos">
+                                    <i class="bi bi-eye-fill me-1"></i> Detalhes
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning text-dark px-3 fw-semibold" title="Editar avaliação">
+                                    <i class="bi bi-pencil-fill me-1"></i> Editar
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger px-2 rounded-2" title="Excluir avaliação">
+                                    <i class="bi bi-trash-fill"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
