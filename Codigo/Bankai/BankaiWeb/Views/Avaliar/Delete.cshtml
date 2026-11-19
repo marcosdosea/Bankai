@@ -1,0 +1,51 @@
+@model BankaiWeb.Models.AvaliarViewModel
+
+@{
+    ViewData["Title"] = "Excluir Avaliação";
+    var media = ((Model.Pontualidade + Model.LimpezaLocal + Model.QualidadeReparo) / 3.0).ToString("0.0");
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="text-decoration-none text-secondary fw-semibold">
+        <i class="bi bi-arrow-left me-1"></i> Voltar para a lista
+    </a>
+</div>
+
+<div class="row justify-content-center pb-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="bankai-card border-danger">
+            <h3 class="fw-bold text-danger mb-2">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar Exclusão
+            </h3>
+            <p class="text-muted small mb-4">
+                Tem certeza de que deseja remover esta avaliação? Esta ação atualizará a média de reputação do profissional.
+            </p>
+
+            <div class="p-3 bg-light rounded-3 border mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-bold text-dark">Ordem #@Model.IdAgendamento</span>
+                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1 rounded-pill fw-bold">
+                        <i class="bi bi-star-fill text-warning me-1"></i>@media
+                    </span>
+                </div>
+                <div class="small text-muted mb-2">
+                    Pontualidade: @Model.Pontualidade/5 • Limpeza: @Model.LimpezaLocal/5 • Qualidade: @Model.QualidadeReparo/5
+                </div>
+                <p class="text-muted small mb-0">
+                    @(string.IsNullOrWhiteSpace(Model.Depoimento) ? "Sem depoimento adicional." : $"\"{Model.Depoimento}\"")
+                </p>
+            </div>
+
+            <form asp-action="Delete" method="post">
+                <input type="hidden" asp-for="Id" />
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2 rounded-3">Cancelar</a>
+                    <button type="submit" class="btn btn-danger px-4 py-2 fw-bold rounded-3">
+                        <i class="bi bi-trash-fill me-1"></i> Confirmar Exclusão
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

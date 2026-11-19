@@ -44,6 +44,9 @@ namespace BankaiWeb
         // Registro de Injeção de Dependência do caso de uso Realizar Pagamento
             builder.Services.AddTransient<IPagamentoService, PagamentoService>();
 
+        // Registro de Injeção de Dependência do caso de uso Avaliar Serviço
+            builder.Services.AddTransient<IAvaliarService, AvaliarService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
