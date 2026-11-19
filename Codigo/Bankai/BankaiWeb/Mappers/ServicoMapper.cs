@@ -1,6 +1,8 @@
 using BankaiWeb.Models;
 using Core;
 using Mapster;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BankaiWeb.Mappers
 {
@@ -8,7 +10,9 @@ namespace BankaiWeb.Mappers
     {
         public static ServicoViewModel ToViewModel(Servico servico)
         {
-            return servico.Adapt<ServicoViewModel>();
+            var viewModel = servico.Adapt<ServicoViewModel>();
+            viewModel.NomeEspecialidade = servico.IdEspecialidadeNavigation?.Nome;
+            return viewModel;
         }
 
         public static Servico ToEntity(ServicoViewModel servicoViewModel)
@@ -18,7 +22,7 @@ namespace BankaiWeb.Mappers
 
         public static IEnumerable<ServicoViewModel> ToViewModel(IEnumerable<Servico> servicos)
         {
-            return servicos.Adapt<IEnumerable<ServicoViewModel>>();
+            return servicos.Select(ToViewModel);
         }
 
         public static IEnumerable<Servico> ToEntity(IEnumerable<ServicoViewModel> servicosViewModel)
@@ -27,4 +31,3 @@ namespace BankaiWeb.Mappers
         }
     }
 }
-

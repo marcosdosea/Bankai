@@ -33,6 +33,10 @@ namespace BankaiWeb.Controllers.Tests
                 .Setup(service => service.Get(999))
                 .Returns((Servico?)null);
 
+            servicoServiceMock
+                .Setup(service => service.ObterEspecialidades())
+                .Returns([new Especialidade { Id = 1, Nome = "Tecnologia" }]);
+
             controller = new ServicoController(servicoServiceMock.Object);
         }
 
@@ -53,6 +57,7 @@ namespace BankaiWeb.Controllers.Tests
             Assert.AreEqual(1, primeiroServico.Id);
             Assert.AreEqual("Formatação e Limpeza", primeiroServico.Nome);
             Assert.AreEqual("Limpeza interna e formatação completa do sistema operacional", primeiroServico.Descricao);
+            Assert.AreEqual("Tecnologia", primeiroServico.NomeEspecialidade);
 
             servicoServiceMock.Verify(service => service.GetAll(), Times.Once);
         }
@@ -138,6 +143,7 @@ namespace BankaiWeb.Controllers.Tests
             VerificarRedirecionamentoParaIndex(resultado);
 
             Assert.IsNotNull(servicoCriado);
+            Assert.AreEqual(modelo.IdEspecialidade, servicoCriado.IdEspecialidade);
             Assert.AreEqual(modelo.Nome, servicoCriado.Nome);
             Assert.AreEqual(modelo.Descricao, servicoCriado.Descricao);
 
@@ -208,6 +214,7 @@ namespace BankaiWeb.Controllers.Tests
 
             Assert.IsNotNull(servicoEditado);
             Assert.AreEqual(modelo.Id, servicoEditado.Id);
+            Assert.AreEqual(modelo.IdEspecialidade, servicoEditado.IdEspecialidade);
             Assert.AreEqual(modelo.Nome, servicoEditado.Nome);
             Assert.AreEqual(modelo.Descricao, servicoEditado.Descricao);
 
@@ -285,6 +292,7 @@ namespace BankaiWeb.Controllers.Tests
         {
             return new ServicoViewModel
             {
+                IdEspecialidade = 1,
                 Nome = "Troca de Tela",
                 Descricao = "Substituição completa de display e touch screen"
             };
@@ -295,6 +303,7 @@ namespace BankaiWeb.Controllers.Tests
             return new ServicoViewModel
             {
                 Id = 1,
+                IdEspecialidade = 1,
                 Nome = "Formatação e Limpeza",
                 Descricao = "Limpeza interna e formatação completa do sistema operacional"
             };
@@ -305,6 +314,7 @@ namespace BankaiWeb.Controllers.Tests
             return new Servico
             {
                 Id = 1,
+                IdEspecialidade = 1,
                 Nome = "Formatação e Limpeza",
                 Descricao = "Limpeza interna e formatação completa do sistema operacional"
             };
@@ -315,6 +325,7 @@ namespace BankaiWeb.Controllers.Tests
             return new Servico
             {
                 Id = 2,
+                IdEspecialidade = 1,
                 Nome = "Instalação de Redes",
                 Descricao = "Configuração de roteadores, cabeamento estruturado e switches"
             };

@@ -2,6 +2,8 @@ using BankaiWeb.Mappers;
 using BankaiWeb.Models;
 using Core.Service;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Linq;
 
 namespace BankaiWeb.Controllers
 {
@@ -18,7 +20,19 @@ namespace BankaiWeb.Controllers
         public ActionResult Index()
         {
             var servicos = servicoService.GetAll();
-            var servicosViewModel = ServicoMapper.ToViewModel(servicos);
+            var especialidades = servicoService.ObterEspecialidades()
+                .ToDictionary(e => e.Id, e => e.Nome);
+
+            var servicosViewModel = ServicoMapper.ToViewModel(servicos).Select(vm =>
+            {
+                if (string.IsNullOrWhiteSpace(vm.NomeEspecialidade)
+                    && especialidades.TryGetValue(vm.IdEspecialidade, out var nomeEsp))
+                {
+                    vm.NomeEspecialidade = nomeEsp;
+                }
+                return vm;
+            }).ToList();
+
             return View(servicosViewModel);
         }
 
@@ -37,6 +51,7 @@ namespace BankaiWeb.Controllers
         // GET: ServicoController/Create
         public ActionResult Create()
         {
+            CarregarEspecialidades();
             var servicoViewModel = new ServicoViewModel();
             return View(servicoViewModel);
         }
@@ -52,6 +67,7 @@ namespace BankaiWeb.Controllers
                 servicoService.Create(servico);
                 return RedirectToAction(nameof(Index));
             }
+            CarregarEspecialidades(servicoViewModel.IdEspecialidade);
             return View(servicoViewModel);
         }
 
@@ -64,6 +80,7 @@ namespace BankaiWeb.Controllers
                 return NotFound();
             }
             var servicoViewModel = ServicoMapper.ToViewModel(servico);
+            CarregarEspecialidades(servicoViewModel.IdEspecialidade);
             return View(servicoViewModel);
         }
 
@@ -78,6 +95,7 @@ namespace BankaiWeb.Controllers
                 servicoService.Edit(servico);
                 return RedirectToAction(nameof(Index));
             }
+            CarregarEspecialidades(servicoViewModel.IdEspecialidade);
             return View(servicoViewModel);
         }
 
@@ -101,6 +119,11 @@ namespace BankaiWeb.Controllers
             servicoService.Delete(servicoViewModel.Id);
             return RedirectToAction(nameof(Index));
         }
+
+        private void CarregarEspecialidades(int? idEspecialidadeSelecionada = null)
+        {
+            var especialidades = servicoService.ObterEspecialidades();
+            ViewBag.Especialidades = new SelectList(especialidades, "Id", "Nome", idEspecialidadeSelecionada);
+        }
     }
 }
-

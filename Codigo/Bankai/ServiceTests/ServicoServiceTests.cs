@@ -254,5 +254,46 @@ public class ServicoServiceTests
         // Assert
         Assert.AreEqual(3, servicos.Count);
     }
-}
 
+    [TestMethod]
+    public void Get_QuandoServicoPossuiEspecialidade_DeveCarregarNavegacaoEspecialidade()
+    {
+        // Arrange
+        contexto.Especialidades.Add(new Especialidade { Id = 20, Nome = "Manutenção Elétrica" });
+        contexto.Servicos.Add(new Servico
+        {
+            Id = 10,
+            Nome = "Troca de Chuveiro",
+            Descricao = "Substituição de resistência e fiação",
+            IdEspecialidade = 20
+        });
+        contexto.SaveChanges();
+
+        // Act
+        var servico = servicoService.Get(10);
+
+        // Assert
+        Assert.IsNotNull(servico);
+        Assert.AreEqual(20, servico.IdEspecialidade);
+        Assert.IsNotNull(servico.IdEspecialidadeNavigation);
+        Assert.AreEqual("Manutenção Elétrica", servico.IdEspecialidadeNavigation.Nome);
+    }
+
+    [TestMethod]
+    public void ObterEspecialidades_QuandoExistemEspecialidades_DeveRetornarOrdenadasPorNome()
+    {
+        // Arrange
+        contexto.Especialidades.AddRange(
+            new Especialidade { Id = 10, Nome = "Hidráulica" },
+            new Especialidade { Id = 11, Nome = "Elétrica" });
+        contexto.SaveChanges();
+
+        // Act
+        var especialidades = servicoService.ObterEspecialidades().ToList();
+
+        // Assert
+        Assert.HasCount(2, especialidades);
+        Assert.AreEqual("Elétrica", especialidades[0].Nome);
+        Assert.AreEqual("Hidráulica", especialidades[1].Nome);
+    }
+}

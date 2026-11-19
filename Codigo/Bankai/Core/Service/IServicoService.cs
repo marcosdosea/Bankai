@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Core.Service
@@ -11,6 +10,10 @@ namespace Core.Service
         Servico? Get(int id);
         IEnumerable<Servico> GetAll();
         IEnumerable<Servico> GetByNome(string nome);
+
+        /// <summary>
+        /// Lista as especialidades disponíveis no catálogo ordenadas por nome.
+        /// </summary>
+        IEnumerable<Especialidade> ObterEspecialidades();
     }
 }
-

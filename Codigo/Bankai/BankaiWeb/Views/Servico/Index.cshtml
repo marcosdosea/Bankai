@@ -18,9 +18,14 @@
                     </h3>
                     <p class="text-muted small mb-0">Gerencie os serviços padronizados disponíveis na plataforma Bankai.</p>
                 </div>
-                <a asp-action="Create" class="btn btn-bankai px-4 py-2 text-decoration-none">
-                    <i class="bi bi-plus-lg me-1"></i> Novo Serviço
-                </a>
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-action="Buscar" class="btn btn-outline-warning text-dark fw-semibold px-3 py-2 text-decoration-none">
+                        <i class="bi bi-search me-1"></i> Buscar Serviços
+                    </a>
+                    <a asp-action="Create" class="btn btn-bankai px-4 py-2 text-decoration-none">
+                        <i class="bi bi-plus-lg me-1"></i> Novo Serviço
+                    </a>
+                </div>
             </div>
 
             <!-- Estado Vazio -->
@@ -45,7 +50,15 @@
                             
                             <!-- Metadados do Serviço -->
                             <div class="service-meta flex-grow-1">
-                                <h4 class="fw-bold fs-6 mb-1 text-dark">@item.Nome</h4>
+                                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                    <h4 class="fw-bold fs-6 mb-0 text-dark">@item.Nome</h4>
+                                    @if (!string.IsNullOrWhiteSpace(item.NomeEspecialidade))
+                                    {
+                                        <span class="service-badge-pill" style="padding: 0.15rem 0.6rem; font-size: 0.72rem;">
+                                            @item.NomeEspecialidade
+                                        </span>
+                                    }
+                                </div>
                                 <p class="text-muted small mb-0 text-truncate" style="max-width: 500px;" title="@item.Descricao">
                                     @item.Descricao
                                 </p>

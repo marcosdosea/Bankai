@@ -4,23 +4,52 @@
     ViewData["Title"] = "Excluir Serviço";
 }
 
-<div class="manage-container" style="grid-template-columns: 1fr; max-width: 650px; margin: 2rem auto;">
-    <div class="bankai-card border-danger">
-        <h3 class="section-title text-danger"><span>⚠️</span> Confirmar Exclusão</h3>
-        <p class="text-muted mb-4">Tem certeza de que deseja remover este serviço do catálogo padronizado? Esta ação removerá a opção para novos orçamentos.</p>
+<div class="mb-4">
+    <a asp-action="Index" class="text-decoration-none text-secondary fw-bold">
+        <i class="bi bi-arrow-left"></i> Voltar para o catálogo
+    </a>
+</div>
 
-        <div class="mb-3">
-            <label class="info-title">Serviço</label>
-            <h5 class="fw-bold">@Model.Nome</h5>
-            <p class="text-muted small">@Model.Descricao</p>
-        </div>
-
-        <form asp-action="Delete">
-            <input type="hidden" asp-for="Id" />
-            <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3">
-                <a asp-action="Index" class="btn-view-profile">← Cancelar</a>
-                <button type="submit" class="btn btn-danger btn-bankai" style="background-color: var(--status-alert);">Confirmar Exclusão</button>
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="bankai-card border-danger">
+            <div class="text-center mb-4">
+                <div class="d-inline-block p-3 rounded-circle bg-danger-subtle text-danger mb-2 fs-2">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <h3 class="fw-bold text-danger">Confirmar Exclusão</h3>
+                <p class="text-muted small">
+                    Tem certeza de que deseja remover este serviço do catálogo padronizado? Esta ação não pode ser desfeita.
+                </p>
             </div>
-        </form>
+
+            <div class="bg-light p-4 rounded-3 mb-4 border">
+                <div class="row mb-2">
+                    <div class="col-sm-4 text-muted small fw-bold">SERVIÇO</div>
+                    <div class="col-sm-8 fw-bold">@Model.Nome</div>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.NomeEspecialidade))
+                {
+                    <div class="row mb-2">
+                        <div class="col-sm-4 text-muted small fw-bold">ESPECIALIDADE</div>
+                        <div class="col-sm-8">@Model.NomeEspecialidade</div>
+                    </div>
+                }
+                <div class="row">
+                    <div class="col-sm-4 text-muted small fw-bold">DESCRIÇÃO</div>
+                    <div class="col-sm-8 text-muted small">@Model.Descricao</div>
+                </div>
+            </div>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="Id" />
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger flex-grow-1 py-3 fw-bold">
+                        <i class="bi bi-trash-fill me-1"></i> Confirmar Exclusão
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary py-3 px-4 rounded-3">Cancelar</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>

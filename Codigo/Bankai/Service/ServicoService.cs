@@ -1,6 +1,8 @@
 using Core;
 using Core.Service;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Service
 {
@@ -51,13 +53,18 @@ namespace Service
         }
 
         /// <summary>
-        /// Obtém um serviço a partir de seu identificador.
+        /// Obtém um serviço a partir de seu identificador, carregando sua especialidade quando disponível.
         /// </summary>
         /// <param name="id">O id do serviço.</param>
         /// <returns>A entidade de serviço encontrada ou nula.</returns>
         public Servico? Get(int id)
         {
-            return context.Servicos.Find(id);
+            var servico = context.Servicos.Find(id);
+            if (servico != null)
+            {
+                context.Entry(servico).Reference(s => s.IdEspecialidadeNavigation).Load();
+            }
+            return servico;
         }
 
         /// <summary>
@@ -80,6 +87,17 @@ namespace Service
                 .Where(s => s.Nome.StartsWith(nome))
                 .AsNoTracking();
         }
+
+        /// <summary>
+        /// Lista as especialidades disponíveis no catálogo ordenadas alfabeticamente.
+        /// </summary>
+        /// <returns>Coleção de especialidades.</returns>
+        public IEnumerable<Especialidade> ObterEspecialidades()
+        {
+            return context.Especialidades
+                .AsNoTracking()
+                .OrderBy(e => e.Nome)
+                .ToList();
+        }
     }
 }
-
