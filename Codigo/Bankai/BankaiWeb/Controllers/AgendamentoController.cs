@@ -149,5 +149,45 @@ namespace BankaiWeb.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Iniciar(int id, int idPessoa)
+        {
+            try
+            {
+                _agendamentoService.Iniciar(id);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Erro"] = ex.Message;
+            }
+
+            return RedirectToAction(nameof(Index), new {idPessoa});
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Concluir(int id, int idPessoa)
+        {
+            try
+            {
+                _agendamentoService.Concluir(id);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Erro"] = ex.Message;
+            }
+
+            return RedirectToAction(nameof(Index), new {idPessoa});
+        }
     }
+
 }

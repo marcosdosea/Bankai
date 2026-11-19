@@ -9,6 +9,8 @@ public class AgendamentoService : IAgendamentoService
 {
     private const string Novo = "Novo";
     private const string Cancelado = "Cancelado";
+    private const string Execucao = "Execucao";
+    private const string Concluido = "Concluido";
 
     private readonly BankaiContext _context;
     public AgendamentoService(BankaiContext context) => _context = context;
@@ -149,6 +151,27 @@ public class AgendamentoService : IAgendamentoService
     }
 
     // ---------- auxiliares ----------
+    /// <summary>
+    /// Marca um agendamento novo como em execução
+    /// </summary>
+    public void Iniciar(int idAgendamento)
+    {
+        var ag = ObterOuFalhar(idAgendamento);
+        ExigirStatus(ag, "Só é possível iniciar agendamentos novos.", Novo);
+        ag.StatusAgendamento = Execucao;
+        _context.SaveChanges();
+    }
+
+    /// <summary>
+    /// Marca um agendamento em execução como concluído
+    /// </summary>
+    public void Concluir(int idAgendamento)
+    {
+        var ag = ObterOuFalhar(idAgendamento);
+        ExigirStatus(ag, "Só é possível concluir agendamentos em execução.", Execucao);
+        ag.StatusAgendamento = Concluido;
+        _context.SaveChanges();
+    }
 
     //verifica se o agendamento existe, caso contrário lança exceção
     private Agendamento ObterOuFalhar(int id)

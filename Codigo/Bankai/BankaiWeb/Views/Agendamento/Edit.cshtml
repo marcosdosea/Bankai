@@ -1,22 +1,23 @@
 @model BankaiWeb.Models.AgendamentoViewModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar  Agendamento";
 }
 
-<h1>Edit</h1>
-
-<h4>AgendamentoViewModel</h4>
+<h1>Editar  Agendamento</h1>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="IdCliente" />
             <input type="hidden" asp-for="IdProfissional" />
             <div class="form-group">
-                <select asp-for="Data" class="form-control">
+                <label asp-for="DiaSemana" class="control-label"></label>
+                <select asp-for="DiaSemana" class="form-control">
+                    <option value="">Selecione...</option>
                     <option value="D">Domingo</option>
                     <option value="SF">Segunda</option>
                     <option value="TF">Terça</option>
@@ -25,6 +26,7 @@
                     <option value="SXF">Sexta</option>
                     <option value="S">Sábado</option>
                 </select>
+                <span asp-validation-for="DiaSemana" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="HorarioInicio" class="control-label"></label>
@@ -38,18 +40,24 @@
             </div>
 
             <div class="form-group">
+                <label asp-for="TipoCobranca" class="control-label"></label>
                 <select asp-for="TipoCobranca" class="form-control">
                     <option value="F">Fixo</option>
                     <option value="O">Orçamento</option>
                 </select>
+                <span asp-validation-for="TipoCobranca" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="Comentario" class="control-label"></label>
                 <input asp-for="Comentario" class="form-control"/>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            <<div class="form-group mt-3">
+                <input type="submit" value="Salvar" class="btn btn-primary" />
             </div>
+
+            <div asp-validation-summary="All" class="text-danger"></div>
         </form>
     </div>
 </div>

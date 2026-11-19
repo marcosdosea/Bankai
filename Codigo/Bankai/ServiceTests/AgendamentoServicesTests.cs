@@ -1,6 +1,7 @@
 ﻿using Core;
 using Core.Service;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.Intrinsics.Arm;
 
 namespace Service.Tests;
 
@@ -28,15 +29,17 @@ public class AgendamentoServiceTests
             CriarPessoa(7, "Pessoa 7", true),
             CriarPessoa(8, "Pessoa 8", false));
 
+        var domingo = DomingoDaSemanaAtual();
+
         context.Agendamentos.AddRange(
             new Agendamento {
                 Id = 1,
                 IdCliente = 3,
                 IdProfissional = 5,
                 TipoCobranca = "F",
-                Data = DateTime.Today.AddDays(4),
-                HorarioInicio = DateTime.Today.AddHours(15).AddDays(4),
-                HorarioFim = DateTime.Today.AddHours(17).AddDays(4),
+                Data = domingo,
+                HorarioInicio = domingo.AddHours(15),
+                HorarioFim = domingo.AddHours(17),
                 StatusAgendamento = "Novo",
                 Foto = null
             },
@@ -193,10 +196,10 @@ public class AgendamentoServiceTests
     public void Edit_QuandoNovoHorarioEstaForaDaDisponibilidade_DeveRecusarEdicao()
     {
         // Arrange (profissional 5 atende das 8h às 18h)
-        var sabado = ProximaOcorrencia(DayOfWeek.Saturday);
+        var domingo = DomingoDaSemanaAtual();
         var edicao = CriarEdicao(1);
-        edicao.HorarioInicio = sabado.AddHours(19);
-        edicao.HorarioFim = sabado.AddHours(21);
+        edicao.HorarioInicio = domingo.AddHours(19);
+        edicao.HorarioFim = domingo.AddHours(21);
 
         // Act
         var excecao = Assert.ThrowsExactly<InvalidOperationException>(() =>
@@ -218,7 +221,7 @@ public class AgendamentoServiceTests
     public void Delete_QuandoAgendamentoCancelado_DeveLiberarOHorarioParaNovoAgendamento()
     {
         // Arrange (o agendamento 1 ocupa o profissional 5 no sábado, das 15h às 17h)
-        var sabado = ProximaOcorrencia(DayOfWeek.Saturday);
+        var domingo = DomingoDaSemanaAtual();
         servicoAgendamento.Delete(1);
 
         var novo = new Agendamento
@@ -226,9 +229,9 @@ public class AgendamentoServiceTests
             IdCliente = 8,
             IdProfissional = 5,
             TipoCobranca = "F",
-            Data = sabado,
-            HorarioInicio = sabado.AddHours(15),
-            HorarioFim = sabado.AddHours(17)
+            Data = domingo,
+            HorarioInicio = domingo.AddHours(15),
+            HorarioFim = domingo.AddHours(17)
         };
 
         // Act
@@ -291,6 +294,39 @@ public class AgendamentoServiceTests
         Assert.IsNotNull(agendamentos);
         Assert.IsEmpty(agendamentos);
     }
+    [TestMethod]
+    public void Iniciar_QuandoAgendamentoNovo_DeveMarcarComoExecucao()
+    {
+        servicoAgendamento.Iniciar(1);
+
+        Assert.AreEqual("Execucao", servicoAgendamento.Get(1)!.StatusAgendamento);
+    }
+
+    [TestMethod]
+    public void Iniciar_QuandoAgendamentoNaoEstaNovo_DeveRecusar()
+    {
+        var excecao = Assert.ThrowsExactly<InvalidOperationException>(() =>
+            servicoAgendamento.Iniciar(3));
+
+        Assert.AreEqual("Só é possível iniciar agendamentos novos.", excecao.Message);
+    }
+
+    [TestMethod]
+    public void Concluir_QuandoAgendamentoEmExecucao_DeveMarcarComoConcluido()
+    {
+        servicoAgendamento.Concluir(3);
+
+        Assert.AreEqual("Concluido", servicoAgendamento.Get(3)!.StatusAgendamento);
+    }
+
+    [TestMethod]
+    public void Concluir_QuandoAgendamentoNovo_DeveRecusar()
+    {
+        var excecao = Assert.ThrowsExactly<InvalidOperationException>(() =>
+            servicoAgendamento.Concluir(1));
+
+        Assert.AreEqual("Só é possível concluir agendamentos em execução.", excecao.Message);
+    }
 
     private static Pessoa CriarPessoa(int id, string nome, bool ehProfissional)
     {
@@ -312,30 +348,22 @@ public class AgendamentoServiceTests
 
     private static Agendamento CriarAgendamento()
     {
-        var hoje = DateTime.Today;
-        var diasAteQuarta = ((int)DayOfWeek.Wednesday - (int)hoje.DayOfWeek + 7) % 7;
-        var dt = hoje.AddDays(diasAteQuarta);
+        var domingo = DomingoDaSemanaAtual();
+
         return new Agendamento
         {
             Id = 4,
             IdCliente = 6,
             IdProfissional = 7,
-            Data = dt,
-            HorarioInicio = dt.AddHours(9),
-            HorarioFim = dt.AddHours(12),
+            Data = domingo,
+            HorarioInicio = domingo.AddHours(16),
+            HorarioFim = domingo.AddHours(18),
             TipoCobranca = "F",
         };
     }
-    private static DateTime ProximaOcorrencia(DayOfWeek dia)
-    {
-        var hoje = DateTime.Today;
-        var dias = 1 + ((int)dia - (int)hoje.DayOfWeek + 6) % 7;
-
-        return hoje.AddDays(dias);
-    }
     private static Agendamento CriarEdicao(int id)
     {
-        var sabado = ProximaOcorrencia(DayOfWeek.Saturday);
+        var domingo = DomingoDaSemanaAtual();
 
         return new Agendamento
         {
@@ -344,9 +372,15 @@ public class AgendamentoServiceTests
             IdProfissional = 5,
             TipoCobranca = "O",
             Comentario = "Levar escada",
-            Data = sabado,
-            HorarioInicio = sabado.AddHours(10),
-            HorarioFim = sabado.AddHours(12)
+            Data = domingo,
+            HorarioInicio = domingo.AddHours(10),
+            HorarioFim = domingo.AddHours(12)
         };
+    }
+    // os testes começam a semana sempre no domingo, ja que nao se pode agendar para proxima semana
+    private static DateTime DomingoDaSemanaAtual()
+    {
+        var hoje = DateTime.Today;
+        return hoje.AddDays((7 - (int)hoje.DayOfWeek) % 7);
     }
 }

@@ -2,13 +2,12 @@
 @model BankaiWeb.Models.AgendamentoViewModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalhes de um Agendamento";
 }
 
-<h1>Details</h1>
+<h1>Detalhes</h1>
 
 <div>
-    <h4>AgendamentoViewModel</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
@@ -46,7 +45,6 @@
             @Html.DisplayFor(model => model.HorarioFim)
         </dd>
 
-
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.TipoCobranca)
         </dt>
@@ -54,12 +52,8 @@
             @Html.DisplayFor(model => model.TipoCobranca)
         </dd>
 
-
     </dl>
 </div>
-
-<hr />
-<a asp-action="Avaliar" asp-route-id="@Model.Id">Avaliar</a>
 
 <div>
     @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
