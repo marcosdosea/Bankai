@@ -1,0 +1,57 @@
+﻿@model BankaiWeb.Models.GarantiaViewModel
+
+@{
+    ViewData["Title"] = "Detalhes do Chamado de Garantia";
+}
+
+<div class="execution-container mt-4" style="grid-template-columns: 1fr;">
+    <div class="exec-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <a asp-action="Index" class="btn-back text-decoration-none mb-2 d-inline-block">← Voltar para a lista</a>
+                <h2 class="fw-bold m-0">Chamado de Garantia #GAR-@Model.Id</h2>
+            </div>
+            <div>
+                @switch (Model.StatusGarantia)
+                {
+                    case "S":
+                        <span class="badge bg-warning text-dark fs-6">Solicitada</span>
+                        break;
+                    case "A":
+                        <span class="badge bg-info text-white fs-6">Agendado</span>
+                        break;
+                    case "R":
+                        <span class="badge bg-primary fs-6">Em Rota</span>
+                        break;
+                    case "E":
+                        <span class="badge bg-secondary fs-6">Em Execução</span>
+                        break;
+                    case "C":
+                        <span class="badge bg-success fs-6">Concluído</span>
+                        break;
+                }
+            </div>
+        </div>
+
+        <hr />
+
+        <dl class="row fs-6">
+            <dt class="col-sm-3 text-muted">Código do Chamado:</dt>
+            <dd class="col-sm-9 fw-bold">#GAR-@Model.Id</dd>
+
+            <dt class="col-sm-3 text-muted">Ordem de Agendamento:</dt>
+            <dd class="col-sm-9">#BKS-@Model.IdAgendamento</dd>
+
+            <dt class="col-sm-3 text-muted">Data da Solicitação:</dt>
+            <dd class="col-sm-9">@Model.DataChamado.ToString("dd/MM/yyyy 'às' HH:mm")</dd>
+
+            <dt class="col-sm-3 text-muted">Descrição do Defeito:</dt>
+            <dd class="col-sm-9 bg-light p-3 rounded border">@Model.Descricao</dd>
+        </dl>
+
+        <div class="mt-4 pt-3 border-top d-flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-bankai">Editar Chamado</a>
+            <a asp-action="Index" class="btn btn-outline-secondary">Voltar</a>
+        </div>
+    </div>
+</div>
