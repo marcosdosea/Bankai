@@ -1,0 +1,48 @@
+@model IEnumerable<BankaiWeb.Models.OrcamentoViewModel>
+
+@{
+    ViewData["Title"] = "Orçamentos";
+}
+
+<h1>Orçamentos</h1>
+
+<p>
+    <a asp-action="Create">Criar novo orçamento</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ValorProposto)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Validade)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Descricao)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(model => item.ValorProposto)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.Validade)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.Descricao)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
