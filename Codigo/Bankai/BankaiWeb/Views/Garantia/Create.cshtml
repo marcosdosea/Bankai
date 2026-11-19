@@ -1,0 +1,91 @@
+﻿@model BankaiWeb.Models.GarantiaViewModel
+
+@{
+    ViewData["Title"] = "Solicitar Garantia Corretiva";
+}
+
+<div class="execution-container mt-4">
+    <!-- COLUNA ESQUERDA: FORMULÁRIO DE ABERTURA -->
+    <div class="main-execution-panel">
+
+        <!-- Banner de Garantia Ativa (Verde) -->
+        <div class="p-3 mb-4 rounded-3 text-white" style="background-color: var(--status-success);">
+            <div class="d-flex align-items-center gap-3">
+                <div style="font-size: 2rem;">🛡️</div>
+                <div>
+                    <h5 class="m-0 fw-bold">Garantia Legal Ativa</h5>
+                    <small>Sua ordem de serviço está coberta pela garantia de 30 dias para reparos e reincidências sem custos adicionais.</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="exec-card">
+            <h2 class="fw-bold mb-1" style="color: var(--text-main);">Abertura de Chamado Corretivo</h2>
+            <p class="text-muted mb-4 small">Descreva a falha ou defeito reincidente para acionar a visita de retorno do profissional.</p>
+
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <!-- Campo Número do Agendamento -->
+                <div class="form-group mb-3">
+                    <label asp-for="IdAgendamento" class="form-label fw-bold small text-uppercase">Código do Agendamento / Ordem</label>
+                    <input asp-for="IdAgendamento" class="form-control" placeholder="Ex: 1" />
+                    <span asp-validation-for="IdAgendamento" class="text-danger small"></span>
+                </div>
+
+                <!-- Descrição Detalhada do Problema -->
+                <div class="form-group mb-3">
+                    <label asp-for="Descricao" class="form-label fw-bold small text-uppercase">Descrição Detalhada do Problema</label>
+                    <textarea asp-for="Descricao" class="form-control" rows="5" placeholder="Informe detalhadamente o que voltou a apresentar defeito após a conclusão do serviço..."></textarea>
+                    <span asp-validation-for="Descricao" class="text-danger small"></span>
+                </div>
+
+                <!-- Campo Oculto para o Status Inicial (S = Solicitada) -->
+                <input type="hidden" asp-for="StatusGarantia" value="S" />
+
+                <!-- Botão de Ação Principal (Vermelho Alerta) -->
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-danger btn-lg fw-bold" style="background-color: var(--status-alert); border: none;">
+                        ⚠️ Notificar Profissional e Acionar Retorno
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-sm text-center">Cancelar e Voltar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- COLUNA DIREITA: CONTRATO ORIGINAL & CLÁUSULAS DE ATENDIMENTO -->
+    <div class="sidebar-execution-panel">
+        <!-- Resumo do Atendimento -->
+        <div class="sidebar-card">
+            <h6 class="info-title mb-3">📋 Contrato / Ordem Vinculada</h6>
+            <div class="client-meta">
+                <div class="avatar-placeholder">🔧</div>
+                <div>
+                    <strong class="d-block text-dark">Serviço de Manutenção</strong>
+                    <span class="badge bg-secondary">Garantia Padrão 30 Dias</span>
+                </div>
+            </div>
+            <hr class="my-2" />
+            <div class="small text-muted">
+                <p class="mb-1"><strong>Status Inicial do Chamado:</strong> <span class="badge bg-warning text-dark">Solicitada (S)</span></p>
+                <p class="mb-0"><strong>Prazo de Resposta:</strong> Até 48 horas úteis para agendamento de retorno.</p>
+            </div>
+        </div>
+
+        <!-- Regulamento e Disputas -->
+        <div class="sidebar-card" style="background-color: var(--accent-light); border-color: var(--accent-border-light);">
+            <h6 class="fw-bold mb-2" style="color: var(--accent-color);">🛡️ Regras de Cobertura</h6>
+            <ul class="small text-muted ps-3 mb-0" style="line-height: 1.6;">
+                <li>O retorno do profissional não gera novas cobranças para o mesmo defeito.</li>
+                <li>Caso haja divergências, a mediação é realizada pela equipe técnica Bankai.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
