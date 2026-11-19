@@ -11,4 +11,6 @@ public interface IAgendamentoService
     Agendamento Get(int idAgendamento);
     IEnumerable<AgendamentoDTO> GetAllByUser(int idPessoa);
     DateTime ObterDataNaSemanaAtual(string diaSemana);
+    void Concluir(int idAgendamento);
+    void Iniciar(int idAgendamento);
 }

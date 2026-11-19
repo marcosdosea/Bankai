@@ -294,6 +294,39 @@ public class AgendamentoServiceTests
         Assert.IsNotNull(agendamentos);
         Assert.IsEmpty(agendamentos);
     }
+    [TestMethod]
+    public void Iniciar_QuandoAgendamentoNovo_DeveMarcarComoExecucao()
+    {
+        servicoAgendamento.Iniciar(1);
+
+        Assert.AreEqual("Execucao", servicoAgendamento.Get(1)!.StatusAgendamento);
+    }
+
+    [TestMethod]
+    public void Iniciar_QuandoAgendamentoNaoEstaNovo_DeveRecusar()
+    {
+        var excecao = Assert.ThrowsExactly<InvalidOperationException>(() =>
+            servicoAgendamento.Iniciar(3));
+
+        Assert.AreEqual("Só é possível iniciar agendamentos novos.", excecao.Message);
+    }
+
+    [TestMethod]
+    public void Concluir_QuandoAgendamentoEmExecucao_DeveMarcarComoConcluido()
+    {
+        servicoAgendamento.Concluir(3);
+
+        Assert.AreEqual("Concluido", servicoAgendamento.Get(3)!.StatusAgendamento);
+    }
+
+    [TestMethod]
+    public void Concluir_QuandoAgendamentoNovo_DeveRecusar()
+    {
+        var excecao = Assert.ThrowsExactly<InvalidOperationException>(() =>
+            servicoAgendamento.Concluir(1));
+
+        Assert.AreEqual("Só é possível concluir agendamentos em execução.", excecao.Message);
+    }
 
     private static Pessoa CriarPessoa(int id, string nome, bool ehProfissional)
     {

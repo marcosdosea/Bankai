@@ -2,13 +2,19 @@
 
 @{
     ViewData["Title"] = "Gestão de Agendamentos";
+    var idPessoa = Context.Request.Query["idPessoa"].ToString();
 }
 
 <div class="row justify-content-center">
     <div class="col-12 col-xl-11">
         <!-- Container no padrão Design System Bankai -->
         <div class="bankai-card">
-            
+
+            @if (TempData["Erro"] is string erro)
+            {
+                <div class="alert alert-danger">@erro</div>
+            }
+
             <!-- Cabeçalho da Página com Título e Botão de Ação -->
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
                 <div>
@@ -35,54 +41,87 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @if (Model != null && Model.Any())
-                    {
-                        @foreach (var item in Model) {
-                            <tr class="border-bottom">
-                                <td class="fw-bold">@Html.DisplayFor(modelItem => item.IdCliente)</td>
-                                <td class="fw-bold">@Html.DisplayFor(modelItem => item.IdProfissional)</td>
-                                <td>@Html.DisplayFor(modelItem => item.HorarioInicio)</td>
-                                <td>@Html.DisplayFor(modelItem => item.HorarioFim)</td>
-                                <td>
-                                    <span class="badge bg-light text-dark border px-2 py-1">
-                                        @Html.DisplayFor(modelItem => item.TipoCobranca)
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 rounded-pill fw-bold">
-                                        @Html.DisplayFor(modelItem => item.StatusAgendamento)
-                                    </span>
-                                </td>
-                                <td class="text-end">
-                                    <div class="btn-group" role="group">
-                                        <a href="@Url.Action("Edit", "Agendamento", new { id = item.Id })" class="btn btn-sm btn-outline-warning rounded-2 me-1" title="Editar">
-                                            <i class="bi bi-pencil-fill"></i>
-                                        </a>
-                                        <a href="@Url.Action("Details", "Agendamento", new { id = item.Id })" class="btn btn-sm btn-outline-info rounded-2 me-1 text-dark" title="Detalhes">
-                                            <i class="bi bi-eye-fill"></i>
-                                        </a>
-                                        <a href="@Url.Action("Delete", "Agendamento", new { id = item.Id })" class="btn btn-sm btn-outline-danger rounded-2" title="Excluir">
-                                            <i class="bi bi-trash-fill"></i>
-                                        </a>
-                                    </div>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                var corStatus = item.StatusAgendamento switch
+                                {
+                                    "Execucao" => "bg-primary-subtle text-primary-emphasis border-primary-subtle",
+                                    "Concluido" => "bg-success-subtle text-success-emphasis border-success-subtle",
+                                    "Cancelado" => "bg-secondary-subtle text-secondary-emphasis border-secondary-subtle",
+                                    _ => "bg-warning-subtle text-warning-emphasis border-warning-subtle"
+                                };
+
+                                <tr class="border-bottom">
+                                    <td class="fw-bold">@Html.DisplayFor(modelItem => item.IdCliente)</td>
+                                    <td class="fw-bold">@Html.DisplayFor(modelItem => item.IdProfissional)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.HorarioInicio)</td>
+                                    <td>@Html.DisplayFor(modelItem => item.HorarioFim)</td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border px-2 py-1">
+                                            @Html.DisplayFor(modelItem => item.TipoCobranca)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge @corStatus border px-3 py-2 rounded-pill fw-bold">
+                                            @Html.DisplayFor(modelItem => item.StatusAgendamento)
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-inline-flex align-items-center gap-1">
+
+                                            @if (item.StatusAgendamento == "Novo")
+                                            {
+                                                <form asp-action="Iniciar" asp-route-id="@item.Id" asp-route-idPessoa="@idPessoa" method="post" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-outline-primary rounded-2" title="Iniciar">
+                                                        <i class="bi bi-play-fill"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            else if (item.StatusAgendamento == "Execucao")
+                                            {
+                                                <form asp-action="Concluir" asp-route-id="@item.Id" asp-route-idPessoa="@idPessoa" method="post" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-2" title="Concluir">
+                                                        <i class="bi bi-check-lg"></i>
+                                                    </button>
+                                                </form>
+                                            }
+
+                                            @if (item.StatusAgendamento == "Novo")
+                                            {
+                                                <a href="@Url.Action("Edit", "Agendamento", new { id = item.Id })" class="btn btn-sm btn-outline-warning rounded-2" title="Editar">
+                                                    <i class="bi bi-pencil-fill"></i>
+                                                </a>
+                                            }
+
+                                            <a href="@Url.Action("Details", "Agendamento", new { id = item.Id })" class="btn btn-sm btn-outline-info rounded-2 text-dark" title="Detalhes">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </a>
+
+                                            @if (item.StatusAgendamento == "Novo")
+                                            {
+                                                <a href="@Url.Action("Delete", "Agendamento", new { id = item.Id })" class="btn btn-sm btn-outline-danger rounded-2" title="Cancelar">
+                                                    <i class="bi bi-trash-fill"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    <i class="bi bi-calendar-x display-6 d-block mb-2"></i>
+                                    Nenhum agendamento encontrado.
                                 </td>
                             </tr>
                         }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="9" class="text-center py-5 text-muted">
-                                <i class="bi bi-calendar-x display-6 d-block mb-2"></i>
-                                Nenhum agendamento encontrado.
-                            </td>
-                        </tr>
-                    }
                     </tbody>
                 </table>
             </div>
 
         </div>
     </div>
-</div>
-

@@ -295,6 +295,30 @@ namespace BankaiWeb.Controllers.Tests
             Assert.IsInstanceOfType<NotFoundResult>(controller.Details(999));
         }
 
+        [TestMethod]
+        public void Iniciar_QuandoRequisicaoPost_DeveIniciarERedirecionarParaIndex()
+        {
+            var resultado = controller.Iniciar(1, 3);
+
+            var redirect = Assert.IsInstanceOfType<RedirectToActionResult>(resultado);
+            Assert.AreEqual(nameof(AgendamentoController.Index), redirect.ActionName);
+            Assert.AreEqual(3, redirect.RouteValues!["idPessoa"]);
+
+            agendamentoServiceMock.Verify(s => s.Iniciar(1), Times.Once);
+        }
+
+        [TestMethod]
+        public void Concluir_QuandoRequisicaoPost_DeveConcluirERedirecionarParaIndex()
+        {
+            var resultado = controller.Concluir(1, 3);
+
+            var redirect = Assert.IsInstanceOfType<RedirectToActionResult>(resultado);
+            Assert.AreEqual(nameof(AgendamentoController.Index), redirect.ActionName);
+            Assert.AreEqual(3, redirect.RouteValues!["idPessoa"]);
+
+            agendamentoServiceMock.Verify(s => s.Concluir(1), Times.Once);
+        }
+
         private static void VerificarRedirecionamentoParaIndex(ActionResult resultado)
         {
             var redirectResult = Assert.IsInstanceOfType<RedirectToActionResult>(resultado);
