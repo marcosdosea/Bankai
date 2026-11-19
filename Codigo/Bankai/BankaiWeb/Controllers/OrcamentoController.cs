@@ -45,13 +45,20 @@ namespace BankaiWeb.Controllers
             return View(orcamentoViewModel);
         }
 
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(OrcamentoViewModel orcamentoViewModel)
         {
             if (ModelState.IsValid)
             {
+                if (orcamentoViewModel.ArquivoMateriais != null && orcamentoViewModel.ArquivoMateriais.Length > 0)
+                {
+                    using var memoryStream = new MemoryStream();
+                    orcamentoViewModel.ArquivoMateriais.CopyTo(memoryStream);
+                    orcamentoViewModel.MateriaisAdicionais = memoryStream.ToArray();
+                }
+
                 var orcamento = OrcamentoMapper.ToEntity(orcamentoViewModel);
                 orcamentoService.Create(orcamento, orcamentoViewModel.IdAgendamento);
                 return RedirectToAction(nameof(Index));
@@ -59,7 +66,7 @@ namespace BankaiWeb.Controllers
             return View(orcamentoViewModel);
         }
 
-        
+
         public ActionResult Edit(uint id)
         {
             var orcamento = orcamentoService.Get(id);

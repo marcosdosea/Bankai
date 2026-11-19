@@ -1,0 +1,316 @@
+@model BankaiWeb.Models.OrcamentoViewModel
+
+@{
+    ViewData["Title"] = "Novo Orçamento";
+}
+
+<style>
+    .bankai-card {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 28px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    }
+
+    .bankai-section-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1f2937;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f1f5f9;
+        margin-bottom: 20px;
+    }
+
+    .bankai-section-num {
+        color: #d97706;
+        margin-right: 4px;
+    }
+
+    .bankai-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #6b7280;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .bankai-input {
+        background-color: #f3f4f6;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 12px 14px;
+        font-size: 0.95rem;
+        color: #111827;
+        transition: all 0.2s;
+    }
+
+        .bankai-input:focus {
+            background-color: #ffffff;
+            border-color: #d97706;
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.12);
+            outline: none;
+        }
+
+    .bankai-input-group-prefix {
+        background-color: #f3f4f6;
+        border: 1px solid #e5e7eb;
+        border-right: none;
+        border-radius: 8px 0 0 8px;
+        padding: 12px 14px;
+        font-weight: 700;
+        color: #4b5563;
+    }
+
+    .bankai-input-with-prefix {
+        border-left: none;
+        border-radius: 0 8px 8px 0;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
+
+    .bankai-upload-box {
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 14px;
+        background-color: #ffffff;
+    }
+
+    .bankai-upload-btn {
+        border: 1.5px dashed #f59e0b;
+        background-color: #fffbeb;
+        color: #d97706;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border-radius: 8px;
+        padding: 12px;
+        width: 100%;
+        text-align: center;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        display: block;
+    }
+
+        .bankai-upload-btn:hover {
+            background-color: #fef3c7;
+        }
+
+    .repasse-box-liquido {
+        background-color: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 10px;
+        padding: 16px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-bankai-submit {
+        background-color: #d97706;
+        border: none;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 1rem;
+        padding: 14px 20px;
+        border-radius: 10px;
+        width: 100%;
+        transition: background-color 0.2s;
+        box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);
+    }
+
+        .btn-bankai-submit:hover {
+            background-color: #b45309;
+            color: #ffffff;
+        }
+</style>
+
+<div class="container py-4">
+    <div class="mb-3">
+        <a asp-action="Index" class="text-decoration-none text-muted small fw-semibold">
+            &larr; Voltar para lista de orçamentos
+        </a>
+    </div>
+
+    <form asp-action="Create" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="row g-4 align-items-start">
+            <!-- COLUNA ESQUERDA: FORMULÁRIO -->
+            <div class="col-lg-8">
+                <div class="bankai-card">
+
+                    <!-- SEÇÃO 1 -->
+                    <div class="mb-5">
+                        <h5 class="bankai-section-title">
+                            <span class="bankai-section-num">1.</span> Valores e Prazos
+                        </h5>
+
+                        <div class="mb-4">
+                            <label asp-for="ValorProposto" class="bankai-label">VALOR</label>
+                            <div class="input-group">
+                                <span class="bankai-input-group-prefix">R$</span>
+                                <input asp-for="ValorProposto"
+                                       id="inputValorProposto"
+                                       type="number"
+                                       step="0.01"
+                                       min="0.01"
+                                       placeholder="000,00"
+                                       class="form-control bankai-input bankai-input-with-prefix" />
+                            </div>
+                            <span asp-validation-for="ValorProposto" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Validade" class="bankai-label">VALIDADE DESTE ORÇAMENTO</label>
+                            <select asp-for="Validade" class="form-select bankai-input">
+                                <option value="7">7 Dias Correntes</option>
+                                <option value="15" selected>15 Dias Correntes</option>
+                                <option value="30">30 Dias Correntes</option>
+                                <option value="45">45 Dias Correntes</option>
+                                <option value="60">60 Dias Correntes</option>
+                                <option value="90">90 Dias Correntes</option>
+                            </select>
+                            <span asp-validation-for="Validade" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- SEÇÃO 2 -->
+                    <div class="mb-5">
+                        <h5 class="bankai-section-title">
+                            <span class="bankai-section-num">2.</span> Fornecimento de Materiais e Peças (Opcional)
+                        </h5>
+
+                        <p class="text-muted small mb-3">
+                            Se você for fornecer materiais comprados por sua conta, anexe uma imagem ou lista abaixo para repassar ao cliente:
+                        </p>
+
+                        <div class="bankai-upload-box">
+                            <label for="inputArquivoMateriais" class="bankai-upload-btn mb-0">
+                                + Anexar Imagem de Materiais / Peças
+                            </label>
+                            <input asp-for="ArquivoMateriais"
+                                   id="inputArquivoMateriais"
+                                   type="file"
+                                   accept="image/*"
+                                   class="d-none" />
+                            <div id="nomeArquivoSelecionado" class="text-center text-muted small mt-2 d-none"></div>
+                        </div>
+                        <span asp-validation-for="ArquivoMateriais" class="text-danger small"></span>
+                    </div>
+
+                    <!-- SEÇÃO 3 -->
+                    <div>
+                        <h5 class="bankai-section-title">
+                            <span class="bankai-section-num">3.</span> Laudo / Parecer Descritivo
+                        </h5>
+
+                        <div>
+                            <label asp-for="Descricao" class="bankai-label">EXPLICAÇÃO DO DIAGNÓSTICO PARA O CLIENTE</label>
+                            <textarea asp-for="Descricao"
+                                      rows="4"
+                                      placeholder="Descreva o problema identificado e o serviço técnico que será realizado..."
+                                      class="form-control bankai-input"></textarea>
+                            <span asp-validation-for="Descricao" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- COLUNA DIREITA: CÁLCULO DE REPASSE -->
+            <div class="col-lg-4">
+                <div class="bankai-card">
+                    <span class="bankai-label mb-3">CÁLCULO DE REPASSE</span>
+
+                    <div class="d-flex justify-content-between text-muted small mb-2">
+                        <span>Subtotal Mão de Obra:</span>
+                        <span class="fw-semibold text-dark" id="resumoMaoDeObra">R$ 0,00</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between text-muted small pb-3 mb-3 border-bottom">
+                        <span>Subtotal Materiais:</span>
+                        <span class="fw-semibold text-dark">R$ 0,00</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold fs-5 text-dark">Orçamento Bruto:</span>
+                        <span class="fw-bold fs-5 text-dark" id="resumoBruto">R$ 0,00</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between small mb-4" style="color: #dc2626;">
+                        <span><strong>%</strong> Intermediação Bankai (15%):</span>
+                        <span id="resumoTaxa">- R$ 0,00</span>
+                    </div>
+
+                    <div class="repasse-box-liquido mb-4">
+                        <div>
+                            <span class="bankai-label mb-1" style="color: #4b5563;">SEU REPASSE LÍQUIDO</span>
+                            <div class="fw-bold fs-4" style="color: #16a34a;" id="resumoLiquido">R$ 0,00</div>
+                        </div>
+                        <div style="color: #22c55e; font-size: 1.6rem;">
+                            &#128179;
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-bankai-submit">
+                        Enviar Orçamento &#10148;
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        const formatarMoeda = (valor) => {
+            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        };
+
+        const inputValor = document.getElementById('inputValorProposto');
+        const resumoMaoDeObra = document.getElementById('resumoMaoDeObra');
+        const resumoBruto = document.getElementById('resumoBruto');
+        const resumoTaxa = document.getElementById('resumoTaxa');
+        const resumoLiquido = document.getElementById('resumoLiquido');
+
+        function atualizarCalculoRepasse() {
+            const valor = parseFloat(inputValor.value) || 0;
+            const taxa = valor * 0.15;
+            const liquido = valor * 0.85;
+
+            resumoMaoDeObra.textContent = formatarMoeda(valor);
+            resumoBruto.textContent = formatarMoeda(valor);
+            resumoTaxa.textContent = '- ' + formatarMoeda(taxa);
+            resumoLiquido.textContent = formatarMoeda(liquido);
+        }
+
+        inputValor.addEventListener('input', atualizarCalculoRepasse);
+        atualizarCalculoRepasse();
+
+        const inputArquivo = document.getElementById('inputArquivoMateriais');
+        const labelArquivo = document.getElementById('nomeArquivoSelecionado');
+
+        inputArquivo.addEventListener('change', function () {
+            if (this.files && this.files.length > 0) {
+                labelArquivo.textContent = 'Arquivo selecionado: ' + this.files[0].name;
+                labelArquivo.classList.remove('d-none');
+            } else {
+                labelArquivo.classList.add('d-none');
+            }
+        });
+    </script>
+}

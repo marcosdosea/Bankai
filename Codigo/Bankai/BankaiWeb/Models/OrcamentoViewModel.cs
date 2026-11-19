@@ -27,6 +27,9 @@ namespace BankaiWeb.Models
         [Display(Name = "Descrição do Serviço")]
         public string Descricao { get; set; } = string.Empty;
 
+        [Display(Name = "Materiais Adicionais (Imagem)")]
+        public IFormFile? ArquivoMateriais { get; set; }
+
         [Display(Name = "Materiais Adicionais")]
         public byte[]? MateriaisAdicionais { get; set; }
 
