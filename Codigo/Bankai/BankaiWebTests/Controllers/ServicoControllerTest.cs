@@ -1,5 +1,6 @@
 using BankaiWeb.Models;
 using Core;
+using Core.DTO;
 using Core.Service;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -279,6 +280,95 @@ namespace BankaiWeb.Controllers.Tests
             VerificarRedirecionamentoParaIndex(resultado);
 
             servicoServiceMock.Verify(service => service.Delete(modelo.Id), Times.Once);
+        }
+
+        [TestMethod]
+        public void Buscar_QuandoChamadoComFiltros_DeveRetornarViewComServicosEEspecialidades()
+        {
+            // Arrange
+            var data = new DateTime(2026, 11, 20);
+            servicoServiceMock
+                .Setup(s => s.ObterEspecialidades())
+                .Returns([new Especialidade { Id = 1, Nome = "Elétrica" }]);
+            servicoServiceMock
+                .Setup(s => s.BuscarServicos("Chuveiro", 1, data))
+                .Returns([
+                    new ServicoBuscaDTO
+                    {
+                        Id = 1,
+                        Nome = "Troca de Chuveiro",
+                        Descricao = "Troca de resistência",
+                        IdEspecialidade = 1,
+                        NomeEspecialidade = "Elétrica",
+                        QuantidadeProfissionais = 2,
+                        MenorPreco = 120.00m
+                    }
+                ]);
+
+            // Act
+            var resultado = controller.Buscar("Chuveiro", 1, data);
+
+            // Assert
+            var viewResult = Assert.IsInstanceOfType<ViewResult>(resultado);
+            var model = Assert.IsInstanceOfType<BuscarServicoViewModel>(viewResult.ViewData.Model);
+            Assert.AreEqual("Chuveiro", model.Termo);
+            Assert.AreEqual(1, model.IdEspecialidade);
+            Assert.AreEqual(data, model.DataDesejada);
+            Assert.IsInstanceOfType<IEnumerable<EspecialidadeViewModel>>(model.Especialidades);
+            Assert.AreEqual(1, model.Especialidades.Count());
+            Assert.AreEqual(1, model.Resultados.Count());
+            servicoServiceMock.Verify(s => s.ObterEspecialidades(), Times.Once);
+            servicoServiceMock.Verify(s => s.BuscarServicos("Chuveiro", 1, data), Times.Once);
+        }
+
+        [TestMethod]
+        public void ProfissionaisDisponiveis_QuandoServicoExiste_DeveRetornarViewComProfissionais()
+        {
+            // Arrange
+            var data = new DateTime(2026, 11, 20);
+            servicoServiceMock
+                .Setup(s => s.BuscarProfissionaisPorServico(1, data, "menor_preco", true, false, 200m))
+                .Returns([
+                    new ProfissionalDisponivelDTO
+                    {
+                        IdProfissional = 10,
+                        IdServico = 1,
+                        NomeProfissional = "Marcos Silva",
+                        Verificado = true,
+                        Preco = 120.00m,
+                        NotaMedia = 4.9m,
+                        TotalAvaliacoes = 15,
+                        DisponivelNaData = true
+                    }
+                ]);
+
+            // Act
+            var resultado = controller.ProfissionaisDisponiveis(1, data, "menor_preco", true, false, 200m);
+
+            // Assert
+            var viewResult = Assert.IsInstanceOfType<ViewResult>(resultado);
+            var model = Assert.IsInstanceOfType<ProfissionaisDisponiveisViewModel>(viewResult.ViewData.Model);
+            Assert.AreEqual(1, model.IdServico);
+            Assert.AreEqual("Formatação e Limpeza", model.NomeServico);
+            Assert.AreEqual("menor_preco", model.OrdenarPor);
+            Assert.IsTrue(model.ApenasVerificados);
+            Assert.AreEqual(1, model.Profissionais.Count());
+        }
+
+        [TestMethod]
+        public void ProfissionaisDisponiveis_QuandoServicoNaoExiste_DeveRetornarNotFound()
+        {
+            // Act
+            var resultado = controller.ProfissionaisDisponiveis(999, null);
+
+            // Assert
+            Assert.IsInstanceOfType<NotFoundResult>(resultado);
+            servicoServiceMock.Verify(s => s.Get(999), Times.Once);
+            servicoServiceMock.Verify(
+                s => s.BuscarProfissionaisPorServico(
+                    It.IsAny<int>(), It.IsAny<DateTime?>(), It.IsAny<string?>(),
+                    It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<decimal?>()),
+                Times.Never);
         }
 
         private static void VerificarRedirecionamentoParaIndex(ActionResult resultado)

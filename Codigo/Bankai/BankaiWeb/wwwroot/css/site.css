@@ -529,6 +529,184 @@ input:checked + .slider {
     gap: 0.4rem;
 }
 
+/* --- 10B. BUSCAR SERVIÇO & RESULTADOS (TELAS 001, 002 E 019) --- */
+.search-hero-wrapper {
+    max-width: 820px;
+    margin: 2rem auto 2.5rem auto;
+}
+
+.search-pill-box {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+}
+
+.search-pill-field {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 1.25rem;
+    background-color: var(--bg-secondary);
+}
+
+    .search-pill-field:first-child {
+        border-right: 1px solid var(--border-color);
+    }
+
+    .search-pill-field i {
+        color: var(--accent-color);
+        font-size: 1.1rem;
+    }
+
+    .search-pill-field input,
+    .search-pill-field select {
+        border: none;
+        outline: none;
+        background: transparent;
+        width: 100%;
+        font-size: 0.95rem;
+        color: var(--text-main);
+    }
+
+.service-search-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+    .service-search-card:hover {
+        border-color: var(--accent-color);
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+    }
+
+.specialty-filter-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.9rem 1.15rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+    color: var(--text-main);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+    .specialty-filter-card:hover,
+    .specialty-filter-card.active {
+        border-color: var(--accent-color);
+        background-color: var(--accent-light);
+        color: var(--accent-hover);
+    }
+
+    .specialty-filter-card i {
+        color: var(--accent-color);
+        font-size: 1.1rem;
+    }
+
+.results-header-banner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.results-container-flush {
+    margin: 1.5rem 0 0 0;
+    padding: 0;
+    max-width: 100%;
+}
+
+.filter-section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.pro-card {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr) 210px;
+    gap: 1.25rem;
+    align-items: center;
+}
+
+.pro-avatar-circle {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-color);
+    background-color: var(--accent-light);
+    color: var(--accent-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0 auto;
+}
+
+.pro-verified-badge {
+    background-color: var(--status-success-bg);
+    color: var(--status-success);
+    border: 1px solid var(--status-success-border);
+    border-radius: var(--radius-full);
+    padding: 0.15rem 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.pro-chip {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    padding: 0.25rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.pro-chip-available {
+    background-color: var(--status-success-bg);
+    border-color: var(--status-success-border);
+    color: var(--status-success);
+}
+
+.pro-action-col {
+    border-left: 1px solid var(--border-color);
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    text-align: right;
+}
+
 /* --- 11. RESPONSIVIDADE UNIVERSAL --- */
 @media (max-width: 992px) {
     .execution-container,
@@ -549,6 +727,17 @@ input:checked + .slider {
         padding-top: 1rem;
         align-items: center;
         text-align: center;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .search-pill-box {
+        grid-template-columns: 1fr;
+    }
+
+    .search-pill-field:first-child {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
     }
 }
 

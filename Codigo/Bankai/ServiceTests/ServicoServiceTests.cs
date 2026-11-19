@@ -296,4 +296,186 @@ public class ServicoServiceTests
         Assert.AreEqual("Elétrica", especialidades[0].Nome);
         Assert.AreEqual("Hidráulica", especialidades[1].Nome);
     }
+
+    [TestMethod]
+    public void BuscarServicos_QuandoFiltradoPorTermoEEspecialidade_DeveRetornarServicosCorrespondentes()
+    {
+        // Arrange
+        PopularCenarioBusca();
+
+        // Act
+        var resultados = servicoService.BuscarServicos("chuveiro", idEspecialidade: 20, dataDesejada: null).ToList();
+
+        // Assert
+        Assert.HasCount(1, resultados);
+        Assert.AreEqual("Troca de Chuveiro", resultados[0].Nome);
+        Assert.AreEqual("Manutenção Elétrica", resultados[0].NomeEspecialidade);
+        Assert.AreEqual(2, resultados[0].QuantidadeProfissionais);
+        Assert.AreEqual(110.00m, resultados[0].MenorPreco);
+    }
+
+    [TestMethod]
+    public void BuscarServicos_QuandoFiltradoPorData_DeveContabilizarApenasProfissionaisDisponiveisNaData()
+    {
+        // Arrange
+        PopularCenarioBusca();
+        // Próxima segunda-feira ("SF"): Profissional 20 está disponível; Profissional 21 atende apenas terça ("TF").
+        DateTime segunda = ProximoDiaDaSemana(DayOfWeek.Monday);
+
+        // Act
+        var resultados = servicoService.BuscarServicos("chuveiro", idEspecialidade: 20, dataDesejada: segunda).ToList();
+
+        // Assert
+        Assert.HasCount(1, resultados);
+        Assert.AreEqual(1, resultados[0].QuantidadeProfissionais);
+        Assert.AreEqual(120.00m, resultados[0].MenorPreco);
+    }
+
+    [TestMethod]
+    public void BuscarProfissionaisPorServico_QuandoFiltradoEOrdenadoPorMenorPreco_DeveRetornarOrdenadoComAvaliacao()
+    {
+        // Arrange
+        PopularCenarioBusca();
+        DateTime segunda = ProximoDiaDaSemana(DayOfWeek.Monday);
+
+        // Act
+        var profissionais = servicoService.BuscarProfissionaisPorServico(
+            idServico: 10,
+            dataDesejada: segunda,
+            ordenarPor: "menor_preco",
+            apenasVerificados: false,
+            apenasDisponiveisNaData: false,
+            precoMaximo: null).ToList();
+
+        // Assert
+        Assert.HasCount(2, profissionais);
+        Assert.AreEqual("Carlos Eduardo", profissionais[0].NomeProfissional);
+        Assert.AreEqual(110.00m, profissionais[0].Preco);
+        Assert.IsFalse(profissionais[0].Verificado);
+        Assert.IsFalse(profissionais[0].DisponivelNaData);
+
+        Assert.AreEqual("Marcos Silva", profissionais[1].NomeProfissional);
+        Assert.AreEqual(120.00m, profissionais[1].Preco);
+        Assert.IsTrue(profissionais[1].Verificado);
+        Assert.IsTrue(profissionais[1].DisponivelNaData);
+        Assert.AreEqual(5.00m, profissionais[1].NotaMedia);
+        Assert.AreEqual(1, profissionais[1].TotalAvaliacoes);
+    }
+
+    [TestMethod]
+    public void BuscarProfissionaisPorServico_QuandoApenasVerificadosEDisponiveisNaData_DeveFiltrarCorretamente()
+    {
+        // Arrange
+        PopularCenarioBusca();
+        DateTime segunda = ProximoDiaDaSemana(DayOfWeek.Monday);
+
+        // Act
+        var profissionais = servicoService.BuscarProfissionaisPorServico(
+            idServico: 10,
+            dataDesejada: segunda,
+            ordenarPor: "melhor_avaliado",
+            apenasVerificados: true,
+            apenasDisponiveisNaData: true,
+            precoMaximo: 150.00m).ToList();
+
+        // Assert
+        Assert.HasCount(1, profissionais);
+        Assert.AreEqual("Marcos Silva", profissionais[0].NomeProfissional);
+    }
+
+    private void PopularCenarioBusca()
+    {
+        var especialidade = new Especialidade { Id = 20, Nome = "Manutenção Elétrica" };
+        var servicoChuveiro = new Servico
+        {
+            Id = 10,
+            Nome = "Troca de Chuveiro",
+            Descricao = "Substituição de resistência e fiação",
+            IdEspecialidade = 20
+        };
+
+        var cliente = CriarPessoaTeste(1, "Cliente Teste", ehProfissional: false, verificado: false);
+        var marcos = CriarPessoaTeste(20, "Marcos Silva", ehProfissional: true, verificado: true);
+        var carlos = CriarPessoaTeste(21, "Carlos Eduardo", ehProfissional: true, verificado: false);
+
+        contexto.Especialidades.Add(especialidade);
+        contexto.Servicos.Add(servicoChuveiro);
+        contexto.Pessoas.AddRange(cliente, marcos, carlos);
+        contexto.Profissionalservicos.AddRange(
+            new Profissionalservico { IdPessoa = 20, IdServico = 10, Preco = 120.00m },
+            new Profissionalservico { IdPessoa = 21, IdServico = 10, Preco = 110.00m });
+
+        contexto.Disponibilidades.AddRange(
+            new Disponibilidade
+            {
+                Id = 100,
+                IdPessoa = 20,
+                DiaSemana = "SF",
+                StatusDisponibilidade = "D",
+                HorarioInicio = TimeSpan.FromHours(8),
+                HorarioFim = TimeSpan.FromHours(18)
+            },
+            new Disponibilidade
+            {
+                Id = 101,
+                IdPessoa = 21,
+                DiaSemana = "TF",
+                StatusDisponibilidade = "D",
+                HorarioInicio = TimeSpan.FromHours(8),
+                HorarioFim = TimeSpan.FromHours(18)
+            });
+
+        var agendamento = new Agendamento
+        {
+            Id = 500,
+            IdCliente = 1,
+            IdProfissional = 20,
+            TipoCobranca = "F",
+            StatusAgendamento = "Concluido",
+            Data = DateTime.Today.AddDays(-2),
+            HorarioInicio = DateTime.Today.AddDays(-2).AddHours(9),
+            HorarioFim = DateTime.Today.AddDays(-2).AddHours(10)
+        };
+        contexto.Agendamentos.Add(agendamento);
+        contexto.Avaliacaos.Add(new Avaliacao
+        {
+            Id = 300,
+            IdAgendamento = 500,
+            Pontualidade = 5,
+            LimpezaLocal = 5,
+            QualidadeReparo = 5
+        });
+
+        contexto.SaveChanges();
+    }
+
+    private static Pessoa CriarPessoaTeste(int id, string nome, bool ehProfissional, bool verificado)
+    {
+        return new Pessoa
+        {
+            Id = id,
+            Nome = nome,
+            CpfCnpj = $"{id:00000000000}",
+            Email = $"pessoa{id}@bankai.com",
+            Telefone = $"7998888{id:0000}",
+            EhProfissional = ehProfissional,
+            RegistroTecnico = verificado ? new byte[] { 1, 2, 3 } : null,
+            Cep = "49000000",
+            Rua = "Rua A",
+            Bairro = "Centro",
+            Cidade = "Aracaju",
+            Estado = "SE",
+            NumeroCasa = "10"
+        };
+    }
+
+    private static DateTime ProximoDiaDaSemana(DayOfWeek diaAlvo)
+    {
+        var data = DateTime.Today.AddDays(1);
+        while (data.DayOfWeek != diaAlvo)
+        {
+            data = data.AddDays(1);
+        }
+        return data;
+    }
 }

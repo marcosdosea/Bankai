@@ -1,0 +1,158 @@
+@model BankaiWeb.Models.BuscarServicoViewModel
+
+@{
+    ViewData["Title"] = "Contratar Serviço";
+    var dataFormatada = Model.DataDesejada?.ToString("yyyy-MM-dd");
+    var especialidades = Model.Especialidades ?? Enumerable.Empty<BankaiWeb.Models.EspecialidadeViewModel>();
+    var resultados = Model.Resultados ?? Enumerable.Empty<BankaiWeb.Models.ServicoResultadoViewModel>();
+}
+
+<div class="search-hero-wrapper">
+    <!-- Título Centralizado (Tela 001 / 002) -->
+    <div class="text-center mb-4">
+        <h1 class="fw-bold mb-2" style="color: var(--text-main);">Contratar Serviço</h1>
+        <p class="text-muted small mb-0">
+            Encontre profissionais verificados por especialidade, serviço e data desejada.
+        </p>
+    </div>
+
+    <!-- Barra de Busca Dividida no Design System Bankai -->
+    <form asp-action="Buscar" method="get" class="mb-4">
+        @if (Model.IdEspecialidade.HasValue && Model.IdEspecialidade.Value > 0)
+        {
+            <input type="hidden" name="idEspecialidade" value="@Model.IdEspecialidade" />
+        }
+
+        <div class="search-pill-box">
+            <div class="search-pill-field">
+                <i class="bi bi-tools" aria-hidden="true"></i>
+                <label class="visually-hidden" asp-for="Termo"></label>
+                <input asp-for="Termo"
+                       placeholder="Especialidade ou serviço (ex: Encanador, Chuveiro...)"
+                       autocomplete="off" />
+            </div>
+
+            <div class="search-pill-field">
+                <i class="bi bi-calendar-event" aria-hidden="true"></i>
+                <label class="visually-hidden" asp-for="DataDesejada"></label>
+                <input asp-for="DataDesejada" type="date" value="@dataFormatada" />
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center align-items-center gap-3 mt-3">
+            <button type="submit" class="btn btn-bankai px-5 py-2">
+                <i class="bi bi-search me-1"></i> Buscar
+            </button>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Termo) || Model.IdEspecialidade.HasValue || Model.DataDesejada.HasValue)
+            {
+                <a asp-action="Buscar" class="btn-view-profile">Limpar filtros</a>
+            }
+        </div>
+    </form>
+
+    <!-- Atalhos por Especialidade (Tela 002) -->
+    @if (especialidades.Any())
+    {
+        <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted fw-semibold small text-uppercase" style="letter-spacing: 0.5px;">Especialidades</span>
+                @if (Model.IdEspecialidade.HasValue)
+                {
+                    <a asp-action="Buscar"
+                       asp-route-termo="@Model.Termo"
+                       asp-route-dataDesejada="@dataFormatada"
+                       class="btn-view-profile">
+                        Mostrar todas
+                    </a>
+                }
+            </div>
+
+            <div class="row row-cols-1 row-cols-md-2 g-2">
+                @foreach (var esp in especialidades)
+                {
+                    var espId = (int)esp.Id;
+                    var isAtiva = Model.IdEspecialidade == espId;
+                    <div class="col">
+                        <a asp-action="Buscar"
+                           asp-route-idEspecialidade="@(isAtiva ? null : espId)"
+                           asp-route-termo="@Model.Termo"
+                           asp-route-dataDesejada="@dataFormatada"
+                           class="specialty-filter-card text-decoration-none @(isAtiva ? "active" : string.Empty)">
+                            <i class="bi bi-wrench-adjustable-circle-fill" aria-hidden="true"></i>
+                            <span class="flex-grow-1">@esp.Nome</span>
+                            @if (isAtiva)
+                            {
+                                <span class="badge rounded-pill" style="background-color: var(--accent-color); color: #ffffff;">Ativo</span>
+                            }
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Lista de Serviços Encontrados (Tela 001) -->
+    <div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 fw-semibold text-muted m-0">Serviços</h2>
+            <span class="small text-muted">@resultados.Count() resultado(s)</span>
+        </div>
+
+        @if (!resultados.Any())
+        {
+            <div class="bankai-card text-center py-5">
+                <i class="bi bi-search display-5 d-block mb-3 text-muted"></i>
+                <p class="fs-5 fw-bold mb-1">Nenhum serviço encontrado para esta busca.</p>
+                <p class="small text-muted mb-3">
+                    Tente buscar por outro termo ou remova os filtros aplicados.
+                </p>
+                <a asp-action="Buscar" class="btn btn-bankai text-decoration-none px-4 py-2">
+                    Ver todos os serviços
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="row row-cols-1 row-cols-md-2 g-3">
+                @foreach (var item in resultados)
+                {
+                    <div class="col">
+                        <a asp-action="ProfissionaisDisponiveis"
+                           asp-route-idServico="@item.Id"
+                           asp-route-dataDesejada="@dataFormatada"
+                           class="service-search-card text-decoration-none">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                    <h3 class="h6 fw-bold mb-0" style="color: var(--text-main);">@item.Nome</h3>
+                                    @if (!string.IsNullOrWhiteSpace(item.NomeEspecialidade))
+                                    {
+                                        <span class="service-badge-pill" style="padding: 0.2rem 0.6rem; font-size: 0.72rem;">
+                                            @item.NomeEspecialidade
+                                        </span>
+                                    }
+                                </div>
+                                <p class="text-muted small mb-3">@item.Descricao</p>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center border-top pt-2 small">
+                                <span class="text-muted">
+                                    <i class="bi bi-people-fill me-1" style="color: var(--accent-color);"></i>
+                                    @(item.QuantidadeProfissionais > 0
+                                        ? $"{item.QuantidadeProfissionais} profissional(is)"
+                                        : "Sem prestadores na data")
+                                </span>
+
+                                <span class="fw-bold" style="color: @(item.MenorPreco.HasValue ? "var(--status-success)" : "var(--accent-color)");">
+                                    @(item.MenorPreco.HasValue
+                                        ? $"A partir de {item.MenorPreco.Value.ToString("C")}"
+                                        : "Ver profissionais →")
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

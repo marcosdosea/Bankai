@@ -1,5 +1,6 @@
 using BankaiWeb.Models;
 using Core;
+using Core.DTO;
 using Mapster;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,16 @@ namespace BankaiWeb.Mappers
         public static IEnumerable<Servico> ToEntity(IEnumerable<ServicoViewModel> servicosViewModel)
         {
             return servicosViewModel.Adapt<IEnumerable<Servico>>();
+        }
+
+        public static IEnumerable<ServicoResultadoViewModel> ToResultadoViewModel(IEnumerable<ServicoBuscaDTO> servicos)
+        {
+            return servicos.Adapt<IEnumerable<ServicoResultadoViewModel>>();
+        }
+
+        public static IEnumerable<ProfissionalResultadoViewModel> ToProfissionalResultadoViewModel(IEnumerable<ProfissionalDisponivelDTO> profissionais)
+        {
+            return profissionais.Adapt<IEnumerable<ProfissionalResultadoViewModel>>();
         }
     }
 }
