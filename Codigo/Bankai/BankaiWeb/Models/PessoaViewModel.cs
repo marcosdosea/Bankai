@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+
 namespace BankaiWeb.Models
 {
     public class PessoaViewModel
     {
         [Display(Name = "Código")]
-        public uint id { get; set; }
+        public int Id { get; set; }
 
         [Required(ErrorMessage = "O campo CPF/CNPJ é obrigatório.")]
         [StringLength(14, MinimumLength = 11, ErrorMessage = "O campo CPF/CNPJ deve ter entre 11 e 14 caracteres.")]
@@ -33,7 +34,7 @@ namespace BankaiWeb.Models
         [Display(Name = "CEP")]
         public string Cep { get; set; } = string.Empty;
 
-        [StringLength(50, ErrorMessage = "O campo Rua deve ter no máximo 50 caracteres.")]
+        [StringLength(30, ErrorMessage = "O campo Rua deve ter no máximo 30 caracteres.")]
         [Display(Name = "Rua")]
         public string Rua { get; set; } = string.Empty;
 
@@ -52,6 +53,13 @@ namespace BankaiWeb.Models
         [StringLength(10, ErrorMessage = "O campo Número da Casa deve ter no máximo 10 caracteres.")]
         [Display(Name = "Número da Casa")]
         public string NumeroCasa { get; set; } = string.Empty;
+
+        [Display(Name = "Saldo")]
+        [DataType(DataType.Currency)]
+        public decimal Saldo { get; set; }
+
+        [Display(Name = "Registro Técnico")]
+        public byte[]? RegistroTecnico { get; set; }
 
         public string GetEnderecoCompleto()
         {
