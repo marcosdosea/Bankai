@@ -34,6 +34,14 @@ namespace BankaiWeb.Models
         [Display(Name = "Profissional")]
         public uint? IdPessoa { get; set; }
 
+        [DataType(DataType.Date)]
+        [Display(Name = "Data Específica")]
+        public DateTime? DataIndisponibilizade { get; set; }
+
+        [StringLength(255, ErrorMessage = "O motivo da indisponibilidade deve ter no máximo 255 caracteres.")]
+        [Display(Name = "Motivo da Indisponibilidade")]
+        public string? DescricaoIndisponibilidade { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (HorarioInicio.HasValue && HorarioFim.HasValue && HorarioFim <= HorarioInicio)

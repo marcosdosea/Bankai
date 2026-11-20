@@ -46,6 +46,20 @@
                     <div class="col-sm-5 text-muted small fw-bold">STATUS</div>
                     <div class="col-sm-7">@status</div>
                 </div>
+                @if (Model.DataIndisponibilizade.HasValue)
+                {
+                    <div class="row mt-2">
+                        <div class="col-sm-5 text-muted small fw-bold">DATA ESPECÍFICA</div>
+                        <div class="col-sm-7">@Model.DataIndisponibilizade.Value.ToString("dd/MM/yyyy")</div>
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.DescricaoIndisponibilidade))
+                {
+                    <div class="row mt-2">
+                        <div class="col-sm-5 text-muted small fw-bold">MOTIVO</div>
+                        <div class="col-sm-7">@Model.DescricaoIndisponibilidade</div>
+                    </div>
+                }
             </div>
 
             <form asp-action="Delete" asp-route-id="@Model.Id" method="post">

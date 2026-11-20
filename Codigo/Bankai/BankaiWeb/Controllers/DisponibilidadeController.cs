@@ -1,7 +1,9 @@
 ﻿using BankaiWeb.Mappers;
 using BankaiWeb.Models;
+using Core;
 using Core.Service;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -99,6 +101,76 @@ namespace BankaiWeb.Controllers
 
             return RedirectToAction(nameof(Index), new { idPessoa = profissionalId });
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult BloquearData(uint idPessoa, DateTime? dataIndisponibilizade, string? descricaoIndisponibilidade)
+        {
+            if (!this.disponibilidadeService.IsProfissional(idPessoa))
+            {
+                ViewBag.IdPessoa = idPessoa;
+                ViewBag.PessoaIndisponivel = true;
+                return View("Index", Enumerable.Empty<DisponibilidadeViewModel>());
+            }
+
+            if (!dataIndisponibilizade.HasValue || string.IsNullOrWhiteSpace(descricaoIndisponibilidade))
+            {
+                if (!dataIndisponibilizade.HasValue)
+                {
+                    ModelState.AddModelError(nameof(DisponibilidadeViewModel.DataIndisponibilizade), "Informe a data específica para o bloqueio.");
+                }
+
+                if (string.IsNullOrWhiteSpace(descricaoIndisponibilidade))
+                {
+                    ModelState.AddModelError(nameof(DisponibilidadeViewModel.DescricaoIndisponibilidade), "Informe o motivo da indisponibilidade.");
+                }
+
+                ViewBag.IdPessoa = idPessoa;
+                ViewBag.PessoaIndisponivel = false;
+                var atuais = this.disponibilidadeService.GetByIdPessoa(idPessoa);
+                return View("Index", DisponibilidadeMapper.ToViewModel(atuais));
+            }
+
+            var bloqueio = new Disponibilidade
+            {
+                IdPessoa = (int)idPessoa,
+                StatusDisponibilidade = "ND",
+                DiaSemana = ObterDiaSemanaSigla(dataIndisponibilizade.Value.DayOfWeek),
+                HorarioInicio = TimeSpan.Zero,
+                HorarioFim = new TimeSpan(23, 59, 0),
+                DataIndisponibilizade = dataIndisponibilizade.Value.Date,
+                DescricaoIndisponibilidade = descricaoIndisponibilidade.Trim()
+            };
+
+            this.disponibilidadeService.Create(bloqueio);
+            return RedirectToAction(nameof(Index), new { idPessoa });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult RemoverBloqueio(uint id)
+        {
+            var bloqueio = this.disponibilidadeService.Get(id);
+            if (bloqueio == null)
+            {
+                return NotFound();
+            }
+
+            this.disponibilidadeService.Delete(id);
+            return RedirectToAction(nameof(Index), new { idPessoa = (uint)bloqueio.IdPessoa });
+        }
+
+        private static string ObterDiaSemanaSigla(DayOfWeek dia) => dia switch
+        {
+            DayOfWeek.Sunday => "D",
+            DayOfWeek.Monday => "SF",
+            DayOfWeek.Tuesday => "TF",
+            DayOfWeek.Wednesday => "QF",
+            DayOfWeek.Thursday => "QIF",
+            DayOfWeek.Friday => "SXF",
+            DayOfWeek.Saturday => "S",
+            _ => "D"
+        };
 
         public IActionResult Details(uint id)
         {

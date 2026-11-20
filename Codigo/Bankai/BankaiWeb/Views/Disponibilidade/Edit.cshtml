@@ -70,6 +70,24 @@
                     <span asp-validation-for="StatusDisponibilidade" class="text-danger small"></span>
                 </div>
 
+                <div class="mb-3">
+                    <label asp-for="DataIndisponibilizade" class="form-label text-muted small fw-bold">DATA ESPECÍFICA (OPCIONAL)</label>
+                    <div class="input-group bankai-input-group">
+                        <span class="input-group-text"><i class="bi bi-calendar-x"></i></span>
+                        <input asp-for="DataIndisponibilizade" class="form-control" type="date" />
+                    </div>
+                    <span asp-validation-for="DataIndisponibilizade" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="DescricaoIndisponibilidade" class="form-label text-muted small fw-bold">MOTIVO DA INDISPONIBILIDADE (OPCIONAL)</label>
+                    <div class="input-group bankai-input-group">
+                        <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                        <input asp-for="DescricaoIndisponibilidade" class="form-control" maxlength="255" placeholder="Ex: Viagem Particular / Obra Externa" />
+                    </div>
+                    <span asp-validation-for="DescricaoIndisponibilidade" class="text-danger small"></span>
+                </div>
+
                 <div class="d-flex gap-2 mt-4">
                     <button type="submit" class="btn btn-bankai flex-grow-1 py-3 fw-bold">Salvar alterações</button>
                     <a asp-action="Index" asp-route-idPessoa="@Model.IdPessoa" class="btn btn-outline-secondary py-3 px-4 rounded-3">Cancelar</a>

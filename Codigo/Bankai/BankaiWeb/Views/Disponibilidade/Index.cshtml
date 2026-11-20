@@ -4,6 +4,7 @@
     ViewData["Title"] = "Disponibilidade semanal";
     var profissionalId = (uint)(ViewBag.IdPessoa ?? 0);
     var pessoaIndisponivel = (bool?)ViewBag.PessoaIndisponivel ?? false;
+    var culturaPtBr = new System.Globalization.CultureInfo("pt-BR");
     var dias = new[]
     {
         new { Sigla = "SF", Nome = "Segunda-Feira" },
@@ -14,95 +15,173 @@
         new { Sigla = "S", Nome = "Sábado" },
         new { Sigla = "D", Nome = "Domingo" }
     };
-    var configuracoes = (Model ?? Enumerable.Empty<DisponibilidadeViewModel>())
+    var todosRegistros = (Model ?? Enumerable.Empty<DisponibilidadeViewModel>()).ToList();
+    var configuracoes = todosRegistros
+        .Where(disponibilidade => !disponibilidade.DataIndisponibilizade.HasValue)
         .GroupBy(disponibilidade => disponibilidade.DiaSemana)
         .ToDictionary(grupo => grupo.Key, grupo => grupo.First());
+    var bloqueios = todosRegistros
+        .Where(disponibilidade => disponibilidade.DataIndisponibilizade.HasValue)
+        .OrderBy(disponibilidade => disponibilidade.DataIndisponibilizade)
+        .ToList();
 }
 
 <div class="row justify-content-center py-4">
-    <div class="col-12 col-xl-10">
-        <div class="bankai-card">
-            
-            <h3 class="font-weight-bold mb-2">
-                <span class="text-warning">1.</span> Disponibilidade Semanal Recorrente
-            </h3>
-            <p class="text-muted small mb-4">Defina os dias e os intervalos de horas que você deseja trabalhar:</p>
+    <div class="col-12 col-xl-11">
+        @if (pessoaIndisponivel)
+        {
+            <div class="alert alert-warning border-0 shadow-sm mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                Não há um profissional válido para configurar disponibilidade. Cadastre uma pessoa como profissional ou acesse esta tela com o ID de um profissional existente.
+            </div>
+        }
 
-            @if (pessoaIndisponivel)
-            {
-                <div class="alert alert-warning border-0 shadow-sm mb-4" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    Não há um profissional válido para configurar disponibilidade. Cadastre uma pessoa como profissional ou acesse esta tela com o ID de um profissional existente.
-                </div>
-            }
+        <div class="row g-4 align-items-start">
+            <!-- Coluna Esquerda: Disponibilidade Semanal Recorrente -->
+            <div class="col-12 col-lg-8">
+                <div class="bankai-card">
+                    <h3 class="font-weight-bold mb-2 pb-3 border-bottom">
+                        <span class="text-warning">1.</span> Disponibilidade Semanal Recorrente
+                    </h3>
+                    <p class="text-muted small mb-4">Defina os dias e os intervalos de horas que você deseja trabalhar:</p>
 
-            <div asp-validation-summary="All" class="text-danger small mb-3" role="alert"></div>
+                    <div asp-validation-summary="All" class="text-danger small mb-3" role="alert"></div>
 
-            <form asp-action="SalvarLote" asp-route-idPessoa="@profissionalId" method="post">
-                <div class="d-flex flex-column gap-3 mb-4">
-                    @for (var i = 0; i < dias.Length; i++)
-                    {
-                        var dia = dias[i];
-                        configuracoes.TryGetValue(dia.Sigla, out var configDia);
-                        var isAtivo = configDia?.StatusDisponibilidade == "D";
-                        var horarioInicio = configDia?.HorarioInicio?.ToString(@"hh\:mm") ?? "08:00";
-                        var horarioFim = configDia?.HorarioFim?.ToString(@"hh\:mm") ?? (dia.Sigla == "S" ? "12:00" : "18:00");
+                    <form asp-action="SalvarLote" asp-route-idPessoa="@profissionalId" method="post">
+                        <div class="d-flex flex-column gap-3 mb-4">
+                            @for (var i = 0; i < dias.Length; i++)
+                            {
+                                var dia = dias[i];
+                                configuracoes.TryGetValue(dia.Sigla, out var configDia);
+                                var isAtivo = configDia?.StatusDisponibilidade == "D";
+                                var horarioInicio = configDia?.HorarioInicio?.ToString(@"hh\:mm") ?? "08:00";
+                                var horarioFim = configDia?.HorarioFim?.ToString(@"hh\:mm") ?? (dia.Sigla == "S" ? "12:00" : "18:00");
 
-                        <div class="p-3 bg-light rounded-3 border d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 availability-day @(isAtivo ? "is-available" : "is-unavailable")">
-                            <input type="hidden" name="disponibilidades[@i].Id" value="@(configDia?.Id ?? 0)" />
-                            <input type="hidden" name="disponibilidades[@i].DiaSemana" value="@dia.Sigla" />
-                            <input type="hidden" name="disponibilidades[@i].IdPessoa" value="@profissionalId" />
-                            <input type="hidden" name="disponibilidades[@i].StatusDisponibilidade" id="status_@i" value="@(isAtivo ? "D" : "ND")" />
+                                <div class="p-3 bg-light rounded-3 border d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 availability-day @(isAtivo ? "is-available" : "is-unavailable")">
+                                    <input type="hidden" name="disponibilidades[@i].Id" value="@(configDia?.Id ?? 0)" />
+                                    <input type="hidden" name="disponibilidades[@i].DiaSemana" value="@dia.Sigla" />
+                                    <input type="hidden" name="disponibilidades[@i].IdPessoa" value="@profissionalId" />
+                                    <input type="hidden" name="disponibilidades[@i].StatusDisponibilidade" id="status_@i" value="@(isAtivo ? "D" : "ND")" />
 
-                            <!-- Switch & Nome do Dia -->
-                            <div class="d-flex align-items-center gap-3 availability-day-name" style="min-width: 180px;">
-                                <div class="form-check form-switch mb-0 fs-5">
-                                    <input class="form-check-input availability-toggle cursor-pointer" id="dia_@i" type="checkbox" role="switch" data-status-target="status_@i" data-row-target="linha_@i" checked="@(isAtivo ? "checked" : null)" />
-                                </div>
-                                <label class="form-check-label fw-bold m-0 cursor-pointer" for="dia_@i">@dia.Nome</label>
-                            </div>
-
-                            <!-- Inputs de Horário e Separador -->
-                            <div class="d-flex align-items-center gap-2 flex-grow-1 justify-content-center">
-                                <label class="visually-hidden" for="inicio_@i">Horário de início - @dia.Nome</label>
-                                <input type="text" inputmode="numeric" autocomplete="off" maxlength="5" pattern="([01][0-9]|2[0-3]):[0-5][0-9]" id="inicio_@i" name="disponibilidades[@i].HorarioInicio" class="form-control availability-time text-center rounded-3 bg-white border" style="max-width: 110px;" value="@horarioInicio" placeholder="08:00" required />
-                                
-                                <span class="text-muted small px-2 availability-until">até</span>
-                                
-                                <label class="visually-hidden" for="fim_@i">Horário de término - @dia.Nome</label>
-                                <input type="text" inputmode="numeric" autocomplete="off" maxlength="5" pattern="([01][0-9]|2[0-3]):[0-5][0-9]" id="fim_@i" name="disponibilidades[@i].HorarioFim" class="form-control availability-time text-center rounded-3 bg-white border" style="max-width: 110px;" value="@horarioFim" placeholder="18:00" required />
-                            </div>
-
-                            <!-- Badge de Status e Menu de Ações -->
-                            <div class="d-flex align-items-center justify-content-end gap-3" style="min-width: 160px;">
-                                <span class="badge fw-bold px-3 py-2 rounded-pill availability-status @(isAtivo ? "bg-success-subtle text-success border border-success-subtle" : "bg-secondary-subtle text-secondary border border-secondary-subtle")" id="linha_@i">
-                                    @(isAtivo ? "DISPONÍVEL" : "INDISPONÍVEL")
-                                </span>
-
-                                @if (configDia != null)
-                                {
-                                    <div class="dropdown availability-actions">
-                                        <button class="btn btn-sm btn-white border dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Ações para @dia.Nome">
-                                            Ações
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                            <li><a asp-action="Details" asp-route-id="@configDia.Id" class="dropdown-item"><i class="bi bi-eye me-2"></i>Detalhes</a></li>
-                                            <li><a asp-action="Edit" asp-route-id="@configDia.Id" class="dropdown-item"><i class="bi bi-pencil me-2"></i>Editar</a></li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a asp-action="Delete" asp-route-id="@configDia.Id" class="dropdown-item text-danger"><i class="bi bi-trash me-2"></i>Excluir</a></li>
-                                        </ul>
+                                    <!-- Switch & Nome do Dia -->
+                                    <div class="d-flex align-items-center gap-3 availability-day-name" style="min-width: 170px;">
+                                        <div class="form-check form-switch mb-0 fs-5">
+                                            <input class="form-check-input availability-toggle cursor-pointer" id="dia_@i" type="checkbox" role="switch" data-status-target="status_@i" data-row-target="linha_@i" checked="@(isAtivo ? "checked" : null)" />
+                                        </div>
+                                        <label class="form-check-label fw-bold m-0 cursor-pointer" for="dia_@i">@dia.Nome</label>
                                     </div>
-                                }
-                            </div>
+
+                                    <!-- Inputs de Horário e Separador -->
+                                    <div class="d-flex align-items-center gap-2 flex-grow-1 justify-content-center">
+                                        <label class="visually-hidden" for="inicio_@i">Horário de início - @dia.Nome</label>
+                                        <input type="text" inputmode="numeric" autocomplete="off" maxlength="5" pattern="([01][0-9]|2[0-3]):[0-5][0-9]" id="inicio_@i" name="disponibilidades[@i].HorarioInicio" class="form-control availability-time text-center rounded-3 bg-white border" style="max-width: 110px;" value="@horarioInicio" placeholder="08:00" required />
+
+                                        <span class="text-muted small px-2 availability-until">até</span>
+
+                                        <label class="visually-hidden" for="fim_@i">Horário de término - @dia.Nome</label>
+                                        <input type="text" inputmode="numeric" autocomplete="off" maxlength="5" pattern="([01][0-9]|2[0-3]):[0-5][0-9]" id="fim_@i" name="disponibilidades[@i].HorarioFim" class="form-control availability-time text-center rounded-3 bg-white border" style="max-width: 110px;" value="@horarioFim" placeholder="18:00" required />
+                                    </div>
+
+                                    <!-- Badge de Status e Menu de Ações -->
+                                    <div class="d-flex align-items-center justify-content-end gap-3" style="min-width: 160px;">
+                                        <span class="badge fw-bold px-3 py-2 rounded-pill availability-status @(isAtivo ? "bg-success-subtle text-success border border-success-subtle" : "bg-secondary-subtle text-secondary border border-secondary-subtle")" id="linha_@i">
+                                            @(isAtivo ? "DISPONÍVEL" : "INDISPONÍVEL")
+                                        </span>
+
+                                        @if (configDia != null)
+                                        {
+                                            <div class="dropdown availability-actions">
+                                                <button class="btn btn-sm btn-white border dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Ações para @dia.Nome">
+                                                    Ações
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                                    <li><a asp-action="Details" asp-route-id="@configDia.Id" class="dropdown-item"><i class="bi bi-eye me-2"></i>Detalhes</a></li>
+                                                    <li><a asp-action="Edit" asp-route-id="@configDia.Id" class="dropdown-item"><i class="bi bi-pencil me-2"></i>Editar</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a asp-action="Delete" asp-route-id="@configDia.Id" class="dropdown-item text-danger"><i class="bi bi-trash me-2"></i>Excluir</a></li>
+                                                </ul>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <button type="submit" class="btn btn-bankai w-100 py-3 fw-bold fs-6 mt-2" disabled="@(pessoaIndisponivel ? "disabled" : null)">
+                            <i class="bi bi-floppy-fill me-2"></i> Salvar Alterações
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Coluna Direita: Bloquear Janela Excepcional e Bloqueios Vigentes -->
+            <div class="col-12 col-lg-4 d-flex flex-column gap-4">
+                <!-- Card: Bloquear Janela Excepcional -->
+                <div class="bankai-card p-4">
+                    <h5 class="fw-bold mb-2 pb-3 border-bottom d-flex align-items-center gap-2">
+                        <i class="bi bi-calendar-x-fill text-danger"></i>
+                        <span>Bloquear Janela Excepcional</span>
+                    </h5>
+                    <p class="text-muted small mb-3">
+                        Use este recurso se for fazer uma viagem, tirar folga ou assumir um serviço particular externo:
+                    </p>
+
+                    <form asp-action="BloquearData" method="post">
+                        <input type="hidden" name="idPessoa" value="@profissionalId" />
+
+                        <div class="mb-3">
+                            <label for="dataIndisponibilizade" class="form-label text-muted small fw-bold">DATA ESPECÍFICA</label>
+                            <input type="date" id="dataIndisponibilizade" name="dataIndisponibilizade" class="form-control bg-light" required disabled="@(pessoaIndisponivel ? "disabled" : null)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="descricaoIndisponibilidade" class="form-label text-muted small fw-bold">MOTIVO DA INDISPONIBILIDADE</label>
+                            <input type="text" id="descricaoIndisponibilidade" name="descricaoIndisponibilidade" class="form-control bg-light" maxlength="255" placeholder="Ex: Viagem Particular / Obra Externa" required disabled="@(pessoaIndisponivel ? "disabled" : null)" />
+                        </div>
+
+                        <button type="submit" class="btn btn-danger w-100 py-3 fw-bold rounded-3" disabled="@(pessoaIndisponivel ? "disabled" : null)">
+                            <i class="bi bi-slash-circle me-2"></i> Não Trabalhar Nesta Data
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Card: Bloqueios Vigentes -->
+                <div class="bankai-card p-4">
+                    <h5 class="fw-bold mb-3 pb-3 border-bottom d-flex align-items-center gap-2">
+                        <i class="bi bi-list-ul text-secondary"></i>
+                        <span>Bloqueios Vigentes</span>
+                    </h5>
+
+                    @if (!bloqueios.Any())
+                    {
+                        <p class="text-muted small mb-0 text-center py-2">Nenhum bloqueio excepcional cadastrado.</p>
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-column gap-2">
+                            @foreach (var bloqueio in bloqueios)
+                            {
+                                var dataFormatada = culturaPtBr.TextInfo.ToTitleCase(
+                                    bloqueio.DataIndisponibilizade!.Value.ToString("dd 'de' MMMM, yyyy", culturaPtBr));
+
+                                <div class="p-3 bg-light rounded-3 border border-start border-danger border-4 d-flex align-items-center justify-content-between gap-2">
+                                    <div>
+                                        <div class="fw-bold text-dark small">@dataFormatada</div>
+                                        <div class="text-muted small">
+                                            Motivo: @(string.IsNullOrWhiteSpace(bloqueio.DescricaoIndisponibilidade) ? "Não informado" : bloqueio.DescricaoIndisponibilidade)
+                                        </div>
+                                    </div>
+                                    <form asp-action="RemoverBloqueio" asp-route-id="@bloqueio.Id" method="post" class="flex-shrink-0">
+                                        <button type="submit" class="btn btn-sm btn-link text-secondary p-1" title="Remover bloqueio">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            }
                         </div>
                     }
                 </div>
-
-                <button type="submit" class="btn btn-bankai w-100 py-3 fw-bold fs-6 mt-2" disabled="@(pessoaIndisponivel ? "disabled" : null)">
-                    <i class="bi bi-floppy-fill me-2"></i> Salvar Alterações
-                </button>
-            </form>
-
+            </div>
         </div>
     </div>
 </div>
@@ -114,10 +193,10 @@
                 document.getElementById(this.dataset.statusTarget).value = this.checked ? "D" : "ND";
                 const row = this.closest(".availability-day");
                 const status = document.getElementById(this.dataset.rowTarget);
-                
+
                 row.classList.toggle("is-available", this.checked);
                 row.classList.toggle("is-unavailable", !this.checked);
-                
+
                 status.textContent = this.checked ? "DISPONÍVEL" : "INDISPONÍVEL";
                 if (this.checked) {
                     status.className = "badge fw-bold px-3 py-2 rounded-pill availability-status bg-success-subtle text-success border border-success-subtle";
