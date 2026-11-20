@@ -22,15 +22,15 @@ public class PessoaControllerTests
             .Returns(ObterPessoasDeTeste());
 
         pessoaServiceMock
-            .Setup(service => service.Get(1))
+            .Setup(service => service.get(1))
             .Returns(ObterPessoaAlvo());
 
         pessoaServiceMock
-            .Setup(service => service.Get(2))
+            .Setup(service => service.get(2))
             .Returns(ObterPessoaExistente());
 
         pessoaServiceMock
-            .Setup(service => service.Get(999))
+            .Setup(service => service.get(999))
             .Returns((Pessoa?)null);
 
         controller = new PessoaController(pessoaServiceMock.Object);
@@ -99,7 +99,7 @@ public class PessoaControllerTests
         Assert.AreEqual("joaosilva@gmail.com", pessoa.Email);
 
         pessoaServiceMock.Verify(
-            service => service.Get(1),
+            service => service.get(1),
             Times.Once);
     }
 
@@ -113,7 +113,7 @@ public class PessoaControllerTests
         Assert.IsInstanceOfType<NotFoundResult>(resultado);
 
         pessoaServiceMock.Verify(
-            service => service.Get(999),
+            service => service.get(999),
             Times.Once);
     }
 
@@ -189,7 +189,7 @@ public class PessoaControllerTests
         Assert.AreEqual("12345678910", pessoa.CpfCnpj);
 
         pessoaServiceMock.Verify(
-            service => service.Get(1),
+            service => service.get(1),
             Times.Once);
     }
 
@@ -203,7 +203,7 @@ public class PessoaControllerTests
         Assert.IsInstanceOfType<NotFoundResult>(resultado);
 
         pessoaServiceMock.Verify(
-            service => service.Get(999),
+            service => service.get(999),
             Times.Once);
     }
 
@@ -286,7 +286,7 @@ public class PessoaControllerTests
         Assert.AreEqual("João Silva", pessoa.Nome);
 
         pessoaServiceMock.Verify(
-            service => service.Get(1),
+            service => service.get(1),
             Times.Once);
     }
 
@@ -300,7 +300,7 @@ public class PessoaControllerTests
         Assert.IsInstanceOfType<NotFoundResult>(resultado);
 
         pessoaServiceMock.Verify(
-            service => service.Get(999),
+            service => service.get(999),
             Times.Once);
     }
 
