@@ -1,0 +1,52 @@
+﻿@model BankaiWeb.Models.PagamentoViewModel
+
+@{
+    ViewData["Title"] = "Detalhes do Pagamento";
+    var (badgeClass, statusTexto) = Model.StatusPagamento switch
+    {
+        "AP" => ("bg-secondary", "Aguardando Processamento (AP)"),
+        "P" => ("bg-warning text-dark", "Processando (P)"),
+        "A" => ("bg-success", "Aprovado (A)"),
+        "R" => ("bg-danger", "Recusado (R)"),
+        "C" => ("bg-dark", "Cancelado (C)"),
+        _ => ("bg-light text-dark", Model.StatusPagamento)
+    };
+}
+
+<div class="mb-3">
+    <a asp-action="Index" class="text-decoration-none text-secondary fw-bold">
+        <i class="bi bi-arrow-left"></i> Voltar para a lista
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="bankai-card">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                <h3 class="fw-bold mb-0 text-dark">Comprovante / Detalhes</h3>
+                <span class="badge @badgeClass px-3 py-2">@statusTexto</span>
+            </div>
+
+            <dl class="row mb-4">
+                <dt class="col-sm-5 text-muted">@Html.DisplayNameFor(model => model.Codigo)</dt>
+                <dd class="col-sm-7 fw-bold">#@Html.DisplayFor(model => model.Codigo)</dd>
+
+                <dt class="col-sm-5 text-muted">@Html.DisplayNameFor(model => model.CodigoAgendamento)</dt>
+                <dd class="col-sm-7">#@Html.DisplayFor(model => model.CodigoAgendamento)</dd>
+
+                <dt class="col-sm-5 text-muted">@Html.DisplayNameFor(model => model.FormaPagamento)</dt>
+                <dd class="col-sm-7">@Html.DisplayFor(model => model.FormaPagamento)</dd>
+
+                <dt class="col-sm-5 text-muted">@Html.DisplayNameFor(model => model.ValorTransacao)</dt>
+                <dd class="col-sm-7 fw-bold fs-5" style="color: var(--bankai-orange);">
+                    R$ @Model.ValorTransacao.ToString("N2")
+                </dd>
+            </dl>
+
+            <div class="d-flex gap-2">
+                <a asp-action="Edit" asp-route-id="@Model.Codigo" class="btn btn-bankai flex-grow-1">Editar</a>
+                <a asp-action="Index" class="btn btn-outline-secondary px-4 d-flex align-items-center">Voltar</a>
+            </div>
+        </div>
+    </div>
+</div>

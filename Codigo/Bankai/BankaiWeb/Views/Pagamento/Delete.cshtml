@@ -1,0 +1,57 @@
+﻿@model BankaiWeb.Models.PagamentoViewModel
+
+@{
+    ViewData["Title"] = "Excluir Pagamento";
+}
+
+<div class="mb-3">
+    <a asp-action="Index" class="text-decoration-none text-secondary fw-bold">
+        <i class="bi bi-arrow-left"></i> Voltar para a lista
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="bankai-card border border-danger">
+            <div class="text-center mb-4">
+                <div class="d-inline-block p-3 rounded-circle bg-danger-subtle text-danger mb-2" style="font-size: 2rem;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <h3 class="fw-bold text-danger">Confirmar Exclusão</h3>
+                <p class="text-muted">Tem certeza de que deseja remover este registro de pagamento?</p>
+            </div>
+
+            <div class="bg-light p-4 rounded-3 mb-4">
+                <div class="row mb-2">
+                    <div class="col-sm-5 text-muted small fw-bold">CÓDIGO</div>
+                    <div class="col-sm-7 fw-bold">#@Model.Codigo</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-5 text-muted small fw-bold">AGENDAMENTO</div>
+                    <div class="col-sm-7">#@Model.CodigoAgendamento</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-5 text-muted small fw-bold">FORMA PAGAMENTO</div>
+                    <div class="col-sm-7">@Model.FormaPagamento</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-5 text-muted small fw-bold">STATUS</div>
+                    <div class="col-sm-7">@Model.StatusPagamento</div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-5 text-muted small fw-bold">VALOR</div>
+                    <div class="col-sm-7 fw-bold">R$ @Model.ValorTransacao.ToString("N2")</div>
+                </div>
+            </div>
+
+            <form asp-action="Delete">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Codigo" />
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger flex-grow-1 py-3 fw-bold">Sim, Excluir</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary py-3 px-4 d-flex align-items-center">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

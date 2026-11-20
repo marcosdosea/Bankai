@@ -1,0 +1,174 @@
+﻿@model BankaiWeb.Models.PagamentoViewModel
+
+@{
+    ViewData["Title"] = "Forma de Pagamento";
+    var isCartao = Model?.FormaPagamento == "Cartão de Crédito";
+}
+
+<div class="row justify-content-center py-3">
+    <div class="col-12 col-md-9 col-lg-7">
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <a asp-controller="Agendamento" asp-action="Index" class="text-decoration-none text-secondary fw-bold">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+            <span class="badge bg-light text-dark border px-3 py-2">
+                Agendamento #@Model?.CodigoAgendamento
+            </span>
+        </div>
+
+        <div class="bankai-card">
+            <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-3 mb-4 gap-2">
+                <div>
+                    <h3 class="fw-bold mb-1 text-dark">Forma de Pagamento</h3>
+                    <p class="text-muted small mb-0">Selecione como deseja quitar o serviço contratado</p>
+                </div>
+                <div class="text-md-end bg-light px-3 py-2 rounded-3 border">
+                    <span class="d-block text-muted small fw-bold text-uppercase">Valor Total</span>
+                    <span class="fs-4 fw-bold" style="color: var(--bankai-orange);">
+                        R$ @(Model?.ValorTransacao.ToString("N2") ?? "0,00")
+                    </span>
+                </div>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="All" class="alert alert-danger small" role="alert"></div>
+            }
+
+            <form asp-action="RealizarPagamento" method="post" id="formPagamento">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="CodigoAgendamento" />
+                <input type="hidden" asp-for="ValorTransacao" />
+                <input type="hidden" asp-for="StatusPagamento" />
+                <input type="hidden" asp-for="FormaPagamento" id="inputFormaPagamento" value="@(isCartao ? "Cartão de Crédito" : "PIX")" />
+
+                <!-- Abas de Seleção da Forma de Pagamento (Linha 3 - Fluxo Alternativo CSU06) -->
+                <ul class="nav nav-pills nav-fill gap-2 p-1 bg-light rounded-3 mb-4" id="pagamentoTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link bankai-toggle-btn w-100 py-2 @(!isCartao ? "active" : "")"
+                                id="pix-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#pix-pane"
+                                type="button"
+                                role="tab"
+                                aria-selected="@(!isCartao ? "true" : "false")"
+                                onclick="selecionarFormaPagamento('PIX')">
+                            <i class="bi bi-qr-code-scan me-1"></i> Pagar com Pix
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link bankai-toggle-btn w-100 py-2 @(isCartao ? "active" : "")"
+                                id="cartao-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#cartao-pane"
+                                type="button"
+                                role="tab"
+                                aria-selected="@(isCartao ? "true" : "false")"
+                                onclick="selecionarFormaPagamento('Cartão de Crédito')">
+                            <i class="bi bi-credit-card me-1"></i> Cartão de Crédito
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="pagamentoTabsContent">
+                    <!-- Aba 1: Pagar com Pix (QR Code e Copia e Cola) -->
+                    <div class="tab-pane fade @(!isCartao ? "show active" : "")"
+                         id="pix-pane"
+                         role="tabpanel">
+                        <div class="text-center p-4 border rounded-3 bg-light mb-3">
+                            <p class="fw-bold text-dark mb-1">Escaneie o QR Code para pagar via PIX</p>
+                            <p class="text-muted small mb-3">Aprovação imediata após a confirmação</p>
+
+                            <div class="d-inline-block p-3 bg-white border rounded-3 shadow-sm mb-3">
+                                <div style="width: 170px; height: 170px; background: repeating-linear-gradient(45deg, #212529, #212529 10px, #ffffff 10px, #ffffff 20px);"
+                                     title="QR Code PIX Bankai"></div>
+                            </div>
+
+                            <div class="text-start mx-auto" style="max-width: 480px;">
+                                <label for="pixCopiaCola" class="form-label small fw-bold text-muted">PIX Copia e Cola</label>
+                                <div class="input-group bankai-input-group">
+                                    <span class="input-group-text"><i class="bi bi-key"></i></span>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="pixCopiaCola"
+                                           readonly
+                                           value="00020126580014BR.GOV.BCB.PIX0136bankai-servicos-pagamento-@Model?.CodigoAgendamento" />
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copiarCodigoPix()">
+                                        <i class="bi bi-clipboard"></i> Copiar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aba 2: Cartão de Crédito (Número, Nome, Validade e CVV) -->
+                    <div class="tab-pane fade @(isCartao ? "show active" : "")"
+                         id="cartao-pane"
+                         role="tabpanel">
+                        <div class="row g-3 mb-3">
+                            <div class="col-12">
+                                <label asp-for="NumeroCartao" class="form-label fw-semibold"></label>
+                                <div class="input-group bankai-input-group">
+                                    <span class="input-group-text"><i class="bi bi-credit-card-2-front"></i></span>
+                                    <input asp-for="NumeroCartao" class="form-control" maxlength="19" placeholder="0000 0000 0000 0000" />
+                                </div>
+                                <span asp-validation-for="NumeroCartao" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="NomeTitularCartao" class="form-label fw-semibold"></label>
+                                <div class="input-group bankai-input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input asp-for="NomeTitularCartao" class="form-control" placeholder="Nome impresso no cartão" />
+                                </div>
+                                <span asp-validation-for="NomeTitularCartao" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ValidadeCartao" class="form-label fw-semibold"></label>
+                                <div class="input-group bankai-input-group">
+                                    <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                                    <input asp-for="ValidadeCartao" class="form-control" maxlength="5" placeholder="MM/AA" />
+                                </div>
+                                <span asp-validation-for="ValidadeCartao" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="CvvCartao" class="form-label fw-semibold"></label>
+                                <div class="input-group bankai-input-group">
+                                    <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                                    <input asp-for="CvvCartao" class="form-control" maxlength="4" placeholder="123" />
+                                </div>
+                                <span asp-validation-for="CvvCartao" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Linha 4: Botão Confirmar Pagamento -->
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-bankai py-3 fs-6">
+                        <i class="bi bi-check-circle-fill me-2"></i> Confirmar Pagamento
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function selecionarFormaPagamento(forma) {
+            document.getElementById('inputFormaPagamento').value = forma;
+        }
+
+        function copiarCodigoPix() {
+            const campo = document.getElementById('pixCopiaCola');
+            campo.select();
+            campo.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(campo.value);
+            alert('Código PIX Copia e Cola copiado!');
+        }
+    </script>
+}
