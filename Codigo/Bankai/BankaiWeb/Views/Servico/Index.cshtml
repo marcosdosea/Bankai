@@ -18,9 +18,14 @@
                     </h3>
                     <p class="text-muted small mb-0">Gerencie os serviços padronizados disponíveis na plataforma Bankai.</p>
                 </div>
-                <a asp-action="Create" class="btn btn-bankai px-4 py-2 text-decoration-none">
-                    <i class="bi bi-plus-lg me-1"></i> Novo Serviço
-                </a>
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-action="Buscar" class="btn btn-outline-warning text-dark fw-semibold px-3 py-2 text-decoration-none">
+                        <i class="bi bi-search me-1"></i> Buscar Serviços
+                    </a>
+                    <a asp-action="Create" class="btn btn-bankai px-4 py-2 text-decoration-none">
+                        <i class="bi bi-plus-lg me-1"></i> Novo Serviço
+                    </a>
+                </div>
             </div>
 
             <!-- Estado Vazio -->

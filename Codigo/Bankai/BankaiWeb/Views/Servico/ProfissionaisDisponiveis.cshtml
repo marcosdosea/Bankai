@@ -1,0 +1,218 @@
+@model BankaiWeb.Models.ProfissionaisDisponiveisViewModel
+
+@{
+    ViewData["Title"] = $"Profissionais - {Model.NomeServico}";
+    var dataFormatada = Model.DataDesejada?.ToString("yyyy-MM-dd");
+    var profissionais = Model.Profissionais ?? Enumerable.Empty<BankaiWeb.Models.ProfissionalResultadoViewModel>();
+}
+
+<!-- Link Superior de Retorno (Tela 019) -->
+<div class="mb-3">
+    <a asp-action="Buscar" asp-route-dataDesejada="@dataFormatada" class="btn-back text-decoration-none">
+        <i class="bi bi-arrow-left"></i> Voltar à Busca
+    </a>
+</div>
+
+<!-- Banner Superior do Serviço Selecionado (Tela 019) -->
+<div class="results-header-banner">
+    <div>
+        <h1 class="h3 fw-bold mb-1" style="color: var(--text-main);">Profissionais Disponíveis</h1>
+        <p class="text-muted small mb-0">
+            @Model.DescricaoServico
+            @if (Model.DataDesejada.HasValue)
+            {
+                <span class="ms-2 fw-semibold" style="color: var(--accent-color);">
+                    • Atendimento em @Model.DataDesejada.Value.ToString("dd/MM/yyyy")
+                </span>
+            }
+        </p>
+    </div>
+
+    <span class="service-badge-pill">
+        <i class="bi bi-lightning-charge-fill"></i> @Model.NomeServico
+    </span>
+</div>
+
+<!-- Grade Principal: Sidebar de Filtros + Cards de Profissionais (Tela 019) -->
+<div class="results-container results-container-flush">
+    <!-- Barra Lateral de Filtros -->
+    <aside class="filters-sidebar align-self-start">
+        <form asp-action="ProfissionaisDisponiveis" method="get">
+            <input type="hidden" name="idServico" value="@Model.IdServico" />
+
+            <!-- Ordenar Por -->
+            <div class="mb-4">
+                <div class="filter-section-title">
+                    <i class="bi bi-sort-down"></i> Ordenar Por
+                </div>
+
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="ordenarPor" id="ordMelhorAvaliado"
+                           value="melhor_avaliado" checked="@(Model.OrdenarPor == "melhor_avaliado" ? "checked" : null)" />
+                    <label class="form-check-label small fw-semibold" for="ordMelhorAvaliado">Melhor Avaliados</label>
+                </div>
+
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="ordenarPor" id="ordMenorPreco"
+                           value="menor_preco" checked="@(Model.OrdenarPor == "menor_preco" ? "checked" : null)" />
+                    <label class="form-check-label small fw-semibold" for="ordMenorPreco">Menor Preço</label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ordenarPor" id="ordNome"
+                           value="nome" checked="@(Model.OrdenarPor == "nome" ? "checked" : null)" />
+                    <label class="form-check-label small fw-semibold" for="ordNome">Nome (A–Z)</label>
+                </div>
+            </div>
+
+            <!-- Preferências -->
+            <div class="mb-4">
+                <div class="filter-section-title">
+                    <i class="bi bi-funnel"></i> Preferências
+                </div>
+
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" name="apenasVerificados" id="chkVerificados"
+                           value="true" checked="@(Model.ApenasVerificados ? "checked" : null)" />
+                    <label class="form-check-label small fw-semibold" for="chkVerificados">Apenas Verificados</label>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="apenasDisponiveisNaData" id="chkDisponivelData"
+                           value="true" checked="@(Model.ApenasDisponiveisNaData ? "checked" : null)" />
+                    <label class="form-check-label small fw-semibold" for="chkDisponivelData">Atende na Data</label>
+                </div>
+            </div>
+
+            <!-- Data e Preço Máximo -->
+            <div class="form-group">
+                <label for="dataDesejada">Data do Atendimento</label>
+                <input type="date" id="dataDesejada" name="dataDesejada" value="@dataFormatada"
+                       class="form-control" />
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="precoMaximo">Preço Máximo (R$)</label>
+                <input type="number" id="precoMaximo" name="precoMaximo" step="10" min="0"
+                       value="@(Model.PrecoMaximo?.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))"
+                       placeholder="Ex: 200" />
+            </div>
+
+            <button type="submit" class="btn btn-bankai w-100 py-2 mb-2">
+                Aplicar Filtros
+            </button>
+
+            <div class="text-center">
+                <a asp-action="ProfissionaisDisponiveis"
+                   asp-route-idServico="@Model.IdServico"
+                   class="btn-view-profile">
+                    Limpar filtros
+                </a>
+            </div>
+        </form>
+    </aside>
+
+    <!-- Lista de Profissionais -->
+    <section class="d-flex flex-column gap-3">
+        @if (!profissionais.Any())
+        {
+            <div class="bankai-card text-center py-5">
+                <i class="bi bi-person-x display-5 d-block mb-3 text-muted"></i>
+                <p class="fs-5 fw-bold mb-1">Nenhum profissional disponível com os filtros selecionados.</p>
+                <p class="small text-muted mb-3">
+                    Tente desmarcar alguns filtros ou escolha outra data de atendimento.
+                </p>
+                <a asp-action="ProfissionaisDisponiveis"
+                   asp-route-idServico="@Model.IdServico"
+                   class="btn btn-bankai text-decoration-none px-4 py-2">
+                    Mostrar todos do serviço
+                </a>
+            </div>
+        }
+        else
+        {
+            @foreach (var prof in profissionais)
+            {
+                var inicial = string.IsNullOrWhiteSpace(prof.NomeProfissional)
+                    ? "P"
+                    : prof.NomeProfissional.Trim().Substring(0, 1).ToUpperInvariant();
+
+                <article class="pro-card">
+                    <!-- Avatar -->
+                    <div class="pro-avatar-circle" aria-hidden="true">
+                        @inicial
+                    </div>
+
+                    <!-- Informações do Profissional -->
+                    <div>
+                        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start gap-2 mb-1">
+                            <h2 class="h5 fw-bold mb-0" style="color: var(--text-main);">@prof.NomeProfissional</h2>
+                            @if (prof.Verificado)
+                            {
+                                <span class="pro-verified-badge">
+                                    <i class="bi bi-check-lg"></i> Verificado
+                                </span>
+                            }
+                        </div>
+
+                        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start gap-2 small mb-2">
+                            <span class="fw-bold" style="color: var(--accent-color);">
+                                <i class="bi bi-star-fill"></i>
+                                @(prof.TotalAvaliacoes > 0 ? prof.NotaMedia.ToString("0.0") : "Novo")
+                            </span>
+                            <span class="text-muted">(@prof.TotalAvaliacoes avaliações)</span>
+
+                            @if (!string.IsNullOrWhiteSpace(prof.Cidade))
+                            {
+                                <span class="text-muted">•</span>
+                                <span style="color: var(--status-info);" class="fw-semibold">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    @(!string.IsNullOrWhiteSpace(prof.Bairro) ? $"{prof.Bairro}, " : string.Empty)@prof.Cidade@(!string.IsNullOrWhiteSpace(prof.Estado) ? $" - {prof.Estado}" : string.Empty)
+                                </span>
+                            }
+                        </div>
+
+                        <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-2">
+                            <span class="pro-chip">
+                                <i class="bi bi-shield-check"></i> Garantia de 30 dias
+                            </span>
+                            @if (prof.DisponivelNaData)
+                            {
+                                <span class="pro-chip pro-chip-available">
+                                    <i class="bi bi-calendar-check"></i>
+                                    @(Model.DataDesejada.HasValue ? "Disponível na Data" : "Disponível Hoje")
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Coluna de Preço e Ações -->
+                    <div class="pro-action-col">
+                        <div>
+                            <div class="fs-4 fw-bold" style="color: var(--status-success);">
+                                @prof.Preco.ToString("C")
+                            </div>
+                            <div class="text-muted small">Valor Fixo Padronizado</div>
+                        </div>
+
+                        <a asp-controller="Agendamento"
+                           asp-action="Create"
+                           asp-route-idProfissional="@prof.IdProfissional"
+                           asp-route-idServico="@Model.IdServico"
+                           asp-route-data="@dataFormatada"
+                           class="btn-select-pro w-100 text-decoration-none">
+                            Contratar <i class="bi bi-arrow-right"></i>
+                        </a>
+
+                        <a asp-controller="Pessoa"
+                           asp-action="Details"
+                           asp-route-id="@prof.IdProfissional"
+                           class="btn-view-profile">
+                            Ver perfil completo
+                        </a>
+                    </div>
+                </article>
+            }
+        }
+    </section>
+</div>
