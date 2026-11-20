@@ -128,7 +128,7 @@ public class PessoaServiceTest
         servicoPessoa.Create(pessoaEsperada);
 
         // Assert
-        var pessoaCriada = servicoPessoa.Get(4);
+        var pessoaCriada = servicoPessoa.get(4);
 
         Assert.IsNotNull(pessoaCriada);
         Assert.AreEqual(pessoaEsperada.Id, pessoaCriada.Id);
@@ -154,7 +154,7 @@ public class PessoaServiceTest
         servicoPessoa.Delete(2);
 
         // Assert
-        var pessoaDeletada = servicoPessoa.Get(2);
+        var pessoaDeletada = servicoPessoa.get(2);
         var pessoasRestantes = servicoPessoa.GetAll().ToList();
 
         Assert.IsNull(pessoaDeletada);
@@ -184,7 +184,7 @@ public class PessoaServiceTest
     public void Edit_QuandoPessoaExiste_DeveAtualizarDados()
     {
         // Arrange
-        var pessoaExistente = servicoPessoa.Get(2);
+        var pessoaExistente = servicoPessoa.get(2);
 
         Assert.IsNotNull(pessoaExistente);
 
@@ -196,7 +196,7 @@ public class PessoaServiceTest
         servicoPessoa.Edit(pessoaExistente);
 
         // Assert
-        var pessoaAtualizada = servicoPessoa.Get(2);
+        var pessoaAtualizada = servicoPessoa.get(2);
 
         Assert.IsNotNull(pessoaAtualizada);
         Assert.AreEqual("Carlos Oliveira Atualizado", pessoaAtualizada.Nome);
@@ -208,7 +208,7 @@ public class PessoaServiceTest
     public void Get_QuandoIdExiste_DeveRetornarPessoa()
     {
         // Act
-        var pessoa = servicoPessoa.Get(1);
+        var pessoa = servicoPessoa.get(1);
 
         // Assert
         Assert.IsNotNull(pessoa);
@@ -220,7 +220,7 @@ public class PessoaServiceTest
     public void Get_QuandoIdNaoExiste_DeveRetornarNulo()
     {
         // Act
-        var pessoa = servicoPessoa.Get(999); // ID inexistente
+        var pessoa = servicoPessoa.get(999); // ID inexistente
 
         // Assert
         Assert.IsNull(pessoa);
