@@ -2,17 +2,18 @@
 using BankaiWeb.Models;
 using Core.Service;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 
 namespace BankaiWeb.Controllers
 {
     public class PessoaController : Controller
     {
         private readonly IPessoaService _pessoaService;
+
         public PessoaController(IPessoaService pessoaService)
         {
             _pessoaService = pessoaService;
         }
+
         public ActionResult Index()
         {
             var pessoas = _pessoaService.GetAll();
@@ -20,9 +21,9 @@ namespace BankaiWeb.Controllers
             return View(pessoasViewModel);
         }
 
-        public ActionResult Details(uint id)
+        public ActionResult Details(int id)
         {
-            var pessoa = _pessoaService.get(id);
+            var pessoa = _pessoaService.Get(id);
             if (pessoa == null)
             {
                 return NotFound();
@@ -49,9 +50,9 @@ namespace BankaiWeb.Controllers
             return View(pessoaViewModel);
         }
 
-        public ActionResult Edit(uint id)
+        public ActionResult Edit(int id)
         {
-            var pessoa = _pessoaService.get(id);
+            var pessoa = _pessoaService.Get(id);
             if (pessoa == null)
             {
                 return NotFound();
@@ -62,9 +63,9 @@ namespace BankaiWeb.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(uint id, PessoaViewModel pessoaViewModel)
+        public ActionResult Edit(int id, PessoaViewModel pessoaViewModel)
         {
-            if (id != pessoaViewModel.id)
+            if (id != pessoaViewModel.Id)
             {
                 return BadRequest();
             }
@@ -77,9 +78,9 @@ namespace BankaiWeb.Controllers
             return View(pessoaViewModel);
         }
 
-        public ActionResult Delete(uint id)
+        public ActionResult Delete(int id)
         {
-            var pessoa = _pessoaService.get(id);
+            var pessoa = _pessoaService.Get(id);
             if (pessoa == null)
             {
                 return NotFound();
@@ -91,9 +92,9 @@ namespace BankaiWeb.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName(nameof(Delete))]
-        public ActionResult DeleteConfirmed(uint id)
+        public ActionResult DeleteConfirmed(int id)
         {
-            var pessoa = _pessoaService.get(id);
+            var pessoa = _pessoaService.Get(id);
             if (pessoa == null)
             {
                 return NotFound();
