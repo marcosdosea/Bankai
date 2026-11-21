@@ -28,7 +28,7 @@ namespace BankaiWeb.Models
         public string? Telefone { get; set; } = string.Empty;
 
         [Display(Name = "Profissional")]
-        public bool? EhProfissional { get; set; }
+        public bool EhProfissional { get; set; }
 
         [StringLength(8, ErrorMessage = "O campo CEP deve ter no máximo 8 caracteres.")]
         [Display(Name = "CEP")]
