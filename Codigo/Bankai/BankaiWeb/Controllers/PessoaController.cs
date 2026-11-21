@@ -100,7 +100,7 @@ namespace BankaiWeb.Controllers
 
         public ActionResult Delete(int id)
         {
-            var pessoa = _pessoaService.Get(id);
+            var pessoa = _pessoaService.get(id);
             if (pessoa == null)
             {
                 return NotFound();
@@ -114,7 +114,7 @@ namespace BankaiWeb.Controllers
         [ActionName(nameof(Delete))]
         public ActionResult DeleteConfirmed(int id)
         {
-            var pessoa = _pessoaService.Get(id);
+            var pessoa = _pessoaService.get(id);
             if (pessoa == null)
             {
                 return NotFound();
