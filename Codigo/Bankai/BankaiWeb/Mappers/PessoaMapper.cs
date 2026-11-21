@@ -2,23 +2,18 @@
 using Core;
 using Mapster;
 
-
 namespace BankaiWeb.Mappers
 {
     public class PessoaMapper
     {
         public static PessoaViewModel ToViewModel(Pessoa pessoa)
         {
-            var pessoaViewModel = pessoa.Adapt<PessoaViewModel>();
-            pessoaViewModel.id = checked((uint)pessoa.Id);
-            return pessoaViewModel;
+            return pessoa.Adapt<PessoaViewModel>();
         }
 
         public static Pessoa ToEntity(PessoaViewModel pessoaViewModel)
         {
-            var pessoa = pessoaViewModel.Adapt<Pessoa>();
-            pessoa.Id = checked((int)pessoaViewModel.id);
-            return pessoa;
+            return pessoaViewModel.Adapt<Pessoa>();
         }
 
         public static IEnumerable<PessoaViewModel> ToViewModel(IEnumerable<Pessoa>? pessoas)

@@ -39,7 +39,7 @@
                         @foreach (var item in Model)
                         {
                             <tr class="border-bottom">
-                                <td class="fw-bold text-secondary">#@item.id</td>
+                                <td class="fw-bold text-secondary">#@item.Id</td>
                                 <td class="fw-bold">@item.Nome</td>
                                 <td>@item.CpfCnpj</td>
                                 <td class="text-muted">@item.Email</td>
@@ -59,13 +59,13 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group" role="group">
-                                        <a asp-action="Edit" asp-route-id="@item.id" class="btn btn-sm btn-outline-warning rounded-2 me-1" title="Editar">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning rounded-2 me-1" title="Editar">
                                             <i class="bi bi-pencil-fill"></i>
                                         </a>
-                                        <a asp-action="Details" asp-route-id="@item.id" class="btn btn-sm btn-outline-info rounded-2 me-1 text-dark" title="Detalhes">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info rounded-2 me-1 text-dark" title="Detalhes">
                                             <i class="bi bi-eye-fill"></i>
                                         </a>
-                                        <a asp-action="Delete" asp-route-id="@item.id" class="btn btn-sm btn-outline-danger rounded-2" title="Excluir">
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger rounded-2" title="Excluir">
                                             <i class="bi bi-trash-fill"></i>
                                         </a>
                                     </div>
