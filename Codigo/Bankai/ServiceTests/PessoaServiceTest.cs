@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Core;
 using Core.Service;
@@ -40,8 +41,9 @@ public class PessoaServiceTest
                 Cidade = "Cidade A",
                 Estado = "Estado A",
                 NumeroCasa = "123",
+                Saldo = 0.00m,
+                RegistroTecnico = null
             },
-
             new Pessoa
             {
                 Id = 2,
@@ -56,6 +58,8 @@ public class PessoaServiceTest
                 Cidade = "Cidade B",
                 Estado = "Estado B",
                 NumeroCasa = "456",
+                Saldo = 250.50m,
+                RegistroTecnico = new byte[] { 1, 2, 3, 4 }
             }
         );
 
@@ -87,6 +91,8 @@ public class PessoaServiceTest
             Cidade = "Cidade C",
             Estado = "Estado C",
             NumeroCasa = "789",
+            Saldo = 100.00m,
+            RegistroTecnico = null
         };
 
         // Act
@@ -114,6 +120,8 @@ public class PessoaServiceTest
             Cidade = "Cidade D",
             Estado = "Estado D",
             NumeroCasa = "321",
+            Saldo = 500.75m,
+            RegistroTecnico = new byte[] { 10, 20, 30 }
         };
 
         // Act
@@ -135,6 +143,8 @@ public class PessoaServiceTest
         Assert.AreEqual(pessoaEsperada.Cidade, pessoaCriada.Cidade);
         Assert.AreEqual(pessoaEsperada.Estado, pessoaCriada.Estado);
         Assert.AreEqual(pessoaEsperada.NumeroCasa, pessoaCriada.NumeroCasa);
+        Assert.AreEqual(pessoaEsperada.Saldo, pessoaCriada.Saldo);
+        CollectionAssert.AreEqual(pessoaEsperada.RegistroTecnico, pessoaCriada.RegistroTecnico);
     }
 
     [TestMethod]
@@ -164,7 +174,7 @@ public class PessoaServiceTest
         // Assert
         var pessoasFinais = servicoPessoa.GetAll().ToList();
 
-        Assert.HasCount(pessoasIniciais.Count, pessoasFinais);
+        Assert.AreEqual(pessoasIniciais.Count, pessoasFinais.Count);
         CollectionAssert.AreEquivalent(
             pessoasIniciais.Select(pessoa => pessoa.Id).ToList(),
             pessoasFinais.Select(pessoa => pessoa.Id).ToList());
@@ -180,6 +190,7 @@ public class PessoaServiceTest
 
         pessoaExistente!.Nome = "Carlos Oliveira Atualizado";
         pessoaExistente.Email = "carlos.oliveira.atualizado@gmail.com";
+        pessoaExistente.Saldo = 300.00m;
 
         // Act
         servicoPessoa.Edit(pessoaExistente);
@@ -190,6 +201,7 @@ public class PessoaServiceTest
         Assert.IsNotNull(pessoaAtualizada);
         Assert.AreEqual("Carlos Oliveira Atualizado", pessoaAtualizada.Nome);
         Assert.AreEqual("carlos.oliveira.atualizado@gmail.com", pessoaAtualizada.Email);
+        Assert.AreEqual(300.00m, pessoaAtualizada.Saldo);
     }
 
     [TestMethod]
@@ -222,7 +234,7 @@ public class PessoaServiceTest
 
         // Assert
         Assert.IsNotNull(pessoas);
-        Assert.HasCount(2, pessoas);
+        Assert.AreEqual(2, pessoas.Count);
 
         CollectionAssert.AreEquivalent(
             new List<int> { 1, 2 },
@@ -241,7 +253,7 @@ public class PessoaServiceTest
 
         // Assert
         Assert.IsNotNull(pessoas);
-        Assert.IsEmpty(pessoas);
+        Assert.AreEqual(0, pessoas.Count);
     }
 
     [TestMethod]
@@ -251,12 +263,12 @@ public class PessoaServiceTest
         var pessoas = servicoPessoa.GetAllByName("João").ToList();
 
         // Assert
-        Assert.HasCount(1, pessoas);
+        Assert.AreEqual(1, pessoas.Count);
         Assert.AreEqual("João Silva", pessoas[0].Nome);
     }
 
     [TestMethod]
-    public void GetByNome_QuandoNomeCorrespondeAoInicio_DeveRetornarTodasAsPessoasCorrespontes()
+    public void GetByNome_QuandoNomeCorrespondeAoInicio_DeveRetornarTodasAsPessoasCorrespondentes()
     {
         // Arrange
         contexto.Pessoas.Add(new Pessoa
@@ -273,6 +285,8 @@ public class PessoaServiceTest
             Cidade = "Cidade D",
             Estado = "Estado D",
             NumeroCasa = "321",
+            Saldo = 50.00m,
+            RegistroTecnico = null
         });
         contexto.SaveChanges();
 
@@ -280,7 +294,7 @@ public class PessoaServiceTest
         var pessoas = servicoPessoa.GetAllByName("A").ToList();
 
         // Assert
-        Assert.HasCount(1, pessoas);
+        Assert.AreEqual(1, pessoas.Count);
         Assert.IsTrue(pessoas.All(pessoa => pessoa.Nome.StartsWith("A")));
     }
 
@@ -288,10 +302,9 @@ public class PessoaServiceTest
     public void GetByNome_QuandoNaoExisteCorrespondencia_DeveRetornarColecaoVazia()
     {
         // Act
-        var pessoas = servicoPessoa.GetAllByName(string.Empty).ToList();
-        
-        // Assert
-        Assert.AreEqual(2, pessoas.Count); // Retorna todas as pessoas quando o nome é vazio
-    }
+        var pessoas = servicoPessoa.GetAllByName("NomeInexistente").ToList();
 
+        // Assert
+        Assert.AreEqual(0, pessoas.Count);
+    }
 }
