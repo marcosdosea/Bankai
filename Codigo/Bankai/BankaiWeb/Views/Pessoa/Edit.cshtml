@@ -1,65 +1,197 @@
 ﻿@model BankaiWeb.Models.PessoaViewModel
 
 @{
-    ViewData["Title"] = "Editar Pessoa";
+    ViewData["Title"] = Model.EhProfissional ? "Perfil Profissional" : "Perfil do Cliente";
 }
 
-<div class="mb-4">
-    <a asp-action="Index" class="text-decoration-none text-secondary font-weight-bold">
-        <i class="bi bi-arrow-left"></i> Voltar para a lista
-    </a>
-</div>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0">BANKAI</h4>
+        <a asp-action="Index" class="text-decoration-none text-secondary fw-semibold">
+            ← Voltar à Lista
+        </a>
+    </div>
 
-<div class="row justify-content-center">
-    <div class="col-md-7 col-lg-6">
-        <div class="bankai-card">
-            <h3 class="text-center font-weight-bold mb-4">Editar Cadastro</h3>
+    <div class="row g-4">
+        <!-- Coluna Esquerda: Resumo, Saldo e Gestão Técnica -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 text-center p-4 mb-4">
+                <div class="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle border border-3"
+                     style="width: 80px; height: 80px; border-color: #D97706 !important; color: #D97706;">
+                    <span class="fs-2 fw-bold">@Model.Nome.Substring(0, 1).ToUpper()</span>
+                </div>
+                <h5 class="fw-bold mb-1">@Model.Nome</h5>
+                <p class="text-muted small mb-2">@Model.Email</p>
 
-            <form asp-action="Edit">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-                <input type="hidden" asp-for="id" />
+                @if (Model.EhProfissional)
+                {
+                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 mb-3">
+                        PROFISSIONAL VERIFICADO
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 mb-3">
+                        CONTA CLIENTE
+                    </span>
+                }
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Nome" class="form-label text-muted small fw-bold">NOME COMPLETO</label>
-                        <div class="input-group bankai-input-group">
-                            <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                <div class="bg-light rounded-3 p-3 text-start">
+                    <small class="text-uppercase text-muted fw-bold d-block">
+                        @(Model.EhProfissional ? "SALDO DISPONÍVEL PARA SAQUE" : "SALDO DISPONÍVEL EM CARTEIRA")
+                    </small>
+                    <h3 class="text-success fw-bold mb-0">@Model.Saldo.ToString("C")</h3>
+                </div>
+            </div>
+
+            @if (Model.EhProfissional)
+            {
+                <div class="card shadow-sm border-0 rounded-4 p-4">
+                    <small class="text-uppercase text-muted fw-bold mb-3 d-block">GESTÃO TÉCNICA</small>
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Servico" asp-action="Index" asp-route-idPessoa="@Model.Id" class="btn btn-outline-secondary text-start fw-semibold py-2">
+                            + Cadastrar / Gerenciar Serviços
+                        </a>
+                        <a asp-controller="Especialidade" asp-action="Index" asp-route-idPessoa="@Model.Id" class="btn btn-outline-secondary text-start fw-semibold py-2">
+                            Gerenciar Especialidades
+                        </a>
+                        <a asp-controller="Disponibilidade" asp-action="Index" asp-route-idPessoa="@Model.Id" class="btn btn-outline-secondary text-start fw-semibold py-2">
+                            Configurar Agenda
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Coluna Direita: Formulário Completo -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 p-4">
+                <form asp-action="Edit" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="EhProfissional" />
+                    <input type="hidden" asp-for="Saldo" />
+                    <input type="hidden" asp-for="RegistroTecnico" />
+
+                    <!-- Seção 1 -->
+                    <h5 class="fw-bold mb-3" style="color: #D97706;">1. Dados Pessoais e Contato</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="Nome" class="form-label small fw-bold text-muted text-uppercase"></label>
                             <input asp-for="Nome" class="form-control" />
+                            <span asp-validation-for="Nome" class="text-danger small"></span>
                         </div>
-                        <span asp-validation-for="Nome" class="text-danger small"></span>
+                        <div class="col-md-6">
+                            <label asp-for="CpfCnpj" class="form-label small fw-bold text-muted text-uppercase"></label>
+                            <input asp-for="CpfCnpj" class="form-control bg-light" readonly />
+                            <span asp-validation-for="CpfCnpj" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label small fw-bold text-muted text-uppercase"></label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Telefone" class="form-label small fw-bold text-muted text-uppercase"></label>
+                            <input asp-for="Telefone" class="form-control" />
+                            <span asp-validation-for="Telefone" class="text-danger small"></span>
+                        </div>
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="CpfCnpj" class="form-label text-muted small fw-bold">CPF/CNPJ</label>
-                        <div class="input-group bankai-input-group">
-                            <span class="input-group-text"><i class="bi bi-fingerprint"></i></span>
-                            <input asp-for="CpfCnpj" class="form-control" />
+                    <!-- Seção 2 -->
+                    <h5 class="fw-bold mb-3" style="color: #D97706;">
+                        2. @(Model.EhProfissional ? "Endereço Base de Atuação" : "Endereço para Atendimento")
+                    </h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label asp-for="Cep" class="form-label small fw-bold text-muted text-uppercase"></label>
+                            <input asp-for="Cep" class="form-control" />
+                            <span asp-validation-for="Cep" class="text-danger small"></span>
                         </div>
-                        <span asp-validation-for="CpfCnpj" class="text-danger small"></span>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <label asp-for="Email" class="form-label text-muted small fw-bold">EMAIL</label>
-                        <div class="input-group bankai-input-group">
-                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                            <input asp-for="Email" class="form-control" type="email" />
+                        <div class="col-md-5">
+                            <label asp-for="Rua" class="form-label small fw-bold text-muted text-uppercase"></label>
+                            <input asp-for="Rua" class="form-control" />
+                            <span asp-validation-for="Rua" class="text-danger small"></span>
                         </div>
-                        <span asp-validation-for="Email" class="text-danger small"></span>
+                        <div class="col-md-3">
+                            <label asp-for="NumeroCasa" class="form-label small fw-bold text-muted text-uppercase"></label>
+                            <input asp-for="NumeroCasa" class="form-control" />
+                            <span asp-validation-for="NumeroCasa" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Bairro" class="form-label small fw-bold text-muted text-uppercase"></label>
+                            <input asp-for="Bairro" class="form-control" />
+                            <span asp-validation-for="Bairro" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Cidade" class="form-label small fw-bold text-muted text-uppercase"></label>
+                            <input asp-for="Cidade" class="form-control" />
+                            <span asp-validation-for="Cidade" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Estado" class="form-label small fw-bold text-muted text-uppercase"></label>
+                            <input asp-for="Estado" class="form-control" />
+                            <span asp-validation-for="Estado" class="text-danger small"></span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-check form-switch mb-4 mt-2">
-                    <input class="form-check-input" type="checkbox" asp-for="EhProfissional" id="chkProf">
-                    <label class="form-check-label fw-bold text-muted" for="chkProf">Perfil Profissional (Quero Trabalhar)</label>
-                </div>
+                    <!-- Seções Exclusivas do Profissional (3 e 4 do Protótipo Tela_022) -->
+                    @if (Model.EhProfissional)
+                    {
+                        <h5 class="fw-bold mb-3" style="color: #D97706;">3. Registro Técnico e Credenciamento</h5>
+                        <div class="mb-4">
+                            @if (Model.RegistroTecnico != null && Model.RegistroTecnico.Length > 0)
+                            {
+                                <div class="alert alert-success d-flex justify-content-between align-items-center rounded-3">
+                                    <span>Documento de Registro Técnico anexado (@Model.RegistroTecnico.Length bytes)</span>
+                                    <span class="badge bg-success">Aprovado</span>
+                                </div>
+                            }
+                            <label asp-for="ArquivoRegistroTecnico" class="form-label small fw-bold text-muted text-uppercase">
+                                Substituir ou Enviar Novo Registro Técnico
+                            </label>
+                            <input asp-for="ArquivoRegistroTecnico" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
+                            <span asp-validation-for="ArquivoRegistroTecnico" class="text-danger small"></span>
+                        </div>
 
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-bankai flex-grow-1 py-3">Salvar Alterações</button>
-                    <a asp-action="Index" class="btn btn-outline-secondary py-3 px-4 rounded-3">Cancelar</a>
-                </div>
-            </form>
+                        <h5 class="fw-bold mb-3" style="color: #D97706;">4. Serviços e Especialidades Vinculadas</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="border rounded-3 p-3 h-100 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <h6 class="fw-bold">Catálogo de Serviços</h6>
+                                        <p class="text-muted small">Gerencie os serviços prestados e ajuste seus valores.</p>
+                                    </div>
+                                    <a asp-controller="Servico" asp-action="Create" asp-route-idPessoa="@Model.Id" class="btn btn-outline-warning text-dark fw-semibold w-100">
+                                        + Cadastrar Novo Serviço
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="border rounded-3 p-3 h-100 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <h6 class="fw-bold">Especialidades Técnicas</h6>
+                                        <p class="text-muted small">Adicione ou edite suas áreas de atuação técnica.</p>
+                                    </div>
+                                    <a asp-controller="Especialidade" asp-action="Index" asp-route-idPessoa="@Model.Id" class="btn btn-outline-warning text-dark fw-semibold w-100">
+                                        Adicionar / Editar Especialidades
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <hr class="my-4" />
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary px-4">
+                            Descartar Alterações
+                        </a>
+                        <button type="submit" class="btn text-white fw-bold px-4" style="background-color: #D97706;">
+                            @(Model.EhProfissional ? "Salvar Perfil Profissional" : "Salvar Alterações")
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

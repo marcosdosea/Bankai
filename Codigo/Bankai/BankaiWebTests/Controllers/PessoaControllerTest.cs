@@ -52,7 +52,7 @@ public class PessoaControllerTests
         var primeiraPessoa = pessoas.First();
 
         Assert.AreEqual("João Silva", primeiraPessoa.Nome);
-        Assert.AreEqual((uint)1, primeiraPessoa.id);
+        Assert.AreEqual(1, primeiraPessoa.Id);
 
         pessoaServiceMock.Verify(
             service => service.GetAll(),
@@ -60,7 +60,7 @@ public class PessoaControllerTests
     }
 
     [TestMethod]
-    public void Index_QuandoNaoExistemAutores_DeveRetornarViewComColecaoVazia()
+    public void Index_QuandoNaoExistemPessoas_DeveRetornarViewComColecaoVazia()
     {
         // Arrange
         pessoaServiceMock
@@ -94,7 +94,7 @@ public class PessoaControllerTests
             viewResult.ViewData.Model);
 
         Assert.AreEqual("João Silva", pessoa.Nome);
-        Assert.AreEqual((uint)1, pessoa.id);
+        Assert.AreEqual(1, pessoa.Id);
         Assert.AreEqual("12345678910", pessoa.CpfCnpj);
         Assert.AreEqual("joaosilva@gmail.com", pessoa.Email);
 
@@ -104,7 +104,7 @@ public class PessoaControllerTests
     }
 
     [TestMethod]
-    public void Details_QuandoPessoaNaoExiste_DeveRetornarViewComModeloVazio()
+    public void Details_QuandoPessoaNaoExiste_DeveRetornarNotFound()
     {
         // Act
         var resultado = controller.Details(999);
@@ -194,7 +194,7 @@ public class PessoaControllerTests
     }
 
     [TestMethod]
-    public void Edit_QuandoRequisicaoGetEPessoaNaoExiste_DeveRetornarViewComModeloVazio()
+    public void Edit_QuandoRequisicaoGetEPessoaNaoExiste_DeveRetornarNotFound()
     {
         // Act
         var resultado = controller.Edit(999);
@@ -205,6 +205,23 @@ public class PessoaControllerTests
         pessoaServiceMock.Verify(
             service => service.get(999),
             Times.Once);
+    }
+
+    [TestMethod]
+    public void Edit_QuandoIdsDivergentes_DeveRetornarBadRequest()
+    {
+        // Arrange
+        var modelo = CriarModeloDePessoaExistente(); // Id = 2
+
+        // Act
+        var resultado = controller.Edit(999, modelo);
+
+        // Assert
+        Assert.IsInstanceOfType<BadRequestResult>(resultado);
+
+        pessoaServiceMock.Verify(
+            service => service.Edit(It.IsAny<Pessoa>()),
+            Times.Never);
     }
 
     [TestMethod]
@@ -219,13 +236,13 @@ public class PessoaControllerTests
             .Callback<Pessoa>(pessoa => pessoaEditada = pessoa);
 
         // Act
-        var resultado = controller.Edit(modelo.id, modelo);
+        var resultado = controller.Edit(modelo.Id, modelo);
 
         // Assert
         VerificarRedirecionamentoParaIndex(resultado);
 
         Assert.IsNotNull(pessoaEditada);
-        Assert.AreEqual((int)modelo.id, pessoaEditada.Id);
+        Assert.AreEqual(modelo.Id, pessoaEditada.Id);
         Assert.AreEqual(modelo.Nome, pessoaEditada.Nome);
         Assert.AreEqual(modelo.CpfCnpj, pessoaEditada.CpfCnpj);
 
@@ -245,7 +262,7 @@ public class PessoaControllerTests
             "O nome é obrigatório.");
 
         // Act
-        var resultado = controller.Edit(modelo.id, modelo);
+        var resultado = controller.Edit(modelo.Id, modelo);
 
         // Assert
         Assert.IsInstanceOfType<ViewResult>(resultado);
@@ -274,7 +291,7 @@ public class PessoaControllerTests
     }
 
     [TestMethod]
-    public void Delete_QuandoRequisicaoGetEPessoaNaoExiste_DeveRetornarViewComModeloVazio()
+    public void Delete_QuandoRequisicaoGetEPessoaNaoExiste_DeveRetornarNotFound()
     {
         // Act
         var resultado = controller.Delete(999);
@@ -294,13 +311,13 @@ public class PessoaControllerTests
         var modelo = CriarModeloDePessoaExistente();
 
         // Act - Chama a action de exclusão confirmada (POST)
-        var resultado = controller.DeleteConfirmed(modelo.id);
+        var resultado = controller.DeleteConfirmed(modelo.Id);
 
         // Assert
         VerificarRedirecionamentoParaIndex(resultado);
 
         pessoaServiceMock.Verify(
-            service => service.Delete(modelo.id),
+            service => service.Delete(modelo.Id),
             Times.Once);
     }
 
@@ -319,7 +336,7 @@ public class PessoaControllerTests
     {
         return new PessoaViewModel
         {
-            id = 1,
+            Id = 1,
             CpfCnpj = "12345678910",
             Nome = "João Silva",
             Email = "joaosilva@gmail.com",
@@ -331,6 +348,8 @@ public class PessoaControllerTests
             Cidade = "Cidade A",
             Estado = "Estado A",
             NumeroCasa = "123",
+            Saldo = 0.00m,
+            RegistroTecnico = null
         };
     }
 
@@ -338,7 +357,7 @@ public class PessoaControllerTests
     {
         return new PessoaViewModel
         {
-            id = 2,
+            Id = 2,
             CpfCnpj = "98765432100",
             Nome = "Maria Souza",
             Email = "mariasouza@gmail.com",
@@ -350,6 +369,8 @@ public class PessoaControllerTests
             Cidade = "Cidade B",
             Estado = "Estado B",
             NumeroCasa = "456",
+            Saldo = 250.50m,
+            RegistroTecnico = new byte[] { 1, 2, 3, 4 }
         };
     }
 
@@ -369,6 +390,8 @@ public class PessoaControllerTests
             Cidade = "Cidade A",
             Estado = "Estado A",
             NumeroCasa = "123",
+            Saldo = 0.00m,
+            RegistroTecnico = null
         };
     }
 
@@ -388,6 +411,8 @@ public class PessoaControllerTests
             Cidade = "Cidade B",
             Estado = "Estado B",
             NumeroCasa = "456",
+            Saldo = 250.50m,
+            RegistroTecnico = new byte[] { 1, 2, 3, 4 }
         };
     }
 
@@ -409,6 +434,8 @@ public class PessoaControllerTests
                 Cidade = "Cidade A",
                 Estado = "Estado A",
                 NumeroCasa = "123",
+                Saldo = 0.00m,
+                RegistroTecnico = null
             },
             new Pessoa
             {
@@ -424,6 +451,8 @@ public class PessoaControllerTests
                 Cidade = "Cidade B",
                 Estado = "Estado B",
                 NumeroCasa = "456",
+                Saldo = 250.50m,
+                RegistroTecnico = new byte[] { 1, 2, 3, 4 }
             },
             new Pessoa
             {
@@ -439,6 +468,8 @@ public class PessoaControllerTests
                 Cidade = "Cidade C",
                 Estado = "Estado C",
                 NumeroCasa = "789",
+                Saldo = 100.00m,
+                RegistroTecnico = null
             }
         ];
     }
