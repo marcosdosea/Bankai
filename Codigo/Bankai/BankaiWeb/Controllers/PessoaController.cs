@@ -2,6 +2,7 @@
 using BankaiWeb.Models;
 using Core.Service;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BankaiWeb.Controllers
 {
@@ -32,21 +33,32 @@ namespace BankaiWeb.Controllers
             return View(pessoaViewModel);
         }
 
-        public ActionResult Create()
+        public ActionResult Create([FromServices] IEspecialidadeService especialidadeService)
         {
+            ViewBag.Especialidades = new SelectList(especialidadeService.GetAll(), "Id", "Nome");
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(PessoaViewModel pessoaViewModel)
+        public ActionResult Create(PessoaViewModel pessoaViewModel, [FromServices] IEspecialidadeService especialidadeService)
         {
             if (ModelState.IsValid)
             {
                 var pessoa = PessoaMapper.ToEntity(pessoaViewModel);
+
+                if (pessoaViewModel.ArquivoRegistroTecnico != null && pessoaViewModel.ArquivoRegistroTecnico.Length > 0)
+                {
+                    using var memoryStream = new MemoryStream();
+                    pessoaViewModel.ArquivoRegistroTecnico.CopyTo(memoryStream);
+                    pessoa.RegistroTecnico = memoryStream.ToArray();
+                }
+
                 _pessoaService.Create(pessoa);
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewBag.Especialidades = new SelectList(especialidadeService.GetAll(), "Id", "Nome", pessoaViewModel.IdEspecialidade);
             return View(pessoaViewModel);
         }
 
@@ -72,6 +84,14 @@ namespace BankaiWeb.Controllers
             if (ModelState.IsValid)
             {
                 var pessoa = PessoaMapper.ToEntity(pessoaViewModel);
+
+                if (pessoaViewModel.ArquivoRegistroTecnico != null && pessoaViewModel.ArquivoRegistroTecnico.Length > 0)
+                {
+                    using var memoryStream = new MemoryStream();
+                    pessoaViewModel.ArquivoRegistroTecnico.CopyTo(memoryStream);
+                    pessoa.RegistroTecnico = memoryStream.ToArray();
+                }
+
                 _pessoaService.Edit(pessoa);
                 return RedirectToAction(nameof(Index));
             }
@@ -80,7 +100,7 @@ namespace BankaiWeb.Controllers
 
         public ActionResult Delete(int id)
         {
-            var pessoa = _pessoaService.get(id);
+            var pessoa = _pessoaService.Get(id);
             if (pessoa == null)
             {
                 return NotFound();
@@ -94,7 +114,7 @@ namespace BankaiWeb.Controllers
         [ActionName(nameof(Delete))]
         public ActionResult DeleteConfirmed(int id)
         {
-            var pessoa = _pessoaService.get(id);
+            var pessoa = _pessoaService.Get(id);
             if (pessoa == null)
             {
                 return NotFound();
