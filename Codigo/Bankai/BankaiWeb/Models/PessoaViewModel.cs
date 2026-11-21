@@ -61,6 +61,12 @@ namespace BankaiWeb.Models
         [Display(Name = "Registro Técnico")]
         public byte[]? RegistroTecnico { get; set; }
 
+        [Display(Name = "Especialidade")]
+        public int IdEspecialidade { get; set; }
+
+        [Display(Name = "Anexo do Registro Técnico (PDF, JPG, PNG)")]
+        public IFormFile? ArquivoRegistroTecnico { get; set; }
+
         public string GetEnderecoCompleto()
         {
             return $"{Rua}, {NumeroCasa} - {Bairro}, {Cidade} - {Estado}, CEP: {Cep}";
