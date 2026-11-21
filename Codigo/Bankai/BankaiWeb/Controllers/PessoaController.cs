@@ -47,6 +47,18 @@ namespace BankaiWeb.Controllers
             {
                 var pessoa = PessoaMapper.ToEntity(pessoaViewModel);
 
+                // Remove máscaras para caber exatamente no CHAR(14), CHAR(11) e CHAR(8) do banco
+                pessoa.CpfCnpj = pessoa.CpfCnpj.Replace(".", "").Replace("-", "").Replace("/", "").Trim();
+                pessoa.Telefone = (pessoa.Telefone ?? string.Empty).Replace("(", "").Replace(")", "").Replace("-", "").Replace(" ", "").Trim();
+                pessoa.Cep = (pessoa.Cep ?? string.Empty).Replace("-", "").Trim();
+
+                // Garante strings vazias caso o banco tenha colunas NOT NULL
+                pessoa.Rua ??= string.Empty;
+                pessoa.Bairro ??= string.Empty;
+                pessoa.Cidade ??= string.Empty;
+                pessoa.Estado ??= string.Empty;
+                pessoa.NumeroCasa ??= string.Empty;
+
                 if (pessoaViewModel.ArquivoRegistroTecnico != null && pessoaViewModel.ArquivoRegistroTecnico.Length > 0)
                 {
                     using var memoryStream = new MemoryStream();
