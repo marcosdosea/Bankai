@@ -1,91 +1,68 @@
 ﻿@model IEnumerable<BankaiWeb.Models.PessoaViewModel>
 
 @{
-    ViewData["Title"] = "Gestão de Pessoas";
+    ViewData["Title"] = "Pessoas Cadastradas";
 }
 
-<div class="row justify-content-center">
-    <div class="col-12 col-xl-10">
-        <!-- Container no padrão Design System Bankai -->
-        <div class="bankai-card">
-            
-            <!-- Cabeçalho com Título e Botão Novo Cadastro -->
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-                <div>
-                    <h3 class="font-weight-bold mb-1">Gestão de Pessoas</h3>
-                    <p class="text-muted small mb-0">Gerencie todos os clientes e profissionais cadastrados no Bankai.</p>
-                </div>
-                <a asp-action="Create" class="btn btn-bankai px-4 py-2">
-                    <i class="bi bi-plus-lg me-1"></i> Cadastrar Nova Pessoa
-                </a>
-            </div>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">Pessoas Cadastradas</h2>
+            <p class="text-muted mb-0">Gerencie clientes e profissionais da plataforma Bankai</p>
+        </div>
+        <a asp-action="Create" class="btn text-white fw-semibold px-4" style="background-color: #D97706;">
+            + Nova Conta
+        </a>
+    </div>
 
-            <!-- Tabela Estilizada -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-borderless align-middle mb-0">
-                    <thead class="border-bottom">
-                        <tr class="text-muted small fw-bold">
-                            <th scope="col" class="pb-3">CÓDIGO</th>
-                            <th scope="col" class="pb-3">NOME COMPLETO</th>
-                            <th scope="col" class="pb-3">CPF / CNPJ</th>
-                            <th scope="col" class="pb-3">E-MAIL</th>
-                            <th scope="col" class="pb-3">PERFIL</th>
-                            <th scope="col" class="pb-3 text-end">AÇÕES</th>
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">@Html.DisplayNameFor(model => model.Nome)</th>
+                            <th>@Html.DisplayNameFor(model => model.CpfCnpj)</th>
+                            <th>@Html.DisplayNameFor(model => model.Email)</th>
+                            <th>@Html.DisplayNameFor(model => model.Telefone)</th>
+                            <th>Perfil</th>
+                            <th>@Html.DisplayNameFor(model => model.Saldo)</th>
+                            <th class="text-end pe-4">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
-                    @if (Model != null && Model.Any())
-                    {
                         @foreach (var item in Model)
                         {
-                            <tr class="border-bottom">
-                                <td class="fw-bold text-secondary">#@item.Id</td>
-                                <td class="fw-bold">@item.Nome</td>
+                            <tr>
+                                <td class="ps-4 fw-semibold">@item.Nome</td>
                                 <td>@item.CpfCnpj</td>
-                                <td class="text-muted">@item.Email</td>
+                                <td>@item.Email</td>
+                                <td>@item.Telefone</td>
                                 <td>
                                     @if (item.EhProfissional)
                                     {
-                                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
-                                            <i class="bi bi-tools me-1"></i> Profissional
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">
+                                            Profissional
                                         </span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill">
-                                            <i class="bi bi-person me-1"></i> Cliente
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3">
+                                            Cliente
                                         </span>
                                     }
                                 </td>
-                                <td class="text-end">
-                                    <div class="btn-group" role="group">
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning rounded-2 me-1" title="Editar">
-                                            <i class="bi bi-pencil-fill"></i>
-                                        </a>
-                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info rounded-2 me-1 text-dark" title="Detalhes">
-                                            <i class="bi bi-eye-fill"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger rounded-2" title="Excluir">
-                                            <i class="bi bi-trash-fill"></i>
-                                        </a>
-                                    </div>
+                                <td class="fw-semibold text-success">@item.Saldo.ToString("C")</td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Perfil</a>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning text-dark">Editar</a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Excluir</a>
                                 </td>
                             </tr>
                         }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="bi bi-inbox display-6 d-block mb-2"></i>
-                                Nenhuma pessoa cadastrada até o momento.
-                            </td>
-                        </tr>
-                    }
                     </tbody>
                 </table>
             </div>
-
         </div>
     </div>
 </div>

@@ -2,6 +2,7 @@
 using BankaiWeb.Models;
 using Core.Service;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BankaiWeb.Controllers
 {
@@ -32,21 +33,44 @@ namespace BankaiWeb.Controllers
             return View(pessoaViewModel);
         }
 
-        public ActionResult Create()
+        public ActionResult Create([FromServices] IEspecialidadeService especialidadeService)
         {
+            ViewBag.Especialidades = new SelectList(especialidadeService.GetAll(), "Id", "Nome");
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(PessoaViewModel pessoaViewModel)
+        public ActionResult Create(PessoaViewModel pessoaViewModel, [FromServices] IEspecialidadeService especialidadeService)
         {
             if (ModelState.IsValid)
             {
                 var pessoa = PessoaMapper.ToEntity(pessoaViewModel);
+
+                // Remove máscaras para caber exatamente no CHAR(14), CHAR(11) e CHAR(8) do banco
+                pessoa.CpfCnpj = pessoa.CpfCnpj.Replace(".", "").Replace("-", "").Replace("/", "").Trim();
+                pessoa.Telefone = (pessoa.Telefone ?? string.Empty).Replace("(", "").Replace(")", "").Replace("-", "").Replace(" ", "").Trim();
+                pessoa.Cep = (pessoa.Cep ?? string.Empty).Replace("-", "").Trim();
+
+                // Garante strings vazias caso o banco tenha colunas NOT NULL
+                pessoa.Rua ??= string.Empty;
+                pessoa.Bairro ??= string.Empty;
+                pessoa.Cidade ??= string.Empty;
+                pessoa.Estado ??= string.Empty;
+                pessoa.NumeroCasa ??= string.Empty;
+
+                if (pessoaViewModel.ArquivoRegistroTecnico != null && pessoaViewModel.ArquivoRegistroTecnico.Length > 0)
+                {
+                    using var memoryStream = new MemoryStream();
+                    pessoaViewModel.ArquivoRegistroTecnico.CopyTo(memoryStream);
+                    pessoa.RegistroTecnico = memoryStream.ToArray();
+                }
+
                 _pessoaService.Create(pessoa);
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewBag.Especialidades = new SelectList(especialidadeService.GetAll(), "Id", "Nome", pessoaViewModel.IdEspecialidade);
             return View(pessoaViewModel);
         }
 
@@ -72,6 +96,14 @@ namespace BankaiWeb.Controllers
             if (ModelState.IsValid)
             {
                 var pessoa = PessoaMapper.ToEntity(pessoaViewModel);
+
+                if (pessoaViewModel.ArquivoRegistroTecnico != null && pessoaViewModel.ArquivoRegistroTecnico.Length > 0)
+                {
+                    using var memoryStream = new MemoryStream();
+                    pessoaViewModel.ArquivoRegistroTecnico.CopyTo(memoryStream);
+                    pessoa.RegistroTecnico = memoryStream.ToArray();
+                }
+
                 _pessoaService.Edit(pessoa);
                 return RedirectToAction(nameof(Index));
             }

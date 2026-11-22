@@ -11,15 +11,22 @@ public class PessoaControllerTests
 {
     private Mock<IPessoaService> pessoaServiceMock = null!;
     private PessoaController controller = null!;
+    private Mock<IEspecialidadeService> especialidadeServiceMock = null!;
 
     [TestInitialize]
     public void Inicializar()
     {
         pessoaServiceMock = new Mock<IPessoaService>();
+        especialidadeServiceMock = new Mock<IEspecialidadeService>();
 
         pessoaServiceMock
             .Setup(service => service.GetAll())
             .Returns(ObterPessoasDeTeste());
+
+        especialidadeServiceMock
+            .Setup(service => service.GetAll())
+            .Returns(Array.Empty<Especialidade>());
+
 
         pessoaServiceMock
             .Setup(service => service.get(1))
@@ -121,7 +128,7 @@ public class PessoaControllerTests
     public void Create_QuandoRequisicaoGet_DeveRetornarViewComModeloInicial()
     {
         // Act
-        var resultado = controller.Create();
+        var resultado = controller.Create(especialidadeServiceMock.Object);
 
         // Assert
         var viewResult = Assert.IsInstanceOfType<ViewResult>(resultado);
@@ -140,7 +147,7 @@ public class PessoaControllerTests
             .Callback<Pessoa>(pessoa => pessoaCriada = pessoa);
 
         // Act
-        var resultado = controller.Create(modelo);
+        var resultado = controller.Create(modelo, especialidadeServiceMock.Object);
 
         // Assert
         VerificarRedirecionamentoParaIndex(resultado);
@@ -164,7 +171,7 @@ public class PessoaControllerTests
             "O nome é obrigatório.");
 
         // Act
-        var resultado = controller.Create(CriarModeloDeNovaPessoa());
+        var resultado = controller.Create(CriarModeloDeNovaPessoa(), especialidadeServiceMock.Object);
 
         // Assert
         Assert.IsInstanceOfType<ViewResult>(resultado);
@@ -236,7 +243,7 @@ public class PessoaControllerTests
             .Callback<Pessoa>(pessoa => pessoaEditada = pessoa);
 
         // Act
-        var resultado = controller.Edit(modelo.Id, modelo);
+        var resultado = controller.Edit(modelo.Id.Value, modelo);
 
         // Assert
         VerificarRedirecionamentoParaIndex(resultado);
@@ -262,7 +269,7 @@ public class PessoaControllerTests
             "O nome é obrigatório.");
 
         // Act
-        var resultado = controller.Edit(modelo.Id, modelo);
+        var resultado = controller.Edit(modelo.Id.Value, modelo);
 
         // Assert
         Assert.IsInstanceOfType<ViewResult>(resultado);
@@ -311,13 +318,13 @@ public class PessoaControllerTests
         var modelo = CriarModeloDePessoaExistente();
 
         // Act - Chama a action de exclusão confirmada (POST)
-        var resultado = controller.DeleteConfirmed(modelo.Id);
+        var resultado = controller.DeleteConfirmed(modelo.Id.Value);
 
         // Assert
         VerificarRedirecionamentoParaIndex(resultado);
 
         pessoaServiceMock.Verify(
-            service => service.Delete(modelo.Id),
+            service => service.Delete(modelo.Id.Value),
             Times.Once);
     }
 

@@ -1,48 +1,85 @@
 ﻿@model BankaiWeb.Models.PessoaViewModel
 
 @{
-    ViewData["Title"] = "Detalhes da Pessoa";
+    ViewData["Title"] = "Detalhes do Perfil";
 }
 
-<div class="mb-4">
-    <a asp-action="Index" class="text-decoration-none text-secondary font-weight-bold">
-        <i class="bi bi-arrow-left"></i> Voltar para a lista
-    </a>
-</div>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0">Detalhes do Perfil</h3>
+        <a asp-action="Index" class="text-decoration-none text-secondary fw-semibold">← Voltar à Lista</a>
+    </div>
 
-<div class="row justify-content-center">
-    <div class="col-md-7 col-lg-6">
-        <div class="bankai-card">
-            <div class="text-center mb-4">
-                <div class="d-inline-block p-3 rounded-circle bg-light text-warning mb-2" style="font-size: 2rem;">
-                    <i class="bi bi-person-fill"></i>
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-4 text-center p-4">
+                <div class="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle border border-3"
+                     style="width: 80px; height: 80px; border-color: #D97706 !important; color: #D97706;">
+                    <span class="fs-2 fw-bold">@Model.Nome.Substring(0, 1).ToUpper()</span>
                 </div>
-                <h3 class="font-weight-bold">@Model.Nome</h3>
-                <span class="badge @(Model.EhProfissional ? "bg-warning text-dark" : "bg-secondary")">
+                <h5 class="fw-bold mb-1">@Model.Nome</h5>
+                <p class="text-muted small mb-3">@Model.Email</p>
+
+                <span class="badge @(Model.EhProfissional ? "bg-success" : "bg-primary") rounded-pill px-3 py-2 mb-3">
                     @(Model.EhProfissional ? "Profissional" : "Cliente")
                 </span>
-            </div>
 
-            <div class="bg-light p-4 rounded-3 mb-4">
-                <div class="row mb-3">
-                    <div class="col-sm-4 text-muted small fw-bold">CÓDIGO</div>
-                    <div class="col-sm-8 fw-bold">#@Model.Id</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-sm-4 text-muted small fw-bold">CPF/CNPJ</div>
-                    <div class="col-sm-8">@Model.CpfCnpj</div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-4 text-muted small fw-bold">EMAIL</div>
-                    <div class="col-sm-8">@Model.Email</div>
+                <div class="bg-light rounded-3 p-3">
+                    <small class="text-uppercase text-muted fw-bold d-block">Saldo em Conta</small>
+                    <h4 class="text-success fw-bold mb-0">@Model.Saldo.ToString("C")</h4>
                 </div>
             </div>
+        </div>
 
-            <div class="d-flex gap-2">
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-bankai flex-grow-1 py-2">
-                    <i class="bi bi-pencil"></i> Editar
-                </a>
-                <a asp-action="Index" class="btn btn-outline-secondary py-2 px-4 rounded-3">Voltar</a>
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 p-4">
+                <h5 class="fw-bold mb-3" style="color: #D97706;">Informações Cadastrais</h5>
+                <dl class="row mb-4">
+                    <dt class="col-sm-4 text-muted">@Html.DisplayNameFor(model => model.CpfCnpj)</dt>
+                    <dd class="col-sm-8 fw-semibold">@Model.CpfCnpj</dd>
+
+                    <dt class="col-sm-4 text-muted">@Html.DisplayNameFor(model => model.Telefone)</dt>
+                    <dd class="col-sm-8">@Model.Telefone</dd>
+
+                    <dt class="col-sm-4 text-muted">Endereço Completo</dt>
+                    <dd class="col-sm-8">@Model.GetEnderecoCompleto()</dd>
+
+                    @if (Model.EhProfissional)
+                    {
+                        <dt class="col-sm-4 text-muted">Registro Técnico</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.RegistroTecnico != null && Model.RegistroTecnico.Length > 0)
+                            {
+                                <span class="badge bg-success-subtle text-success border border-success-subtle">Documento Anexado</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning-subtle text-dark border border-warning-subtle">Pendente de Envio</span>
+                            }
+                        </dd>
+                    }
+                </dl>
+
+                @if (Model.EhProfissional)
+                {
+                    <div class="border-top pt-3 mb-4">
+                        <h6 class="fw-bold mb-3">Vínculos do Profissional</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a asp-controller="Especialidade" asp-action="Index" asp-route-idPessoa="@Model.Id" class="btn btn-outline-warning text-dark fw-semibold">
+                                Ver / Gerenciar Especialidades
+                            </a>
+                            <a asp-controller="Servico" asp-action="Index" asp-route-idPessoa="@Model.Id" class="btn btn-outline-warning text-dark fw-semibold">
+                                Ver / Gerenciar Serviços Prestados
+                            </a>
+                        </div>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn text-white fw-bold px-4" style="background-color: #D97706;">
+                        Editar Perfil
+                    </a>
+                </div>
             </div>
         </div>
     </div>
