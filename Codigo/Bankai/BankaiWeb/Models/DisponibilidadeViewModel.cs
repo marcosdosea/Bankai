@@ -8,7 +8,7 @@ namespace BankaiWeb.Models
     {
         [Key]
         [Display(Name = "Código")]
-        public uint Id { get; set; } 
+        public uint Id { get; set; }
 
         [Required(ErrorMessage = "O campo Status da Disponibilidade é obrigatório.")]
         [RegularExpression("^(D|ND)$", ErrorMessage = "O status deve ser 'D' ou 'ND'.")]
@@ -50,6 +50,42 @@ namespace BankaiWeb.Models
                     "O horário de término deve ser posterior ao horário de início.",
                     new[] { nameof(HorarioFim) });
             }
+
+            if (DataIndisponibilizade.HasValue)
+            {
+                if (string.IsNullOrWhiteSpace(DescricaoIndisponibilidade))
+                {
+                    yield return new ValidationResult(
+                        "Informe o motivo da indisponibilidade quando uma data específica for preenchida.",
+                        new[] { nameof(DescricaoIndisponibilidade) });
+                }
+
+                var diaEsperado = ObterDiaSemanaSigla(DataIndisponibilizade.Value.DayOfWeek);
+                if (!string.IsNullOrWhiteSpace(DiaSemana) && DiaSemana != diaEsperado)
+                {
+                    yield return new ValidationResult(
+                        "O dia da semana deve corresponder à data específica informada.",
+                        new[] { nameof(DiaSemana) });
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(DescricaoIndisponibilidade))
+            {
+                yield return new ValidationResult(
+                    "Informe a data específica quando um motivo de indisponibilidade for preenchido.",
+                    new[] { nameof(DataIndisponibilizade) });
+            }
         }
+
+        private static string ObterDiaSemanaSigla(DayOfWeek dia) => dia switch
+        {
+            DayOfWeek.Sunday => "D",
+            DayOfWeek.Monday => "SF",
+            DayOfWeek.Tuesday => "TF",
+            DayOfWeek.Wednesday => "QF",
+            DayOfWeek.Thursday => "QIF",
+            DayOfWeek.Friday => "SXF",
+            DayOfWeek.Saturday => "S",
+            _ => "D"
+        };
     }
 }

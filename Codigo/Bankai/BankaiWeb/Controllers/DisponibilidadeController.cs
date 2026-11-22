@@ -60,9 +60,7 @@ namespace BankaiWeb.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewBag.IdPessoa = profissionalId;
-                ViewBag.PessoaIndisponivel = !this.disponibilidadeService.IsProfissional(profissionalId);
-                return View("Index", disponibilidades);
+                return RetornarIndexComErroSemanal(profissionalId, disponibilidades);
             }
 
             if (!this.disponibilidadeService.IsProfissional(profissionalId))
@@ -86,17 +84,25 @@ namespace BankaiWeb.Controllers
                 }
             }
 
-            foreach (var disponibilidade in disponibilidades)
+            try
             {
-                var entity = DisponibilidadeMapper.ToEntity(disponibilidade);
-                if (disponibilidade.Id == 0)
+                foreach (var disponibilidade in disponibilidades)
                 {
-                    this.disponibilidadeService.Create(entity);
+                    var entity = DisponibilidadeMapper.ToEntity(disponibilidade);
+                    if (disponibilidade.Id == 0)
+                    {
+                        this.disponibilidadeService.Create(entity);
+                    }
+                    else
+                    {
+                        this.disponibilidadeService.Edit(entity);
+                    }
                 }
-                else
-                {
-                    this.disponibilidadeService.Edit(entity);
-                }
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return RetornarIndexComErroSemanal(profissionalId, disponibilidades);
             }
 
             return RedirectToAction(nameof(Index), new { idPessoa = profissionalId });
@@ -113,36 +119,62 @@ namespace BankaiWeb.Controllers
                 return View("Index", Enumerable.Empty<DisponibilidadeViewModel>());
             }
 
-            if (!dataIndisponibilizade.HasValue || string.IsNullOrWhiteSpace(descricaoIndisponibilidade))
+            var atuais = this.disponibilidadeService.GetByIdPessoa(idPessoa).ToList();
+            var motivo = descricaoIndisponibilidade?.Trim();
+
+            if (!dataIndisponibilizade.HasValue)
             {
-                if (!dataIndisponibilizade.HasValue)
+                ModelState.AddModelError(nameof(DisponibilidadeViewModel.DataIndisponibilizade), "Informe a data específica para o bloqueio.");
+            }
+            else
+            {
+                var dataEscolhida = dataIndisponibilizade.Value.Date;
+                if (dataEscolhida < DateTime.Today)
                 {
-                    ModelState.AddModelError(nameof(DisponibilidadeViewModel.DataIndisponibilizade), "Informe a data específica para o bloqueio.");
+                    ModelState.AddModelError(nameof(DisponibilidadeViewModel.DataIndisponibilizade), "Não é permitido bloquear uma data passada.");
                 }
-
-                if (string.IsNullOrWhiteSpace(descricaoIndisponibilidade))
+                else if (atuais.Any(d => d.DataIndisponibilizade.HasValue && d.DataIndisponibilizade.Value.Date == dataEscolhida))
                 {
-                    ModelState.AddModelError(nameof(DisponibilidadeViewModel.DescricaoIndisponibilidade), "Informe o motivo da indisponibilidade.");
+                    ModelState.AddModelError(nameof(DisponibilidadeViewModel.DataIndisponibilizade), "Já existe um bloqueio cadastrado para esta data.");
                 }
-
-                ViewBag.IdPessoa = idPessoa;
-                ViewBag.PessoaIndisponivel = false;
-                var atuais = this.disponibilidadeService.GetByIdPessoa(idPessoa);
-                return View("Index", DisponibilidadeMapper.ToViewModel(atuais));
             }
 
+            if (string.IsNullOrWhiteSpace(motivo))
+            {
+                ModelState.AddModelError(nameof(DisponibilidadeViewModel.DescricaoIndisponibilidade), "Informe o motivo da indisponibilidade.");
+            }
+            else if (motivo.Length > 255)
+            {
+                ModelState.AddModelError(nameof(DisponibilidadeViewModel.DescricaoIndisponibilidade), "O motivo da indisponibilidade deve ter no máximo 255 caracteres.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return RetornarIndexComErroBloqueio(idPessoa, atuais, dataIndisponibilizade, motivo);
+            }
+
+            var dataBloqueio = dataIndisponibilizade!.Value.Date;
             var bloqueio = new Disponibilidade
             {
                 IdPessoa = (int)idPessoa,
                 StatusDisponibilidade = "ND",
-                DiaSemana = ObterDiaSemanaSigla(dataIndisponibilizade.Value.DayOfWeek),
+                DiaSemana = ObterDiaSemanaSigla(dataBloqueio.DayOfWeek),
                 HorarioInicio = TimeSpan.Zero,
                 HorarioFim = new TimeSpan(23, 59, 0),
-                DataIndisponibilizade = dataIndisponibilizade.Value.Date,
-                DescricaoIndisponibilidade = descricaoIndisponibilidade.Trim()
+                DataIndisponibilizade = dataBloqueio,
+                DescricaoIndisponibilidade = motivo
             };
 
-            this.disponibilidadeService.Create(bloqueio);
+            try
+            {
+                this.disponibilidadeService.Create(bloqueio);
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return RetornarIndexComErroBloqueio(idPessoa, atuais, dataIndisponibilizade, motivo);
+            }
+
             return RedirectToAction(nameof(Index), new { idPessoa });
         }
 
@@ -159,18 +191,6 @@ namespace BankaiWeb.Controllers
             this.disponibilidadeService.Delete(id);
             return RedirectToAction(nameof(Index), new { idPessoa = (uint)bloqueio.IdPessoa });
         }
-
-        private static string ObterDiaSemanaSigla(DayOfWeek dia) => dia switch
-        {
-            DayOfWeek.Sunday => "D",
-            DayOfWeek.Monday => "SF",
-            DayOfWeek.Tuesday => "TF",
-            DayOfWeek.Wednesday => "QF",
-            DayOfWeek.Thursday => "QIF",
-            DayOfWeek.Friday => "SXF",
-            DayOfWeek.Saturday => "S",
-            _ => "D"
-        };
 
         public IActionResult Details(uint id)
         {
@@ -219,7 +239,38 @@ namespace BankaiWeb.Controllers
                 return BadRequest();
             }
 
-            this.disponibilidadeService.Edit(DisponibilidadeMapper.ToEntity(disponibilidadeViewModel));
+            if (disponibilidadeViewModel.DataIndisponibilizade.HasValue)
+            {
+                var dataNova = disponibilidadeViewModel.DataIndisponibilizade.Value.Date;
+                if (existente.DataIndisponibilizade?.Date != dataNova && dataNova < DateTime.Today)
+                {
+                    ModelState.AddModelError(nameof(DisponibilidadeViewModel.DataIndisponibilizade), "Não é permitido bloquear uma data passada.");
+                    return View(disponibilidadeViewModel);
+                }
+
+                var jaExisteNaData = this.disponibilidadeService
+                    .GetByIdPessoa((uint)existente.IdPessoa)
+                    .Any(d => d.Id != (int)id
+                        && d.DataIndisponibilizade.HasValue
+                        && d.DataIndisponibilizade.Value.Date == dataNova);
+
+                if (jaExisteNaData)
+                {
+                    ModelState.AddModelError(nameof(DisponibilidadeViewModel.DataIndisponibilizade), "Já existe um bloqueio cadastrado para esta data.");
+                    return View(disponibilidadeViewModel);
+                }
+            }
+
+            try
+            {
+                this.disponibilidadeService.Edit(DisponibilidadeMapper.ToEntity(disponibilidadeViewModel));
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(disponibilidadeViewModel);
+            }
+
             return RedirectToAction(nameof(Index), new { idPessoa = disponibilidadeViewModel.IdPessoa });
         }
 
@@ -247,5 +298,52 @@ namespace BankaiWeb.Controllers
             this.disponibilidadeService.Delete(id);
             return RedirectToAction(nameof(Index), new { idPessoa = (uint)disponibilidade.IdPessoa });
         }
+
+        private IActionResult RetornarIndexComErroSemanal(uint profissionalId, List<DisponibilidadeViewModel> disponibilidades)
+        {
+            var isProfissional = this.disponibilidadeService.IsProfissional(profissionalId);
+            ViewBag.IdPessoa = profissionalId;
+            ViewBag.PessoaIndisponivel = !isProfissional;
+            ViewBag.ErroSemanal = true;
+
+            var modeloCompleto = new List<DisponibilidadeViewModel>(disponibilidades);
+            if (isProfissional)
+            {
+                var bloqueiosExistentes = this.disponibilidadeService
+                    .GetByIdPessoa(profissionalId)
+                    .Where(d => d.DataIndisponibilizade.HasValue);
+
+                modeloCompleto.AddRange(DisponibilidadeMapper.ToViewModel(bloqueiosExistentes));
+            }
+
+            return View("Index", modeloCompleto);
+        }
+
+        private IActionResult RetornarIndexComErroBloqueio(
+            uint idPessoa,
+            IEnumerable<Disponibilidade> atuais,
+            DateTime? dataIndisponibilizade,
+            string? motivo)
+        {
+            ViewBag.IdPessoa = idPessoa;
+            ViewBag.PessoaIndisponivel = false;
+            ViewBag.ErroBloqueio = true;
+            ViewBag.DataIndisponibilizade = dataIndisponibilizade?.ToString("yyyy-MM-dd");
+            ViewBag.DescricaoIndisponibilidade = motivo;
+
+            return View("Index", DisponibilidadeMapper.ToViewModel(atuais));
+        }
+
+        private static string ObterDiaSemanaSigla(DayOfWeek dia) => dia switch
+        {
+            DayOfWeek.Sunday => "D",
+            DayOfWeek.Monday => "SF",
+            DayOfWeek.Tuesday => "TF",
+            DayOfWeek.Wednesday => "QF",
+            DayOfWeek.Thursday => "QIF",
+            DayOfWeek.Friday => "SXF",
+            DayOfWeek.Saturday => "S",
+            _ => "D"
+        };
     }
 }

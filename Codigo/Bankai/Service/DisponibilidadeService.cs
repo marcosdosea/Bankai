@@ -1,7 +1,7 @@
 using Core;
 using Core.Service;
-using Service;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,6 +9,10 @@ namespace Service
 {
     public class DisponibilidadeService : IDisponibilidadeService
     {
+        private static readonly HashSet<string> StatusValidos = new(StringComparer.Ordinal) { "D", "ND" };
+        private static readonly HashSet<string> DiasValidos = new(StringComparer.Ordinal) { "D", "SF", "TF", "QF", "QIF", "SXF", "S" };
+        private const int TamanhoMaximoDescricao = 255;
+
         private readonly BankaiContext context;
 
         public DisponibilidadeService(BankaiContext context)
@@ -23,6 +27,7 @@ namespace Service
         /// <returns>Id da disponibilidade criada</returns>
         public uint Create(Disponibilidade disponibilidade)
         {
+            Validar(disponibilidade, isEdicao: false);
             this.context.Add(disponibilidade);
             this.context.SaveChanges();
             return (uint)disponibilidade.Id;
@@ -34,6 +39,8 @@ namespace Service
         /// <param name="disponibilidade">A disponibilidade com as informações atualizadas.</param>
         public void Edit(Disponibilidade disponibilidade)
         {
+            Validar(disponibilidade, isEdicao: true);
+
             var disponibilidadeRastreada = this.context.Disponibilidades.Local
                 .FirstOrDefault(item => item.Id == disponibilidade.Id);
 
@@ -111,5 +118,102 @@ namespace Service
 
             return consulta.AsNoTracking();
         }
+
+        private void Validar(Disponibilidade disponibilidade, bool isEdicao)
+        {
+            if (disponibilidade == null)
+            {
+                throw new ArgumentNullException(nameof(disponibilidade), "A disponibilidade não pode ser nula.");
+            }
+
+            if (disponibilidade.IdPessoa <= 0)
+            {
+                throw new ArgumentException("O profissional informado é inválido.");
+            }
+
+            if (string.IsNullOrWhiteSpace(disponibilidade.StatusDisponibilidade) || !StatusValidos.Contains(disponibilidade.StatusDisponibilidade))
+            {
+                throw new ArgumentException("O status da disponibilidade deve ser 'D' ou 'ND'.");
+            }
+
+            if (string.IsNullOrWhiteSpace(disponibilidade.DiaSemana) || !DiasValidos.Contains(disponibilidade.DiaSemana))
+            {
+                throw new ArgumentException("Selecione um dia da semana válido.");
+            }
+
+            if (disponibilidade.HorarioFim <= disponibilidade.HorarioInicio)
+            {
+                throw new ArgumentException("O horário de término deve ser posterior ao horário de início.");
+            }
+
+            if (disponibilidade.DataIndisponibilizade.HasValue)
+            {
+                var dataBloqueio = disponibilidade.DataIndisponibilizade.Value.Date;
+                disponibilidade.DataIndisponibilizade = dataBloqueio;
+
+                if (string.IsNullOrWhiteSpace(disponibilidade.DescricaoIndisponibilidade))
+                {
+                    throw new ArgumentException("Informe o motivo da indisponibilidade.");
+                }
+
+                disponibilidade.DescricaoIndisponibilidade = disponibilidade.DescricaoIndisponibilidade.Trim();
+
+                if (disponibilidade.DescricaoIndisponibilidade.Length > TamanhoMaximoDescricao)
+                {
+                    throw new ArgumentException("O motivo da indisponibilidade deve ter no máximo 255 caracteres.");
+                }
+
+                var diaEsperado = ObterDiaSemanaSigla(dataBloqueio.DayOfWeek);
+                if (disponibilidade.DiaSemana != diaEsperado)
+                {
+                    throw new ArgumentException("O dia da semana deve corresponder à data específica informada.");
+                }
+
+                var dataAnterior = isEdicao
+                    ? this.context.Disponibilidades
+                        .AsNoTracking()
+                        .Where(d => d.Id == disponibilidade.Id)
+                        .Select(d => d.DataIndisponibilizade)
+                        .FirstOrDefault()
+                    : null;
+
+                if ((!isEdicao || dataAnterior?.Date != dataBloqueio) && dataBloqueio < DateTime.Today)
+                {
+                    throw new InvalidOperationException("Não é permitido bloquear uma data passada.");
+                }
+
+                var bloqueioDuplicado = this.context.Disponibilidades
+                    .AsNoTracking()
+                    .Any(d => d.IdPessoa == disponibilidade.IdPessoa
+                        && d.DataIndisponibilizade.HasValue
+                        && d.DataIndisponibilizade.Value.Date == dataBloqueio
+                        && (!isEdicao || d.Id != disponibilidade.Id));
+
+                if (bloqueioDuplicado)
+                {
+                    throw new InvalidOperationException("Já existe um bloqueio cadastrado para esta data.");
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(disponibilidade.DescricaoIndisponibilidade))
+            {
+                throw new ArgumentException("Informe a data específica quando um motivo de indisponibilidade for preenchido.");
+            }
+            else
+            {
+                disponibilidade.DescricaoIndisponibilidade = null;
+            }
+        }
+
+        private static string ObterDiaSemanaSigla(DayOfWeek dia) => dia switch
+        {
+            DayOfWeek.Sunday => "D",
+            DayOfWeek.Monday => "SF",
+            DayOfWeek.Tuesday => "TF",
+            DayOfWeek.Wednesday => "QF",
+            DayOfWeek.Thursday => "QIF",
+            DayOfWeek.Friday => "SXF",
+            DayOfWeek.Saturday => "S",
+            _ => "D"
+        };
     }
 }

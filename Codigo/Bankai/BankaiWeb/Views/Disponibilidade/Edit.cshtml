@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Editar disponibilidade";
+    var dataMinima = Model.DataIndisponibilizade.HasValue && Model.DataIndisponibilizade.Value.Date < DateTime.Today
+        ? Model.DataIndisponibilizade.Value.ToString("yyyy-MM-dd")
+        : DateTime.Today.ToString("yyyy-MM-dd");
 }
 
 <div class="mb-4">
@@ -17,7 +20,7 @@
             <p class="text-center text-muted small mb-4">Atualize os horários e o status deste dia da semana.</p>
 
             <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
-                <div asp-validation-summary="All" class="text-danger small mb-3" role="alert"></div>
+                <div asp-validation-summary="All" class="alert alert-danger small py-2 mb-3" role="alert"></div>
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="IdPessoa" />
 
@@ -43,7 +46,7 @@
                         <label asp-for="HorarioInicio" class="form-label text-muted small fw-bold">HORÁRIO DE INÍCIO</label>
                         <div class="input-group bankai-input-group">
                             <span class="input-group-text"><i class="bi bi-clock"></i></span>
-                            <input asp-for="HorarioInicio" class="form-control availability-time" type="time" />
+                            <input asp-for="HorarioInicio" class="form-control" type="time" />
                         </div>
                         <span asp-validation-for="HorarioInicio" class="text-danger small"></span>
                     </div>
@@ -52,7 +55,7 @@
                         <label asp-for="HorarioFim" class="form-label text-muted small fw-bold">HORÁRIO DE TÉRMINO</label>
                         <div class="input-group bankai-input-group">
                             <span class="input-group-text"><i class="bi bi-clock-fill"></i></span>
-                            <input asp-for="HorarioFim" class="form-control availability-time" type="time" />
+                            <input asp-for="HorarioFim" class="form-control" type="time" />
                         </div>
                         <span asp-validation-for="HorarioFim" class="text-danger small"></span>
                     </div>
@@ -74,7 +77,7 @@
                     <label asp-for="DataIndisponibilizade" class="form-label text-muted small fw-bold">DATA ESPECÍFICA (OPCIONAL)</label>
                     <div class="input-group bankai-input-group">
                         <span class="input-group-text"><i class="bi bi-calendar-x"></i></span>
-                        <input asp-for="DataIndisponibilizade" class="form-control" type="date" />
+                        <input asp-for="DataIndisponibilizade" class="form-control" type="date" min="@dataMinima" />
                     </div>
                     <span asp-validation-for="DataIndisponibilizade" class="text-danger small"></span>
                 </div>
@@ -101,4 +104,25 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        (function () {
+            const dataInput = document.getElementById("DataIndisponibilizade");
+            const diaSelect = document.getElementById("DiaSemana");
+            const siglas = ["D", "SF", "TF", "QF", "QIF", "SXF", "S"];
+
+            if (dataInput && diaSelect) {
+                dataInput.addEventListener("change", function () {
+                    const valor = String(dataInput["value"] || "");
+                    if (!valor) {
+                        return;
+                    }
+                    const partes = valor.split("-");
+                    if (partes.length === 3) {
+                        const data = new Date(parseInt(partes[0], 10), parseInt(partes[1], 10) - 1, parseInt(partes[2], 10));
+                        diaSelect["value"] = siglas[data.getDay()];
+                    }
+                });
+            }
+        })();
+    </script>
 }
