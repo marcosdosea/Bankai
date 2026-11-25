@@ -1,91 +1,108 @@
 ﻿@model BankaiWeb.Models.GarantiaViewModel
 
 @{
-    ViewData["Title"] = "Solicitar Garantia Corretiva";
+    ViewData["Title"] = "Abertura de Chamado Corretivo";
 }
 
 <div class="execution-container mt-4">
-    <!-- COLUNA ESQUERDA: FORMULÁRIO DE ABERTURA -->
+
     <div class="main-execution-panel">
 
-        <!-- Banner de Garantia Ativa (Verde) -->
-        <div class="p-3 mb-4 rounded-3 text-white" style="background-color: var(--status-success);">
+        <div class="card p-3 border-success mb-4" style="background-color: #f0fdf4; border-color: #86efac !important; border-radius: 12px;">
             <div class="d-flex align-items-center gap-3">
-                <div style="font-size: 2rem;">🛡️</div>
+                <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; flex-shrink: 0;">
+                    <i class="bi bi-check-lg fw-bold"></i>
+                </div>
                 <div>
-                    <h5 class="m-0 fw-bold">Garantia Legal Ativa</h5>
-                    <small>Sua ordem de serviço está coberta pela garantia de 30 dias para reparos e reincidências sem custos adicionais.</small>
+                    <h6 class="fw-bold text-success mb-1">Garantia Legal Válida e Ativa</h6>
+                    <small class="text-secondary">Este serviço foi concluído há 14 dias. Você está dentro do prazo de cobertura estipulado por lei e pelo ecossistema Bankai.</small>
                 </div>
             </div>
         </div>
 
-        <div class="exec-card">
-            <h2 class="fw-bold mb-1" style="color: var(--text-main);">Abertura de Chamado Corretivo</h2>
-            <p class="text-muted mb-4 small">Descreva a falha ou defeito reincidente para acionar a visita de retorno do profissional.</p>
+        <h3 class="fw-bold mb-4" style="color: #1c1e21;">Abertura de Chamado Corretivo</h3>
 
-            <form asp-action="Create" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                <!-- Campo Número do Agendamento -->
-                <div class="form-group mb-3">
-                    <label asp-for="IdAgendamento" class="form-label fw-bold small text-uppercase">Código do Agendamento / Ordem</label>
-                    <input asp-for="IdAgendamento" class="form-control" placeholder="Ex: 1" />
-                    <span asp-validation-for="IdAgendamento" class="text-danger small"></span>
+            <div class="form-group mb-4">
+                <label class="form-label fw-bold text-muted small text-uppercase" style="letter-spacing: 0.5px;">CLASSIFICAÇÃO DO PROBLEMA REINCIDENTE</label>
+                <select class="form-select" style="background-color: #f8f9fa; border-color: #e4e6eb; padding: 0.75rem; border-radius: 8px;">
+                    <option value="" selected disabled>Escolha a opção que melhor descreve...</option>
+                    <option value="1">Mesmo defeito voltou a ocorrer</option>
+                    <option value="2">Mal funcionamento após o reparo</option>
+                    <option value="3">Peça trocada apresentou falha</option>
+                </select>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Descricao" class="form-label fw-bold text-muted small text-uppercase" style="letter-spacing: 0.5px;">DESCRIÇÃO DETALHADA DO PROBLEMA</label>
+                <textarea asp-for="Descricao" class="form-control" rows="4"
+                          style="background-color: #f8f9fa; border-color: #e4e6eb; border-radius: 8px;"
+                          placeholder="Relate detalhadamente o que aconteceu com o equipamento desde a saída do técnico (ex: O chuveiro voltou a mear a resistência hoje de manhã durante o uso normal...)"></textarea>
+                <span asp-validation-for="Descricao" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="form-label fw-bold text-muted small text-uppercase" style="letter-spacing: 0.5px;">EVIDÊNCIAS VISUAIS DO MAL FUNCIONAMENTO (RECOMENDADO)</label>
+                <div class="upload-zone text-center p-4" style="border: 2px dashed #cbd5e1; border-radius: 12px; background-color: #f8f9fa; cursor: pointer;">
+                    <i class="bi bi-exclamation-triangle-fill text-warning fs-3 mb-2 d-block"></i>
+                    <strong class="d-block text-dark mb-1">Anexar foto ou vídeo do defeito atual</strong>
+                    <small class="text-muted">Imagens ou vídeos curtos ajudam na validação do chamado</small>
+                    <input type="file" name="foto" class="d-none" id="fotoInput" accept="image/*,video/*" />
                 </div>
+            </div>
 
-                <!-- Descrição Detalhada do Problema -->
-                <div class="form-group mb-3">
-                    <label asp-for="Descricao" class="form-label fw-bold small text-uppercase">Descrição Detalhada do Problema</label>
-                    <textarea asp-for="Descricao" class="form-control" rows="5" placeholder="Informe detalhadamente o que voltou a apresentar defeito após a conclusão do serviço..."></textarea>
-                    <span asp-validation-for="Descricao" class="text-danger small"></span>
-                </div>
-
-                <!-- Campo Oculto para o Status Inicial (S = Solicitada) -->
-                <input type="hidden" asp-for="StatusGarantia" value="S" />
-
-                <!-- Botão de Ação Principal (Vermelho Alerta) -->
-                <div class="d-grid gap-2 mt-4">
-                    <button type="submit" class="btn btn-danger btn-lg fw-bold" style="background-color: var(--status-alert); border: none;">
-                        ⚠️ Notificar Profissional e Acionar Retorno
-                    </button>
-                    <a asp-action="Index" class="btn btn-outline-secondary btn-sm text-center">Cancelar e Voltar</a>
-                </div>
-            </form>
-        </div>
+            <button type="submit" class="btn btn-danger w-100 py-3 fw-bold fs-6" style="border-radius: 8px; background-color: #dc2626; border: none;">
+                <i class="bi bi-megaphone-fill me-2"></i> Notificar Profissional e Acionar Retorno
+            </button>
+        </form>
     </div>
 
-    <!-- COLUNA DIREITA: CONTRATO ORIGINAL & CLÁUSULAS DE ATENDIMENTO -->
     <div class="sidebar-execution-panel">
-        <!-- Resumo do Atendimento -->
-        <div class="sidebar-card">
-            <h6 class="info-title mb-3">📋 Contrato / Ordem Vinculada</h6>
-            <div class="client-meta">
-                <div class="avatar-placeholder">🔧</div>
-                <div>
-                    <strong class="d-block text-dark">Serviço de Manutenção</strong>
-                    <span class="badge bg-secondary">Garantia Padrão 30 Dias</span>
-                </div>
+
+        <div class="d-flex justify-content-end mb-3">
+            <a href="@Url.Action("Index", "Garantia")" class="btn-back" style="color: #65676b; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem;">
+                <i class="bi bi-arrow-counterclockwise"></i> Voltar ao Histórico
+            </a>
+        </div>
+
+        <div class="exec-card p-4 mb-4" style="background-color: #ffffff; border: 1px solid #e4e6eb; border-radius: 12px;">
+            <h6 class="fw-bold text-muted small text-uppercase mb-3" style="letter-spacing: 0.5px;">CONTRATO ORIGINAL</h6>
+
+            <div class="d-flex justify-content-between py-2 border-bottom">
+                <span class="text-muted small">Cód. Serviço:</span>
+                <strong class="small text-dark">#BKS-9081</strong>
             </div>
-            <hr class="my-2" />
-            <div class="small text-muted">
-                <p class="mb-1"><strong>Status Inicial do Chamado:</strong> <span class="badge bg-warning text-dark">Solicitada (S)</span></p>
-                <p class="mb-0"><strong>Prazo de Resposta:</strong> Até 48 horas úteis para agendamento de retorno.</p>
+            <div class="d-flex justify-content-between py-2 border-bottom">
+                <span class="text-muted small">Tipo do Reparo:</span>
+                <span class="small fw-semibold text-dark">Troca de Resistência</span>
+            </div>
+            <div class="d-flex justify-content-between py-2 border-bottom">
+                <span class="text-muted small">Técnico Alocado:</span>
+                <span class="small fw-bold" style="color: #d97706;">Marcos Silva</span>
+            </div>
+            <div class="d-flex justify-content-between py-2 border-bottom">
+                <span class="text-muted small">Conclusão:</span>
+                <span class="small text-dark">27 de Maio, 2026</span>
+            </div>
+            <div class="d-flex justify-content-between pt-2">
+                <span class="text-muted small">Valor Pago:</span>
+                <strong class="small" style="color: #16a34a;">R$ 120,00</strong>
             </div>
         </div>
 
-        <!-- Regulamento e Disputas -->
-        <div class="sidebar-card" style="background-color: var(--accent-light); border-color: var(--accent-border-light);">
-            <h6 class="fw-bold mb-2" style="color: var(--accent-color);">🛡️ Regras de Cobertura</h6>
-            <ul class="small text-muted ps-3 mb-0" style="line-height: 1.6;">
-                <li>O retorno do profissional não gera novas cobranças para o mesmo defeito.</li>
-                <li>Caso haja divergências, a mediação é realizada pela equipe técnica Bankai.</li>
-            </ul>
+        <div class="p-4" style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px;">
+            <h6 class="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
+                <i class="bi bi-wrench"></i> Cláusula de Intervenção e Disputas
+            </h6>
+            <p class="small text-secondary mb-3" style="line-height: 1.4;">
+                O profissional original será notificado imediatamente para agendar o retorno corretivo <strong>sem novos custos</strong>.
+            </p>
+            <p class="small text-secondary mb-0" style="line-height: 1.4;">
+                Caso haja recusa infundada, ausência de resposta em até 48 horas ou divergências técnicas, o sistema permite a intervenção direta de um <strong>Administrador da Bankai Service</strong> para meadiar a disputa, garantindo o reembolso ou o rebalanceamento da ordem.
+            </p>
         </div>
+
     </div>
 </div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
