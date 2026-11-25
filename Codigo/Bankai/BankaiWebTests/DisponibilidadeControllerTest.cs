@@ -4,7 +4,9 @@ using Core;
 using Core.Service;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace BankaiWebTests;
@@ -287,6 +289,192 @@ public class DisponibilidadeControllerTest
         Assert.AreEqual(nameof(DisponibilidadeController.Index), ((RedirectToActionResult)result).ActionName);
         this.serviceMock.Verify(service => service.Delete(2), Times.Once);
     }
+
+    [TestMethod]
+    public void SalvarLote_ModelInvalido_PreservaBloqueiosVigentesNaView()
+    {
+        var dataBloqueio = DateTime.Today.AddDays(5);
+        this.serviceMock.Setup(service => service.GetByIdPessoa(1)).Returns(new List<Disponibilidade>
+        {
+            new Disponibilidade
+            {
+                Id = 50,
+                IdPessoa = 1,
+                DiaSemana = ObterSiglaDia(dataBloqueio.DayOfWeek),
+                HorarioInicio = TimeSpan.Zero,
+                HorarioFim = new TimeSpan(23, 59, 0),
+                StatusDisponibilidade = "ND",
+                DataIndisponibilizade = dataBloqueio,
+                DescricaoIndisponibilidade = "Viagem particular"
+            }
+        });
+        this.controller.ModelState.AddModelError("HorarioFim", "O horário de término deve ser posterior ao horário de início.");
+
+        var result = this.controller.SalvarLote(CriarSemana(1), 1);
+
+        var viewResult = Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.AreEqual(true, this.controller.ViewBag.ErroSemanal);
+        var model = Assert.IsInstanceOfType<IEnumerable<DisponibilidadeViewModel>>(viewResult.Model);
+        Assert.AreEqual(8, model.Count());
+        Assert.IsTrue(model.Any(d => d.DataIndisponibilizade == dataBloqueio && d.DescricaoIndisponibilidade == "Viagem particular"));
+        this.serviceMock.Verify(service => service.Create(It.IsAny<Disponibilidade>()), Times.Never);
+    }
+
+    [TestMethod]
+    public void BloquearData_DadosValidos_CriaBloqueioERedirecionaParaIndex()
+    {
+        this.serviceMock.Setup(service => service.GetByIdPessoa(1)).Returns(new List<Disponibilidade>());
+        Disponibilidade? bloqueioCriado = null;
+        this.serviceMock
+            .Setup(service => service.Create(It.IsAny<Disponibilidade>()))
+            .Callback<Disponibilidade>(d => bloqueioCriado = d)
+            .Returns(10u);
+
+        var dataFutura = DateTime.Today.AddDays(10);
+        var result = this.controller.BloquearData(1, dataFutura, "Atendimento de obra particular");
+
+        Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+        var redirect = (RedirectToActionResult)result;
+        Assert.AreEqual(nameof(DisponibilidadeController.Index), redirect.ActionName);
+        Assert.AreEqual((uint)1, redirect.RouteValues!["idPessoa"]);
+
+        Assert.IsNotNull(bloqueioCriado);
+        Assert.AreEqual(1, bloqueioCriado.IdPessoa);
+        Assert.AreEqual("ND", bloqueioCriado.StatusDisponibilidade);
+        Assert.AreEqual(ObterSiglaDia(dataFutura.DayOfWeek), bloqueioCriado.DiaSemana);
+        Assert.AreEqual(dataFutura.Date, bloqueioCriado.DataIndisponibilizade);
+        Assert.AreEqual("Atendimento de obra particular", bloqueioCriado.DescricaoIndisponibilidade);
+    }
+
+    [TestMethod]
+    public void BloquearData_ProfissionalInvalido_RetornaIndexComPessoaIndisponivel()
+    {
+        this.serviceMock.Setup(service => service.IsProfissional(1)).Returns(false);
+
+        var result = this.controller.BloquearData(1, DateTime.Today.AddDays(2), "Folga");
+
+        var viewResult = Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.AreEqual(true, this.controller.ViewBag.PessoaIndisponivel);
+        this.serviceMock.Verify(service => service.Create(It.IsAny<Disponibilidade>()), Times.Never);
+    }
+
+    [TestMethod]
+    public void BloquearData_SemDataOuMotivo_RetornaIndexComErroNoCardDeBloqueio()
+    {
+        this.serviceMock.Setup(service => service.GetByIdPessoa(1)).Returns(new List<Disponibilidade>());
+
+        var result = this.controller.BloquearData(1, null, "   ");
+
+        var viewResult = Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.AreEqual(true, this.controller.ViewBag.ErroBloqueio);
+        Assert.IsFalse(this.controller.ModelState.IsValid);
+        this.serviceMock.Verify(service => service.Create(It.IsAny<Disponibilidade>()), Times.Never);
+    }
+
+    [TestMethod]
+    public void BloquearData_DataPassada_RetornaIndexComErroSemCriar()
+    {
+        this.serviceMock.Setup(service => service.GetByIdPessoa(1)).Returns(new List<Disponibilidade>());
+
+        var result = this.controller.BloquearData(1, DateTime.Today.AddDays(-1), "Folga passada");
+
+        var viewResult = Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.AreEqual(true, this.controller.ViewBag.ErroBloqueio);
+        Assert.IsFalse(this.controller.ModelState.IsValid);
+        this.serviceMock.Verify(service => service.Create(It.IsAny<Disponibilidade>()), Times.Never);
+    }
+
+    [TestMethod]
+    public void BloquearData_DataJaBloqueada_RetornaIndexComErroSemCriar()
+    {
+        var dataFutura = DateTime.Today.AddDays(6);
+        this.serviceMock.Setup(service => service.GetByIdPessoa(1)).Returns(new List<Disponibilidade>
+        {
+            new Disponibilidade
+            {
+                Id = 20,
+                IdPessoa = 1,
+                DiaSemana = ObterSiglaDia(dataFutura.DayOfWeek),
+                HorarioInicio = TimeSpan.Zero,
+                HorarioFim = new TimeSpan(23, 59, 0),
+                StatusDisponibilidade = "ND",
+                DataIndisponibilizade = dataFutura,
+                DescricaoIndisponibilidade = "Já bloqueado"
+            }
+        });
+
+        var result = this.controller.BloquearData(1, dataFutura, "Novo bloqueio duplicado");
+
+        var viewResult = Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.AreEqual("Index", viewResult.ViewName);
+        Assert.AreEqual(true, this.controller.ViewBag.ErroBloqueio);
+        Assert.IsFalse(this.controller.ModelState.IsValid);
+        this.serviceMock.Verify(service => service.Create(It.IsAny<Disponibilidade>()), Times.Never);
+    }
+
+    [TestMethod]
+    public void RemoverBloqueio_IdExistente_ExcluiERedirecionaParaIndex()
+    {
+        this.serviceMock.Setup(service => service.Get(5)).Returns(CriarDisponibilidade(5, 1));
+
+        var result = this.controller.RemoverBloqueio(5);
+
+        Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+        var redirect = (RedirectToActionResult)result;
+        Assert.AreEqual(nameof(DisponibilidadeController.Index), redirect.ActionName);
+        Assert.AreEqual((uint)1, redirect.RouteValues!["idPessoa"]);
+        this.serviceMock.Verify(service => service.Delete(5), Times.Once);
+    }
+
+    [TestMethod]
+    public void RemoverBloqueio_IdInexistente_RetornaNotFoundSemExcluir()
+    {
+        this.serviceMock.Setup(service => service.Get(99)).Returns((Disponibilidade?)null);
+
+        var result = this.controller.RemoverBloqueio(99);
+
+        Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        this.serviceMock.Verify(service => service.Delete(It.IsAny<uint>()), Times.Never);
+    }
+
+    [TestMethod]
+    public void ViewModel_Validate_DataSemMotivoEDiaDivergente_RetornaErros()
+    {
+        var dataFutura = DateTime.Today.AddDays(4);
+        var siglaDivergente = dataFutura.DayOfWeek == DayOfWeek.Sunday ? "SF" : "D";
+        var vm = new DisponibilidadeViewModel
+        {
+            IdPessoa = 1,
+            DiaSemana = siglaDivergente,
+            HorarioInicio = new TimeSpan(8, 0, 0),
+            HorarioFim = new TimeSpan(18, 0, 0),
+            StatusDisponibilidade = "ND",
+            DataIndisponibilizade = dataFutura,
+            DescricaoIndisponibilidade = ""
+        };
+
+        var erros = vm.Validate(new ValidationContext(vm)).ToList();
+
+        Assert.AreEqual(2, erros.Count);
+        Assert.IsTrue(erros.Any(e => e.MemberNames.Contains(nameof(DisponibilidadeViewModel.DescricaoIndisponibilidade))));
+        Assert.IsTrue(erros.Any(e => e.MemberNames.Contains(nameof(DisponibilidadeViewModel.DiaSemana))));
+    }
+
+    private static string ObterSiglaDia(DayOfWeek dia) => dia switch
+    {
+        DayOfWeek.Sunday => "D",
+        DayOfWeek.Monday => "SF",
+        DayOfWeek.Tuesday => "TF",
+        DayOfWeek.Wednesday => "QF",
+        DayOfWeek.Thursday => "QIF",
+        DayOfWeek.Friday => "SXF",
+        DayOfWeek.Saturday => "S",
+        _ => "D"
+    };
 
     private static List<DisponibilidadeViewModel> CriarSemana(uint profissionalId)
     {

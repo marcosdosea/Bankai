@@ -4,6 +4,11 @@
     ViewData["Title"] = "Disponibilidade semanal";
     var profissionalId = (uint)(ViewBag.IdPessoa ?? 0);
     var pessoaIndisponivel = (bool?)ViewBag.PessoaIndisponivel ?? false;
+    var erroSemanal = (bool?)ViewBag.ErroSemanal ?? false;
+    var erroBloqueio = (bool?)ViewBag.ErroBloqueio ?? false;
+    var dataBloqueioValor = ViewBag.DataIndisponibilizade as string ?? string.Empty;
+    var motivoBloqueioValor = ViewBag.DescricaoIndisponibilidade as string ?? string.Empty;
+    var dataMinimaHoje = DateTime.Today.ToString("yyyy-MM-dd");
     var culturaPtBr = new System.Globalization.CultureInfo("pt-BR");
     var dias = new[]
     {
@@ -45,7 +50,10 @@
                     </h3>
                     <p class="text-muted small mb-4">Defina os dias e os intervalos de horas que você deseja trabalhar:</p>
 
-                    <div asp-validation-summary="All" class="text-danger small mb-3" role="alert"></div>
+                    @if (erroSemanal)
+                    {
+                        <div asp-validation-summary="All" class="alert alert-danger small py-2 mb-3" role="alert"></div>
+                    }
 
                     <form asp-action="SalvarLote" asp-route-idPessoa="@profissionalId" method="post">
                         <div class="d-flex flex-column gap-3 mb-4">
@@ -88,7 +96,7 @@
                                             @(isAtivo ? "DISPONÍVEL" : "INDISPONÍVEL")
                                         </span>
 
-                                        @if (configDia != null)
+                                        @if (configDia != null && configDia.Id != 0)
                                         {
                                             <div class="dropdown availability-actions">
                                                 <button class="btn btn-sm btn-white border dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Ações para @dia.Nome">
@@ -126,17 +134,22 @@
                         Use este recurso se for fazer uma viagem, tirar folga ou assumir um serviço particular externo:
                     </p>
 
+                    @if (erroBloqueio)
+                    {
+                        <div asp-validation-summary="All" class="alert alert-danger small py-2 mb-3" role="alert"></div>
+                    }
+
                     <form asp-action="BloquearData" method="post">
                         <input type="hidden" name="idPessoa" value="@profissionalId" />
 
                         <div class="mb-3">
                             <label for="dataIndisponibilizade" class="form-label text-muted small fw-bold">DATA ESPECÍFICA</label>
-                            <input type="date" id="dataIndisponibilizade" name="dataIndisponibilizade" class="form-control bg-light" required disabled="@(pessoaIndisponivel ? "disabled" : null)" />
+                            <input type="date" id="dataIndisponibilizade" name="dataIndisponibilizade" min="@dataMinimaHoje" value="@dataBloqueioValor" class="form-control bg-light" required disabled="@(pessoaIndisponivel ? "disabled" : null)" />
                         </div>
 
                         <div class="mb-3">
                             <label for="descricaoIndisponibilidade" class="form-label text-muted small fw-bold">MOTIVO DA INDISPONIBILIDADE</label>
-                            <input type="text" id="descricaoIndisponibilidade" name="descricaoIndisponibilidade" class="form-control bg-light" maxlength="255" placeholder="Ex: Viagem Particular / Obra Externa" required disabled="@(pessoaIndisponivel ? "disabled" : null)" />
+                            <input type="text" id="descricaoIndisponibilidade" name="descricaoIndisponibilidade" value="@motivoBloqueioValor" class="form-control bg-light" maxlength="255" placeholder="Ex: Viagem Particular / Obra Externa" required disabled="@(pessoaIndisponivel ? "disabled" : null)" />
                         </div>
 
                         <button type="submit" class="btn btn-danger w-100 py-3 fw-bold rounded-3" disabled="@(pessoaIndisponivel ? "disabled" : null)">
@@ -190,26 +203,37 @@
     <script>
         document.querySelectorAll(".availability-toggle").forEach(function (toggle) {
             toggle.addEventListener("change", function () {
-                document.getElementById(this.dataset.statusTarget).value = this.checked ? "D" : "ND";
-                const row = this.closest(".availability-day");
-                const status = document.getElementById(this.dataset.rowTarget);
+                const statusTarget = toggle.getAttribute("data-status-target");
+                const rowTarget = toggle.getAttribute("data-row-target");
+                const checked = toggle.matches(":checked");
 
-                row.classList.toggle("is-available", this.checked);
-                row.classList.toggle("is-unavailable", !this.checked);
+                const statusInput = statusTarget ? document.getElementById(statusTarget) : null;
+                if (statusInput) {
+                    statusInput.setAttribute("value", checked ? "D" : "ND");
+                    statusInput["value"] = checked ? "D" : "ND";
+                }
 
-                status.textContent = this.checked ? "DISPONÍVEL" : "INDISPONÍVEL";
-                if (this.checked) {
-                    status.className = "badge fw-bold px-3 py-2 rounded-pill availability-status bg-success-subtle text-success border border-success-subtle";
-                } else {
-                    status.className = "badge fw-bold px-3 py-2 rounded-pill availability-status bg-secondary-subtle text-secondary border border-secondary-subtle";
+                const row = toggle.closest(".availability-day");
+                const status = rowTarget ? document.getElementById(rowTarget) : null;
+
+                if (row) {
+                    row.classList.toggle("is-available", checked);
+                    row.classList.toggle("is-unavailable", !checked);
+                }
+
+                if (status) {
+                    status.textContent = checked ? "DISPONÍVEL" : "INDISPONÍVEL";
+                    status.className = checked
+                        ? "badge fw-bold px-3 py-2 rounded-pill availability-status bg-success-subtle text-success border border-success-subtle"
+                        : "badge fw-bold px-3 py-2 rounded-pill availability-status bg-secondary-subtle text-secondary border border-secondary-subtle";
                 }
             });
         });
 
         document.querySelectorAll(".availability-time").forEach(function (input) {
             input.addEventListener("input", function () {
-                const digits = this.value.replace(/\D/g, "").slice(0, 4);
-                this.value = digits.length > 2 ? digits.slice(0, 2) + ":" + digits.slice(2) : digits;
+                const digits = String(input["value"] || "").replace(/\D/g, "").slice(0, 4);
+                input["value"] = digits.length > 2 ? digits.slice(0, 2) + ":" + digits.slice(2) : digits;
             });
         });
     </script>

@@ -9,8 +9,8 @@ using System.Linq;
 [TestClass]
 public class DisponibilidadeServiceTest
 {
-    private BankaiContext context = null;
-    private IDisponibilidadeService service = null;
+    private BankaiContext context = null!;
+    private IDisponibilidadeService service = null!;
 
     [TestInitialize]
     public void Initialize()
@@ -36,7 +36,7 @@ public class DisponibilidadeServiceTest
         var disponibilidade = new Disponibilidade
         {
             IdPessoa = 1,
-            DiaSemana = "Segunda-Feira",
+            DiaSemana = "SF",
             HorarioInicio = new TimeSpan(8, 0, 0),
             HorarioFim = new TimeSpan(18, 0, 0),
             StatusDisponibilidade = "D"
@@ -51,13 +51,141 @@ public class DisponibilidadeServiceTest
     }
 
     [TestMethod]
+    public void Create_BloqueioExcepcionalComDataEMotivo_ArmazenaNovosCampos()
+    {
+        // Arrange
+        var dataBloqueio = DateTime.Today.AddDays(10);
+        var bloqueio = new Disponibilidade
+        {
+            IdPessoa = 1,
+            DiaSemana = ObterSiglaDia(dataBloqueio.DayOfWeek),
+            HorarioInicio = TimeSpan.Zero,
+            HorarioFim = new TimeSpan(23, 59, 0),
+            StatusDisponibilidade = "ND",
+            DataIndisponibilizade = dataBloqueio,
+            DescricaoIndisponibilidade = "Atendimento de obra particular"
+        };
+
+        // Act
+        var id = this.service.Create(bloqueio);
+        var salvo = this.service.Get(id);
+
+        // Assert
+        Assert.IsNotNull(salvo);
+        Assert.AreEqual(dataBloqueio.Date, salvo.DataIndisponibilizade);
+        Assert.AreEqual("Atendimento de obra particular", salvo.DescricaoIndisponibilidade);
+        Assert.AreEqual("ND", salvo.StatusDisponibilidade);
+    }
+
+    [TestMethod]
+    public void Create_DiaSemanaForaDoEnum_LancaArgumentException()
+    {
+        var disponibilidade = new Disponibilidade
+        {
+            IdPessoa = 1,
+            DiaSemana = "Segunda-Feira",
+            HorarioInicio = new TimeSpan(8, 0, 0),
+            HorarioFim = new TimeSpan(18, 0, 0),
+            StatusDisponibilidade = "D"
+        };
+
+        Assert.ThrowsExactly<ArgumentException>(() => this.service.Create(disponibilidade));
+    }
+
+    [TestMethod]
+    public void Create_BloqueioComDataPassada_LancaInvalidOperationException()
+    {
+        var dataPassada = DateTime.Today.AddDays(-1);
+        var bloqueio = new Disponibilidade
+        {
+            IdPessoa = 1,
+            DiaSemana = ObterSiglaDia(dataPassada.DayOfWeek),
+            HorarioInicio = TimeSpan.Zero,
+            HorarioFim = new TimeSpan(23, 59, 0),
+            StatusDisponibilidade = "ND",
+            DataIndisponibilizade = dataPassada,
+            DescricaoIndisponibilidade = "Folga"
+        };
+
+        Assert.ThrowsExactly<InvalidOperationException>(() => this.service.Create(bloqueio));
+    }
+
+    [TestMethod]
+    public void Create_BloqueioSemMotivo_LancaArgumentException()
+    {
+        var dataFutura = DateTime.Today.AddDays(5);
+        var bloqueio = new Disponibilidade
+        {
+            IdPessoa = 1,
+            DiaSemana = ObterSiglaDia(dataFutura.DayOfWeek),
+            HorarioInicio = TimeSpan.Zero,
+            HorarioFim = new TimeSpan(23, 59, 0),
+            StatusDisponibilidade = "ND",
+            DataIndisponibilizade = dataFutura,
+            DescricaoIndisponibilidade = "   "
+        };
+
+        Assert.ThrowsExactly<ArgumentException>(() => this.service.Create(bloqueio));
+    }
+
+    [TestMethod]
+    public void Create_BloqueioComDiaSemanaDivergenteDaData_LancaArgumentException()
+    {
+        var dataFutura = DateTime.Today.AddDays(5);
+        var siglaDivergente = dataFutura.DayOfWeek == DayOfWeek.Sunday ? "SF" : "D";
+        var bloqueio = new Disponibilidade
+        {
+            IdPessoa = 1,
+            DiaSemana = siglaDivergente,
+            HorarioInicio = TimeSpan.Zero,
+            HorarioFim = new TimeSpan(23, 59, 0),
+            StatusDisponibilidade = "ND",
+            DataIndisponibilizade = dataFutura,
+            DescricaoIndisponibilidade = "Viagem particular"
+        };
+
+        Assert.ThrowsExactly<ArgumentException>(() => this.service.Create(bloqueio));
+    }
+
+    [TestMethod]
+    public void Create_BloqueioDuplicadoNaMesmaData_LancaInvalidOperationException()
+    {
+        var dataFutura = DateTime.Today.AddDays(7);
+        var sigla = ObterSiglaDia(dataFutura.DayOfWeek);
+
+        this.service.Create(new Disponibilidade
+        {
+            IdPessoa = 1,
+            DiaSemana = sigla,
+            HorarioInicio = TimeSpan.Zero,
+            HorarioFim = new TimeSpan(23, 59, 0),
+            StatusDisponibilidade = "ND",
+            DataIndisponibilizade = dataFutura,
+            DescricaoIndisponibilidade = "Viagem"
+        });
+
+        var duplicado = new Disponibilidade
+        {
+            IdPessoa = 1,
+            DiaSemana = sigla,
+            HorarioInicio = TimeSpan.Zero,
+            HorarioFim = new TimeSpan(23, 59, 0),
+            StatusDisponibilidade = "ND",
+            DataIndisponibilizade = dataFutura,
+            DescricaoIndisponibilidade = "Outro compromisso"
+        };
+
+        Assert.ThrowsExactly<InvalidOperationException>(() => this.service.Create(duplicado));
+    }
+
+    [TestMethod]
     public void Get_IdExistente_RetornaObjetoDisponibilidade()
     {
         // Arrange
         var disponibilidade = new Disponibilidade
         {
             IdPessoa = 1,
-            DiaSemana = "Terça-Feira",
+            DiaSemana = "TF",
             HorarioInicio = new TimeSpan(8, 0, 0),
             HorarioFim = new TimeSpan(18, 0, 0),
             StatusDisponibilidade = "D"
@@ -89,20 +217,18 @@ public class DisponibilidadeServiceTest
         var disponibilidade = new Disponibilidade
         {
             IdPessoa = 1,
-            DiaSemana = "Quarta-Feira",
+            DiaSemana = "QF",
             HorarioInicio = new TimeSpan(8, 0, 0),
             HorarioFim = new TimeSpan(12, 0, 0),
             StatusDisponibilidade = "D"
         };
         var id = this.service.Create(disponibilidade);
 
-        // Limpa o rastreador de instâncias do EF para permitir a atualização sem conflitos de contexto
         this.context.ChangeTracker.Clear();
 
         var disponibilidadeParaEditar = this.service.Get(id);
         Assert.IsNotNull(disponibilidadeParaEditar);
 
-        // Alterando o horário de fim de 12:00 para 18:00
         disponibilidadeParaEditar.HorarioFim = new TimeSpan(18, 0, 0);
 
         // Act
@@ -120,7 +246,7 @@ public class DisponibilidadeServiceTest
         var original = new Disponibilidade
         {
             IdPessoa = 1,
-            DiaSemana = "Quarta-Feira",
+            DiaSemana = "QF",
             HorarioInicio = new TimeSpan(8, 0, 0),
             HorarioFim = new TimeSpan(12, 0, 0),
             StatusDisponibilidade = "D"
@@ -133,7 +259,7 @@ public class DisponibilidadeServiceTest
         {
             Id = (int)id,
             IdPessoa = 1,
-            DiaSemana = "Quarta-Feira",
+            DiaSemana = "QF",
             HorarioInicio = new TimeSpan(8, 0, 0),
             HorarioFim = new TimeSpan(18, 0, 0),
             StatusDisponibilidade = "D"
@@ -152,7 +278,7 @@ public class DisponibilidadeServiceTest
         var disponibilidade = new Disponibilidade
         {
             IdPessoa = 1,
-            DiaSemana = "Quinta-Feira",
+            DiaSemana = "QIF",
             HorarioInicio = new TimeSpan(8, 0, 0),
             HorarioFim = new TimeSpan(18, 0, 0),
             StatusDisponibilidade = "D"
@@ -171,8 +297,8 @@ public class DisponibilidadeServiceTest
     public void GetAll_CadastrosExistentes_RetornaColecaoCompleta()
     {
         // Arrange
-        this.service.Create(new Disponibilidade { IdPessoa = 1, DiaSemana = "Segunda-Feira", HorarioInicio = new TimeSpan(8, 0, 0), HorarioFim = new TimeSpan(18, 0, 0), StatusDisponibilidade = "D" });
-        this.service.Create(new Disponibilidade { IdPessoa = 2, DiaSemana = "Terça-Feira", HorarioInicio = new TimeSpan(8, 0, 0), HorarioFim = new TimeSpan(18, 0, 0), StatusDisponibilidade = "D" });
+        this.service.Create(new Disponibilidade { IdPessoa = 1, DiaSemana = "SF", HorarioInicio = new TimeSpan(8, 0, 0), HorarioFim = new TimeSpan(18, 0, 0), StatusDisponibilidade = "D" });
+        this.service.Create(new Disponibilidade { IdPessoa = 2, DiaSemana = "TF", HorarioInicio = new TimeSpan(8, 0, 0), HorarioFim = new TimeSpan(18, 0, 0), StatusDisponibilidade = "D" });
 
         // Act
         var lista = this.service.GetAll();
@@ -186,9 +312,9 @@ public class DisponibilidadeServiceTest
     public void GetByIdPessoa_FiltroValido_RetornaRegistrosFiltrados()
     {
         // Arrange
-        this.service.Create(new Disponibilidade { IdPessoa = 1, DiaSemana = "Segunda-Feira", HorarioInicio = new TimeSpan(8, 0, 0), HorarioFim = new TimeSpan(18, 0, 0), StatusDisponibilidade = "D" });
-        this.service.Create(new Disponibilidade { IdPessoa = 1, DiaSemana = "Terça-Feira", HorarioInicio = new TimeSpan(8, 0, 0), HorarioFim = new TimeSpan(18, 0, 0), StatusDisponibilidade = "D" });
-        this.service.Create(new Disponibilidade { IdPessoa = 2, DiaSemana = "Segunda-Feira", HorarioInicio = new TimeSpan(8, 0, 0), HorarioFim = new TimeSpan(18, 0, 0), StatusDisponibilidade = "D" });
+        this.service.Create(new Disponibilidade { IdPessoa = 1, DiaSemana = "SF", HorarioInicio = new TimeSpan(8, 0, 0), HorarioFim = new TimeSpan(18, 0, 0), StatusDisponibilidade = "D" });
+        this.service.Create(new Disponibilidade { IdPessoa = 1, DiaSemana = "TF", HorarioInicio = new TimeSpan(8, 0, 0), HorarioFim = new TimeSpan(18, 0, 0), StatusDisponibilidade = "D" });
+        this.service.Create(new Disponibilidade { IdPessoa = 2, DiaSemana = "SF", HorarioInicio = new TimeSpan(8, 0, 0), HorarioFim = new TimeSpan(18, 0, 0), StatusDisponibilidade = "D" });
 
         // Act
         var resultado = this.service.GetByIdPessoa(1);
@@ -198,4 +324,16 @@ public class DisponibilidadeServiceTest
         Assert.AreEqual(2, resultado.Count());
         Assert.IsTrue(resultado.All(d => d.IdPessoa == 1));
     }
+
+    private static string ObterSiglaDia(DayOfWeek dia) => dia switch
+    {
+        DayOfWeek.Sunday => "D",
+        DayOfWeek.Monday => "SF",
+        DayOfWeek.Tuesday => "TF",
+        DayOfWeek.Wednesday => "QF",
+        DayOfWeek.Thursday => "QIF",
+        DayOfWeek.Friday => "SXF",
+        DayOfWeek.Saturday => "S",
+        _ => "D"
+    };
 }
