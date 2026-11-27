@@ -17,7 +17,7 @@ namespace Service
         }
 
         /// <summary>
-        /// Insere um novo registro de pagamento na base de dados (retorno int conforme IPagamentoService)
+        /// Insere um novo registro de pagamento na base de dados
         /// </summary>
         public int Create(Pagamento pagamento)
         {
@@ -25,7 +25,7 @@ namespace Service
 
             if (string.IsNullOrWhiteSpace(pagamento.StatusPagamento))
             {
-                pagamento.StatusPagamento = "Pendente";
+                pagamento.StatusPagamento = "AP"; // Aguardando Processamento (ENUM do Banco de Dados)
             }
 
             this.context.Pagamentos.Add(pagamento);
@@ -47,9 +47,9 @@ namespace Service
         /// <summary>
         /// Remove um pagamento pelo seu código
         /// </summary>
-        public void Delete(uint codigo)
+        public void Delete(int id)
         {
-            var pagamento = this.context.Pagamentos.Find((int)codigo);
+            var pagamento = this.context.Pagamentos.Find(id);
             if (pagamento != null)
             {
                 this.context.Pagamentos.Remove(pagamento);
@@ -58,60 +58,53 @@ namespace Service
         }
 
         /// <summary>
-        /// Consulta um pagamento específico pelo código (assinatura get com 'g' minúsculo)
+        /// Consulta um pagamento específico pelo id
         /// </summary>
-        public Pagamento? get(uint codigo)
+        public Pagamento? Get(int id)
         {
-            return this.context.Pagamentos
-                .FirstOrDefault(p => p.Id == (int)codigo);
+            return this.context.Pagamentos.FirstOrDefault(p => p.Id == id);
         }
 
         /// <summary>
-        /// Retorna todos os pagamentos registrados (assinatura getAll com 'g' minúsculo)
+        /// Retorna todos os pagamentos registrados
         /// </summary>
-        public IEnumerable<Pagamento> getAll()
+        public IEnumerable<Pagamento> GetAll()
         {
-            return this.context.Pagamentos
-                .AsNoTracking()
-                .ToList();
+            return this.context.Pagamentos.AsNoTracking().ToList();
         }
 
         /// <summary>
-        /// Retorna os pagamentos vinculados a um agendamento (assinatura getByAgendamento com parâmetro int)
+        /// Retorna os pagamentos vinculados a um agendamento
         /// </summary>
-        public IEnumerable<Pagamento> getByAgendamento(int codigoAgendamento)
+        public IEnumerable<Pagamento> GetByAgendamento(int idAgendamento)
         {
-            return this.context.Pagamentos
-                .AsNoTracking()
-                .Where(p => p.IdAgendamento == codigoAgendamento)
-                .ToList();
+            return this.context.Pagamentos.AsNoTracking().Where(p => p.IdAgendamento == idAgendamento).ToList();
         }
 
         /// <summary>
         /// Processa e registra o pagamento referente a um agendamento/serviço (CSU06)
         /// </summary>
-        public Pagamento RealizarPagamento(Pagamento pagamento, bool transacaoAutorizada = true)
+        public Pagamento RealizarPagamento(Pagamento pagamento, bool transacaoCompleta = true)
         {
             ValidarDadosPagamento(pagamento);
 
-            var agendamentoExiste = this.context.Agendamentos
-                .Any(a => a.Id == pagamento.IdAgendamento);
+            var agendamentoExiste = this.context.Agendamentos.Any(a => a.Id == pagamento.IdAgendamento);
 
             if (!agendamentoExiste)
             {
                 throw new Exception("Por favor, preencha todos os campos obrigatórios corretamente.");
             }
 
-            if (!transacaoAutorizada)
+            if (!transacaoCompleta)
             {
-                pagamento.StatusPagamento = "Recusado";
+                pagamento.StatusPagamento = "R"; // Recusado (ENUM do Banco de Dados)
                 this.context.Pagamentos.Add(pagamento);
                 this.context.SaveChanges();
 
                 throw new Exception("Pagamento não autorizado pela instituição financeira.");
             }
 
-            pagamento.StatusPagamento = "Aprovado";
+            pagamento.StatusPagamento = "A"; // Aprovado (ENUM do Banco de Dados)
             this.context.Pagamentos.Add(pagamento);
             this.context.SaveChanges();
 
@@ -124,7 +117,7 @@ namespace Service
                 pagamento.IdAgendamento <= 0 ||
                 pagamento.ValorTransacao <= 0 ||
                 string.IsNullOrWhiteSpace(pagamento.FormaPagamento) ||
-                (pagamento.FormaPagamento != "Pix" && pagamento.FormaPagamento != "Cartao de credito"))
+                (pagamento.FormaPagamento != "P" && pagamento.FormaPagamento != "CC")) // P = PIX & CC = Cartão de Crédito
             {
                 throw new Exception("Por favor, preencha todos os campos obrigatórios corretamente.");
             }

@@ -23,15 +23,15 @@ namespace Service.Tests
 
             this.context = new BankaiContext(options);
 
-            // Popula um Agendamento válido conforme o Dicionário de Dados para vincular aos pagamentos
+            // Popula um Agendamento válido conforme o esquema do BD (TipoCobranca = 'F' ou 'O')
             this.context.Agendamentos.Add(new Agendamento
             {
                 Id = 1,
                 IdCliente = 1,
                 IdProfissional = 1,
                 Comentario = "Manutenção Elétrica Residencial",
-                TipoCobranca = "Fixo",
-                StatusAgendamento = "Aceito"
+                TipoCobranca = "F",
+                StatusAgendamento = "A"
             });
             this.context.SaveChanges();
 
@@ -52,7 +52,7 @@ namespace Service.Tests
             var pagamento = new Pagamento
             {
                 IdAgendamento = 1,
-                FormaPagamento = "Pix",
+                FormaPagamento = "P",
                 ValorTransacao = 150.00m
             };
 
@@ -61,8 +61,8 @@ namespace Service.Tests
 
             // Assert
             Assert.IsNotNull(resultado);
-            Assert.AreEqual("Aprovado", resultado.StatusPagamento);
-            Assert.AreEqual("Pix", resultado.FormaPagamento);
+            Assert.AreEqual("A", resultado.StatusPagamento);
+            Assert.AreEqual("P", resultado.FormaPagamento);
             Assert.AreEqual(1, this.context.Pagamentos.Count());
         }
 
@@ -73,7 +73,7 @@ namespace Service.Tests
             var pagamento = new Pagamento
             {
                 IdAgendamento = 1,
-                FormaPagamento = "Cartao de credito",
+                FormaPagamento = "CC",
                 ValorTransacao = 280.50m
             };
 
@@ -82,8 +82,8 @@ namespace Service.Tests
 
             // Assert
             Assert.IsNotNull(resultado);
-            Assert.AreEqual("Aprovado", resultado.StatusPagamento);
-            Assert.AreEqual("Cartao de credito", resultado.FormaPagamento);
+            Assert.AreEqual("A", resultado.StatusPagamento);
+            Assert.AreEqual("CC", resultado.FormaPagamento);
         }
 
         [TestMethod]
@@ -93,7 +93,7 @@ namespace Service.Tests
             var pagamentoInvalido = new Pagamento
             {
                 IdAgendamento = 1,
-                FormaPagamento = "", // Campo obrigatório em branco
+                FormaPagamento = "",
                 ValorTransacao = 0m
             };
 
@@ -111,7 +111,7 @@ namespace Service.Tests
             var pagamento = new Pagamento
             {
                 IdAgendamento = 1,
-                FormaPagamento = "Cartao de credito",
+                FormaPagamento = "CC",
                 ValorTransacao = 500.00m
             };
 
@@ -122,7 +122,7 @@ namespace Service.Tests
             Assert.AreEqual("Pagamento não autorizado pela instituição financeira.", ex.Message);
             var registroBanco = this.context.Pagamentos.FirstOrDefault();
             Assert.IsNotNull(registroBanco);
-            Assert.AreEqual("Recusado", registroBanco.StatusPagamento);
+            Assert.AreEqual("R", registroBanco.StatusPagamento);
         }
 
         [TestMethod]
@@ -132,8 +132,8 @@ namespace Service.Tests
             var pagamento = new Pagamento
             {
                 IdAgendamento = 1,
-                FormaPagamento = "Pix",
-                StatusPagamento = "Pendente",
+                FormaPagamento = "P",
+                StatusPagamento = "AP",
                 ValorTransacao = 100.00m
             };
 
@@ -152,14 +152,14 @@ namespace Service.Tests
             var pagamento = new Pagamento
             {
                 IdAgendamento = 1,
-                FormaPagamento = "Pix",
-                StatusPagamento = "Aprovado",
+                FormaPagamento = "P",
+                StatusPagamento = "A",
                 ValorTransacao = 90.00m
             };
-            var Id = this.service.Create(pagamento);
+            var id = this.service.Create(pagamento);
 
             // Act
-            var resultado = this.service.get((uint)Id);
+            var resultado = this.service.Get(id);
 
             // Assert
             Assert.IsNotNull(resultado);
@@ -170,7 +170,7 @@ namespace Service.Tests
         public void Get_CodigoInexistente_RetornaNulo()
         {
             // Act
-            var resultado = this.service.get(999);
+            var resultado = this.service.Get(999);
 
             // Assert
             Assert.IsNull(resultado);
@@ -183,25 +183,25 @@ namespace Service.Tests
             var pagamento = new Pagamento
             {
                 IdAgendamento = 1,
-                FormaPagamento = "Pix",
-                StatusPagamento = "Pendente",
+                FormaPagamento = "P",
+                StatusPagamento = "AP",
                 ValorTransacao = 120.00m
             };
             var id = this.service.Create(pagamento);
 
             this.context.ChangeTracker.Clear();
 
-            var pagamentoParaEditar = this.service.get((uint)id);
+            var pagamentoParaEditar = this.service.Get(id);
             Assert.IsNotNull(pagamentoParaEditar);
-            pagamentoParaEditar.StatusPagamento = "Aprovado";
+            pagamentoParaEditar.StatusPagamento = "A";
 
             // Act
             this.service.Edit(pagamentoParaEditar);
 
             // Assert
-            var atualizado = this.service.get((uint)id);
+            var atualizado = this.service.Get(id);
             Assert.IsNotNull(atualizado);
-            Assert.AreEqual("Aprovado", atualizado.StatusPagamento);
+            Assert.AreEqual("A", atualizado.StatusPagamento);
         }
 
         [TestMethod]
@@ -211,17 +211,17 @@ namespace Service.Tests
             var pagamento = new Pagamento
             {
                 IdAgendamento = 1,
-                FormaPagamento = "Pix",
-                StatusPagamento = "Pendente",
+                FormaPagamento = "P",
+                StatusPagamento = "AP",
                 ValorTransacao = 75.00m
             };
             var id = this.service.Create(pagamento);
 
             // Act
-            this.service.Delete((uint)id);
+            this.service.Delete(id);
 
             // Assert
-            Assert.IsNull(this.service.get((uint)id));
+            Assert.IsNull(this.service.Get(id));
             Assert.AreEqual(0, this.context.Pagamentos.Count());
         }
 
@@ -232,20 +232,20 @@ namespace Service.Tests
             this.service.Create(new Pagamento
             {
                 IdAgendamento = 1,
-                FormaPagamento = "Pix",
-                StatusPagamento = "Aprovado",
+                FormaPagamento = "P",
+                StatusPagamento = "A",
                 ValorTransacao = 50.00m
             });
             this.service.Create(new Pagamento
             {
                 IdAgendamento = 1,
-                FormaPagamento = "Cartao de credito",
-                StatusPagamento = "Aprovado",
+                FormaPagamento = "CC",
+                StatusPagamento = "A",
                 ValorTransacao = 80.00m
             });
 
             // Act
-            var lista = this.service.getAll();
+            var lista = this.service.GetAll();
 
             // Assert
             Assert.IsNotNull(lista);
