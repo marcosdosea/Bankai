@@ -1,82 +1,64 @@
 ﻿@model IEnumerable<BankaiWeb.Models.PagamentoViewModel>
 
 @{
-    ViewData["Title"] = "Pagamentos";
+    ViewData["Title"] = "Histórico de Pagamentos";
 }
 
-<div class="bankai-card">
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold mb-1 text-dark">Pagamentos</h2>
-            <p class="text-muted small mb-0">Histórico de transações e quitações de serviços</p>
+            <h3 class="fw-bold mb-0">Pagamentos Registrados</h3>
+            <p class="text-muted small mb-0">Acompanhe as transações vinculadas aos agendamentos</p>
         </div>
-        <div class="d-flex gap-2">
-            <a asp-action="RealizarPagamento" asp-route-codigoAgendamento="1" asp-route-valor="150.00" class="btn btn-bankai">
-                <i class="bi bi-wallet2 me-1"></i> Realizar Pagamento
-            </a>
-            <a asp-action="Create" class="btn btn-outline-secondary d-flex align-items-center">
-                <i class="bi bi-plus-lg me-1"></i> Novo Registro
-            </a>
-        </div>
+        <a asp-action="RealizarPagamento" class="btn text-white fw-semibold px-4" style="background-color: #D97706;">
+            + Realizar Pagamento
+        </a>
     </div>
 
-    @if (Model != null && Model.Any())
-    {
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>@Html.DisplayNameFor(model => model.Codigo)</th>
-                        <th>@Html.DisplayNameFor(model => model.CodigoAgendamento)</th>
-                        <th>@Html.DisplayNameFor(model => model.FormaPagamento)</th>
-                        <th>@Html.DisplayNameFor(model => model.StatusPagamento)</th>
-                        <th>@Html.DisplayNameFor(model => model.ValorTransacao)</th>
-                        <th class="text-end">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        var (badgeClass, statusTexto) = item.StatusPagamento switch
-                        {
-                            "AP" => ("bg-secondary", "Aguardando Processamento"),
-                            "P" => ("bg-warning text-dark", "Processando"),
-                            "A" => ("bg-success", "Aprovado"),
-                            "R" => ("bg-danger", "Recusado"),
-                            "C" => ("bg-dark", "Cancelado"),
-                            _ => ("bg-light text-dark", item.StatusPagamento)
-                        };
-
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
                         <tr>
-                            <td class="fw-bold">#@Html.DisplayFor(modelItem => item.Codigo)</td>
-                            <td>#@Html.DisplayFor(modelItem => item.CodigoAgendamento)</td>
-                            <td>@Html.DisplayFor(modelItem => item.FormaPagamento)</td>
-                            <td>
-                                <span class="badge @badgeClass">@statusTexto</span>
-                            </td>
-                            <td class="fw-semibold">R$ @item.ValorTransacao.ToString("N2")</td>
-                            <td class="text-end">
-                                <a asp-action="Details" asp-route-id="@item.Codigo" class="btn btn-sm btn-outline-info" title="Detalhes">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                <a asp-action="Edit" asp-route-id="@item.Codigo" class="btn btn-sm btn-outline-warning" title="Editar">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@item.Codigo" class="btn btn-sm btn-outline-danger" title="Excluir">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </td>
+                            <th class="ps-4">Código</th>
+                            <th>Ordem Vincular</th>
+                            <th>Forma de Pagamento</th>
+                            <th>Status</th>
+                            <th>Valor</th>
+                            <th class="text-end pe-4">Ações</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold">#@item.Codigo</td>
+                                <td>@item.OrdemVincular</td>
+                                <td>@(item.FormaPagamento == "P" ? "Pix" : "Cartão de Crédito")</td>
+                                <td>
+                                    @if (item.StatusPagamento == "A")
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">Aprovado</span>
+                                    }
+                                    else if (item.StatusPagamento == "R")
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3">Recusado</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning-subtle text-dark border border-warning-subtle rounded-pill px-3">Aguardando</span>
+                                    }
+                                </td>
+                                <td class="fw-semibold">@item.ValorTransacao.ToString("C")</td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="Details" asp-route-id="@item.Codigo" class="btn btn-sm btn-outline-secondary">Comprovante</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
-    }
-    else
-    {
-        <div class="text-center py-5 bg-light rounded-3">
-            <i class="bi bi-receipt text-muted" style="font-size: 2.5rem;"></i>
-            <p class="text-muted mt-2 mb-0">Nenhum pagamento registrado até o momento.</p>
-        </div>
-    }
+    </div>
 </div>
