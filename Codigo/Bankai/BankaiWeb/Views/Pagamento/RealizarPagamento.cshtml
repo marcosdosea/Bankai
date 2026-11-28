@@ -4,17 +4,18 @@
     ViewData["Title"] = "Realizar Pagamento - Bankai";
 }
 
-<div class="topbar-bankai d-flex justify-content-between align-items-center mb-4">
-    <span class="fw-bolder fs-4 text-dark tracking-tight">BANKAI</span>
-    <span class="text-primary fw-semibold small">
+<!-- Cabeçalho idêntico ao protótipo -->
+<div class="payment-topbar d-flex justify-content-between align-items-center">
+    <span class="logo">BANKAI</span>
+    <span class="payment-security-badge">
         🛡 Ambiente de Pagamento Seguro
     </span>
 </div>
 
-<div class="container py-3" style="max-width: 980px;">
+<div class="payment-wrapper">
     <!-- Fluxo Alternativo CSU06: Botão Voltar para Tela_007 -->
     <div class="mb-3">
-        <a asp-controller="Servico" asp-action="Index" class="text-decoration-none text-secondary fw-semibold small">
+        <a asp-controller="Servico" asp-action="Index" class="btn-back small">
             ← Voltar
         </a>
     </div>
@@ -36,129 +37,118 @@
         <input type="hidden" asp-for="StatusPagamento" />
         <input type="hidden" asp-for="FormaPagamento" id="FormaPagamentoInput" />
 
-        <div class="row g-4 align-items-start">
+        <div class="payment-container">
             <!-- COLUNA ESQUERDA: Forma de Pagamento -->
-            <div class="col-lg-7">
-                <div class="card-pagamento">
-                    <h5 class="fw-bold text-dark mb-4">
-                        <span style="color: #D97706;">💳</span> Forma de Pagamento
-                    </h5>
+            <div class="payment-card">
+                <h5 class="payment-card-title">
+                    <span class="icon-accent">💳</span> Forma de Pagamento
+                </h5>
 
-                    <!-- Abas de seleção (Pix vs Cartão de Crédito) -->
-                    <div class="row g-3 mb-4">
-                        <div class="col-6">
-                            <button type="button" id="btnAbaPix" class="btn-metodo @(Model.FormaPagamento == "P" ? "ativo" : "")" onclick="selecionarFormaPagamento('P')">
-                                ▣ Pagar com Pix
-                            </button>
+                <!-- Abas de seleção (Pix vs Cartão de Crédito) -->
+                <div class="payment-methods-grid">
+                    <button type="button" id="btnAbaPix" class="btn-payment-method @(Model.FormaPagamento == "P" ? "active" : "")" onclick="selecionarFormaPagamento('P')">
+                        ▣ Pagar com Pix
+                    </button>
+                    <button type="button" id="btnAbaCartao" class="btn-payment-method @(Model.FormaPagamento == "CC" ? "active" : "")" onclick="selecionarFormaPagamento('CC')">
+                        💳 Cartão de Crédito
+                    </button>
+                </div>
+
+                <!-- FLUXO ALTERNATIVO PIX: QR Code e Copia e Cola -->
+                <div id="secaoPix" style="display: @(Model.FormaPagamento == "P" ? "block" : "none");">
+                    <div class="pix-box">
+                        <p class="fw-semibold text-dark mb-3">Escaneie o QR Code abaixo no app do seu banco</p>
+                        <div class="pix-qr-frame">
+                            <svg width="150" height="150" viewBox="0 0 100 100" fill="#1c1e21">
+                                <rect x="10" y="10" width="25" height="25" fill="none" stroke="#1c1e21" stroke-width="5" />
+                                <rect x="17" y="17" width="11" height="11" />
+                                <rect x="65" y="10" width="25" height="25" fill="none" stroke="#1c1e21" stroke-width="5" />
+                                <rect x="72" y="17" width="11" height="11" />
+                                <rect x="10" y="65" width="25" height="25" fill="none" stroke="#1c1e21" stroke-width="5" />
+                                <rect x="17" y="72" width="11" height="11" />
+                                <rect x="45" y="15" width="10" height="10" />
+                                <rect x="45" y="35" width="10" height="20" />
+                                <rect x="15" y="45" width="20" height="10" />
+                                <rect x="65" y="45" width="25" height="10" />
+                                <rect x="45" y="65" width="15" height="25" />
+                                <rect x="70" y="70" width="20" height="20" />
+                            </svg>
                         </div>
-                        <div class="col-6">
-                            <button type="button" id="btnAbaCartao" class="btn-metodo @(Model.FormaPagamento == "CC" ? "ativo" : "")" onclick="selecionarFormaPagamento('CC')">
-                                💳 Cartão de Crédito
-                            </button>
+
+                        <div class="text-start">
+                            <label class="payment-label">Pix Copia e Cola</label>
+                            <div class="input-group">
+                                <input type="text" id="codigoPixCopiaCola" class="form-control payment-input small" readonly
+                                       value="00020126580014BR.GOV.BCB.PIX0136bankai-pagamentos@bankai.com.br5204000053039865802BR" />
+                                <button type="button" class="btn btn-outline-secondary fw-semibold" onclick="copiarPix()">
+                                    Copiar
+                                </button>
+                            </div>
+                            <small id="feedbackCopia" class="text-success fw-semibold d-none mt-1">
+                                Código Pix copiado!
+                            </small>
                         </div>
                     </div>
+                </div>
 
-                    <!-- FLUXO ALTERNATIVO PIX: QR Code e Copia e Cola -->
-                    <div id="secaoPix" style="display: @(Model.FormaPagamento == "P" ? "block" : "none");">
-                        <div class="text-center bg-light rounded-3 p-4 border">
-                            <p class="fw-semibold text-dark mb-2">Escaneie o QR Code abaixo no app do seu banco</p>
-                            <div class="bg-white d-inline-block p-3 rounded-3 border mb-3">
-                                <!-- QR Code ilustrativo em SVG -->
-                                <svg width="150" height="150" viewBox="0 0 100 100" fill="#111827">
-                                    <rect x="10" y="10" width="25" height="25" fill="none" stroke="#111827" stroke-width="5" />
-                                    <rect x="17" y="17" width="11" height="11" />
-                                    <rect x="65" y="10" width="25" height="25" fill="none" stroke="#111827" stroke-width="5" />
-                                    <rect x="72" y="17" width="11" height="11" />
-                                    <rect x="10" y="65" width="25" height="25" fill="none" stroke="#111827" stroke-width="5" />
-                                    <rect x="17" y="72" width="11" height="11" />
-                                    <rect x="45" y="15" width="10" height="10" />
-                                    <rect x="45" y="35" width="10" height="20" />
-                                    <rect x="15" y="45" width="20" height="10" />
-                                    <rect x="65" y="45" width="25" height="10" />
-                                    <rect x="45" y="65" width="15" height="25" />
-                                    <rect x="70" y="70" width="20" height="20" />
-                                </svg>
-                            </div>
-
-                            <div class="text-start">
-                                <label class="label-campo">Pix Copia e Cola</label>
-                                <div class="input-group">
-                                    <input type="text" id="codigoPixCopiaCola" class="form-control input-bankai small" readonly
-                                           value="00020126580014BR.GOV.BCB.PIX0136bankai-pagamentos@bankai.com.br5204000053039865802BR" />
-                                    <button type="button" class="btn btn-outline-secondary fw-semibold" onclick="copiarPix()">
-                                        Copiar
-                                    </button>
-                                </div>
-                                <small id="feedbackCopia" class="text-success fw-semibold d-none mt-1">
-                                    Código Pix copiado!
-                                </small>
-                            </div>
-                        </div>
+                <!-- FLUXO ALTERNATIVO CARTÃO DE CRÉDITO: Número, Nome, Validade e CVV -->
+                <div id="secaoCartao" style="display: @(Model.FormaPagamento == "CC" ? "block" : "none");">
+                    <div class="mb-3">
+                        <label asp-for="NumeroCartao" class="payment-label">NÚMERO DO CARTÃO</label>
+                        <input asp-for="NumeroCartao" class="payment-input" placeholder="0000 0000 0000 0000" maxlength="19" />
+                        <span asp-validation-for="NumeroCartao" class="text-danger small"></span>
                     </div>
 
-                    <!-- FLUXO ALTERNATIVO CARTÃO DE CRÉDITO: Número, Nome, Validade e CVV -->
-                    <div id="secaoCartao" style="display: @(Model.FormaPagamento == "CC" ? "block" : "none");">
-                        <div class="mb-3">
-                            <label asp-for="NumeroCartao" class="label-campo">NÚMERO DO CARTÃO</label>
-                            <input asp-for="NumeroCartao" class="form-control input-bankai" placeholder="0000 0000 0000 0000" maxlength="19" />
-                            <span asp-validation-for="NumeroCartao" class="text-danger small"></span>
-                        </div>
+                    <div class="mb-3">
+                        <label asp-for="NomeTitularCartao" class="payment-label">NOME IMPRESSO NO CARTÃO</label>
+                        <input asp-for="NomeTitularCartao" class="payment-input" placeholder="EX: CARLOS A ALBUQUERQUE" />
+                        <span asp-validation-for="NomeTitularCartao" class="text-danger small"></span>
+                    </div>
 
-                        <div class="mb-3">
-                            <label asp-for="NomeTitularCartao" class="label-campo">NOME IMPRESSO NO CARTÃO</label>
-                            <input asp-for="NomeTitularCartao" class="form-control input-bankai" placeholder="EX: CARLOS A ALBUQUERQUE" />
-                            <span asp-validation-for="NomeTitularCartao" class="text-danger small"></span>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label asp-for="ValidadeCartao" class="payment-label">VALIDADE</label>
+                            <input asp-for="ValidadeCartao" class="payment-input" placeholder="MM/AA" maxlength="5" />
+                            <span asp-validation-for="ValidadeCartao" class="text-danger small"></span>
                         </div>
-
-                        <div class="row g-3">
-                            <div class="col-6">
-                                <label asp-for="ValidadeCartao" class="label-campo">VALIDADE</label>
-                                <input asp-for="ValidadeCartao" class="form-control input-bankai" placeholder="MM/AA" maxlength="5" />
-                                <span asp-validation-for="ValidadeCartao" class="text-danger small"></span>
-                            </div>
-                            <div class="col-6">
-                                <label asp-for="CvvCartao" class="label-campo">CVC (CÓDIGO DE SEGURANÇA)</label>
-                                <input asp-for="CvvCartao" class="form-control input-bankai" placeholder="123" maxlength="4" />
-                                <span asp-validation-for="CvvCartao" class="text-danger small"></span>
-                            </div>
+                        <div class="col-6">
+                            <label asp-for="CvvCartao" class="payment-label">CVC (CÓDIGO DE SEGURANÇA)</label>
+                            <input asp-for="CvvCartao" class="payment-input" placeholder="123" maxlength="4" />
+                            <span asp-validation-for="CvvCartao" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- COLUNA DIREITA: Resumo do Pedido (Ordem Vincular, Serviço, Profissional e Total) -->
-            <div class="col-lg-5">
-                <div class="card-pagamento">
-                    <p class="text-uppercase fw-bold text-muted small mb-3" style="letter-spacing: 0.04em;">
-                        RESUMO DO PEDIDO
-                    </p>
+            <!-- COLUNA DIREITA: Resumo do Pedido -->
+            <div class="payment-card">
+                <p class="summary-section-title">RESUMO DO PEDIDO</p>
 
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-muted small">Ordem Vincular:</span>
-                        <span class="fw-bold text-dark small">@Model.OrdemVincular</span>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-muted small">Serviço Adquirido:</span>
-                        <span class="fw-bold text-dark small">@Model.ServicoAdquirido</span>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom">
-                        <span class="text-muted small">Profissional:</span>
-                        <span class="fw-bold small" style="color: #D97706;">@Model.NomeProfissional</span>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <span class="fw-bold fs-5 text-dark">Total a Reter:</span>
-                        <span class="fw-bolder fs-4" style="color: #D97706;">
-                            @Model.ValorTransacao.ToString("C")
-                        </span>
-                    </div>
-
-                    <button type="submit" class="btn-confirmar-pagamento">
-                        🔒 Realizar Pagamento
-                    </button>
+                <div class="summary-row">
+                    <span class="summary-label">Ordem Vincular:</span>
+                    <span class="summary-value">@Model.OrdemVincular</span>
                 </div>
+
+                <div class="summary-row">
+                    <span class="summary-label">Serviço Adquirido:</span>
+                    <span class="summary-value">@Model.ServicoAdquirido</span>
+                </div>
+
+                <div class="summary-row">
+                    <span class="summary-label">Profissional:</span>
+                    <span class="summary-value-accent">@Model.NomeProfissional</span>
+                </div>
+
+                <div class="summary-divider"></div>
+
+                <div class="summary-total-row">
+                    <span class="total-label">Total a Reter:</span>
+                    <span class="total-value">@Model.ValorTransacao.ToString("C")</span>
+                </div>
+
+                <button type="submit" class="btn-confirm-payment">
+                    🔒 Realizar Pagamento
+                </button>
             </div>
         </div>
     </form>
@@ -179,13 +169,13 @@
             const secaoCartao = document.getElementById('secaoCartao');
 
             if (forma === 'P') {
-                btnPix.classList.add('ativo');
-                btnCartao.classList.remove('ativo');
+                btnPix.classList.add('active');
+                btnCartao.classList.remove('active');
                 secaoPix.style.display = 'block';
                 secaoCartao.style.display = 'none';
             } else {
-                btnCartao.classList.add('ativo');
-                btnPix.classList.remove('ativo');
+                btnCartao.classList.add('active');
+                btnPix.classList.remove('active');
                 secaoCartao.style.display = 'block';
                 secaoPix.style.display = 'none';
             }
