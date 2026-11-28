@@ -33,13 +33,15 @@ namespace BankaiWeb.Controllers
         }
 
         [HttpGet]
-        public IActionResult RealizarPagamento(int idAgendamento, decimal valor = 0)
+        public IActionResult RealizarPagamento(int idAgendamento, decimal valor = 0, string servico, string profissional)
         {
             var viewModel = new PagamentoViewModel
             {
                 CodigoAgendamento = idAgendamento,
                 ValorTransacao = valor,
-                FormaPagamento = "P", // Padrão Pix (P)
+                ServicoAdquirido = servico,
+                NomeProfissional = profissional,
+                FormaPagamento = "CC", // Padrão Cartão de Crédito (CC)
                 StatusPagamento = "AP" // Padrão Agurdando Processamento (AP)
             };
             return View(viewModel);
