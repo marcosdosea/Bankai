@@ -16,14 +16,14 @@ namespace BankaiWeb.Controllers
 
         public IActionResult Index()
         {
-            var pagamentos = _pagamentoService.getAll();
+            var pagamentos = _pagamentoService.GetAll();
             var viewModel = PagamentoMapper.ToViewModel(pagamentos);
             return View(viewModel);
         }
 
-        public IActionResult Details(uint id)
+        public IActionResult Details(int id)
         {
-            var pagamento = _pagamentoService.get(id);
+            var pagamento = _pagamentoService.Get(id);
             if (pagamento == null)
             {
                 return NotFound();
@@ -39,8 +39,8 @@ namespace BankaiWeb.Controllers
             {
                 CodigoAgendamento = idAgendamento,
                 ValorTransacao = valor,
-                FormaPagamento = "Pix", // Valor padrão
-                StatusPagamento = "Aguardando Processamento" // Valor padrão
+                FormaPagamento = "P", // Padrão Pix (P)
+                StatusPagamento = "AP" // Padrão Agurdando Processamento (AP)
             };
             return View(viewModel);
         }
@@ -63,7 +63,7 @@ namespace BankaiWeb.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, "Pagamento não autorizado pela instituição financeira.");
+                ModelState.AddModelError(string.Empty, ex.Message);
                 return View(pagamentoViewModel);
             }
         }
@@ -88,7 +88,7 @@ namespace BankaiWeb.Controllers
 
         public IActionResult Edit(int id)
         {
-            var pagamento = _pagamentoService.get((uint)id);
+            var pagamento = _pagamentoService.Get(id);
             if (pagamento == null)
             {
                 return NotFound();
@@ -101,7 +101,7 @@ namespace BankaiWeb.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, PagamentoViewModel pagamentoViewModel)
         {
-            if (id != (uint)pagamentoViewModel.Codigo)
+            if (id != pagamentoViewModel.Codigo)
             {
                 return BadRequest();
             }
@@ -115,9 +115,9 @@ namespace BankaiWeb.Controllers
             return View(pagamentoViewModel);
         }
 
-        public IActionResult Delete(uint id)
+        public IActionResult Delete(int id)
         {
-            var pagamento = _pagamentoService.get((uint)id);
+            var pagamento = _pagamentoService.Get(id);
             if (pagamento == null)
             {
                 return NotFound();
@@ -128,9 +128,9 @@ namespace BankaiWeb.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(uint id)
+        public IActionResult DeleteConfirmed(int id)
         {
-            var pagamento = _pagamentoService.get((uint)id);
+            var pagamento = _pagamentoService.Get(id);
             if (pagamento == null)
             {
                 return NotFound();
