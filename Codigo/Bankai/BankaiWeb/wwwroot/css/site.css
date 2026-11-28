@@ -19,6 +19,7 @@
     --border-color: #e4e6eb;
     --border-hover: #cbd5e1;
     --status-success: #16a34a;
+    --status-success-hover: #15803d;
     --status-success-bg: #f0fdf4;
     --status-success-border: #86efac;
     --status-alert: #dc2626;
@@ -707,11 +708,223 @@ input:checked + .slider {
     text-align: right;
 }
 
+/* --- 10C. REALIZAR PAGAMENTO (TELA 008 - CSU06) --- */
+.payment-topbar {
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    padding: 1rem 2rem;
+}
+
+.payment-security-badge {
+    color: var(--status-escrow);
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.payment-wrapper {
+    max-width: 980px;
+    margin: 1.5rem auto 2.5rem auto;
+    padding: 0 1.5rem;
+    width: 100%;
+}
+
+.payment-container {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 1.75rem;
+    align-items: start;
+}
+
+.payment-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 1.75rem;
+}
+
+.payment-card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+    .payment-card-title .icon-accent {
+        color: var(--accent-color);
+    }
+
+.payment-methods-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn-payment-method {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.85rem 1rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+    .btn-payment-method:hover {
+        border-color: var(--border-hover);
+        background-color: var(--bg-secondary);
+    }
+
+    .btn-payment-method.active {
+        border: 2px solid var(--text-main);
+        background-color: var(--accent-light);
+        color: var(--accent-color);
+    }
+
+.payment-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.4rem;
+}
+
+.payment-input {
+    width: 100%;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+    .payment-input:focus {
+        background-color: var(--bg-secondary);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+    }
+
+.pix-box {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.pix-qr-frame {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.85rem;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.summary-section-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1.15rem;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.65rem;
+    font-size: 0.88rem;
+}
+
+    .summary-row .summary-label {
+        color: var(--text-muted);
+    }
+
+    .summary-row .summary-value {
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+    .summary-row .summary-value-accent {
+        font-weight: 700;
+        color: var(--accent-color);
+    }
+
+.summary-divider {
+    border-top: 1px solid var(--border-color);
+    margin: 1rem 0;
+}
+
+.summary-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+    .summary-total-row .total-label {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+    .summary-total-row .total-value {
+        font-size: 1.45rem;
+        font-weight: 800;
+        color: var(--accent-color);
+    }
+
+.btn-confirm-payment {
+    background-color: var(--status-success);
+    border: none;
+    border-radius: var(--radius-md);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 0.9rem 1.25rem;
+    width: 100%;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+    .btn-confirm-payment:hover {
+        background-color: var(--status-success-hover);
+        color: #ffffff;
+    }
+
 /* --- 11. RESPONSIVIDADE UNIVERSAL --- */
 @media (max-width: 992px) {
     .execution-container,
     .results-container,
-    .manage-container {
+    .manage-container,
+    .payment-container {
         grid-template-columns: 1fr;
     }
 
@@ -731,7 +944,8 @@ input:checked + .slider {
 }
 
 @media (max-width: 767.98px) {
-    .search-pill-box {
+    .search-pill-box,
+    .payment-methods-grid {
         grid-template-columns: 1fr;
     }
 
@@ -744,13 +958,15 @@ input:checked + .slider {
 @media (max-width: 575.98px) {
     .execution-container,
     .results-container,
-    .manage-container {
+    .manage-container,
+    .payment-wrapper {
         padding: 0 1rem;
     }
 
     .bankai-card,
     .exec-card,
-    .main-services-panel {
+    .main-services-panel,
+    .payment-card {
         padding: 1.25rem;
     }
 }
