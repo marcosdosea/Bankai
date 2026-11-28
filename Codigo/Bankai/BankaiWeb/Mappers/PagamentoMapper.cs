@@ -9,8 +9,13 @@ namespace BankaiWeb.Mappers
     {
         static PagamentoMapper()
         {
-            TypeAdapterConfig<PagamentoViewModel, Pagamento>.NewConfig();
-            TypeAdapterConfig<Pagamento, PagamentoViewModel>.NewConfig();
+            TypeAdapterConfig<PagamentoViewModel, Pagamento>.NewConfig()
+                .Map(dest => dest.Id, src => src.Codigo)
+                .Map(dest => dest.IdAgendamento, src => src.CodigoAgendamento);
+
+            TypeAdapterConfig<Pagamento, PagamentoViewModel>.NewConfig()
+                .Map(dest => dest.Codigo, src => src.Id)
+                .Map(dest => dest.CodigoAgendamento, src => src.IdAgendamento);
         }
 
         public static Pagamento ToEntity(PagamentoViewModel viewModel)

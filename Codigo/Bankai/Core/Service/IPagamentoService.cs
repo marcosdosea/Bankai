@@ -9,10 +9,10 @@ namespace Core.Service
     {
         int Create(Pagamento pagamento);
         void Edit(Pagamento pagamento);
-        void Delete(uint idPagamento);
-        Pagamento? get(uint idPagamento);
-        IEnumerable<Pagamento> getAll();
-        IEnumerable<Pagamento> getByAgendamento(int idAgendamento);
+        void Delete(int id);
+        Pagamento? Get(int id);
+        IEnumerable<Pagamento> GetAll();
+        IEnumerable<Pagamento> GetByAgendamento(int idAgendamento);
         Pagamento RealizarPagamento(Pagamento pagamento, bool transacaoCompleta = true);
     }
 }

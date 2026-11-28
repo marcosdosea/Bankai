@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BankaiWeb.Models
 {
-    public class PagamentoViewModel
+    public class PagamentoViewModel : IValidatableObject
     {
         [Display(Name = "Código")]
         public int Codigo { get; set; }
@@ -13,13 +13,13 @@ namespace BankaiWeb.Models
         public int CodigoAgendamento { get; set; }
 
         [Required(ErrorMessage = "Por favor, preencha todos os campos obrigatórios corretamente.")]
-        [StringLength(20, ErrorMessage = "A forma de pagamento deve ter no máximo 20 caracteres.")]
+        [StringLength(2, ErrorMessage = "Forma de pagamento inválida.")]
         [Display(Name = "Forma de Pagamento")]
-        public string FormaPagamento { get; set; } = "Pix"; // Valores válidos DD: "Pix" ou "Cartao de credito"
+        public string FormaPagamento { get; set; } = "P"; // ENUM Banco de Dados: "P" (Pix) ou "CC" (Cartão de Crédito)
 
-        [StringLength(30)]
+        [StringLength(2)]
         [Display(Name = "Status do Pagamento")]
-        public string StatusPagamento { get; set; } = "Aguardando Processamento"; // Valores válidos: "Aguardando Processamento", "Processando", "Recusado", "Aprovado", "Cancelado"
+        public string StatusPagamento { get; set; } = "AP"; // ENUM Banco de Dados: "AP", "P", "R", "A", "C"
 
         [Required(ErrorMessage = "Por favor, preencha todos os campos obrigatórios corretamente.")]
         [Range(0.01, 99999999.99, ErrorMessage = "O valor da transação deve ser maior que zero.")]
@@ -43,17 +43,17 @@ namespace BankaiWeb.Models
         [StringLength(4)]
         public string? CvvCartao { get; set; }
 
-        // Validação condicional conforme Fluxo Alternativo e Exceção do CSU06
+        // Validação condicional executada automaticamente pelo ASP.NET MVC via IValidatableObject
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (FormaPagamento != "Pix" && FormaPagamento != "Cartao de credito")
+            if (FormaPagamento != "P" && FormaPagamento != "CC")
             {
                 yield return new ValidationResult(
                     "Por favor, preencha todos os campos obrigatórios corretamente.",
                     new[] { nameof(FormaPagamento) });
             }
 
-            if (FormaPagamento == "Cartao de credito")
+            if (FormaPagamento == "CC")
             {
                 if (string.IsNullOrWhiteSpace(NumeroCartao) ||
                     string.IsNullOrWhiteSpace(NomeTitularCartao) ||
