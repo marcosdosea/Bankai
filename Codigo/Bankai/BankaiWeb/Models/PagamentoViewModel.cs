@@ -9,21 +9,31 @@ namespace BankaiWeb.Models
         public int Codigo { get; set; }
 
         [Required(ErrorMessage = "Por favor, preencha todos os campos obrigatórios corretamente.")]
-        [Display(Name = "Código do Agendamento")]
+        [Display(Name = "Ordem Vincular")]
         public int CodigoAgendamento { get; set; }
+
+        // Dados informativos do Resumo do Pedido (Tela_008)
+        [Display(Name = "Ordem Vincular")]
+        public string OrdemVincular => $"#BKS-{CodigoAgendamento}";
+
+        [Display(Name = "Serviço Adquirido")]
+        public string ServicoAdquirido { get; set; } = "Serviço Contratado";
+
+        [Display(Name = "Profissional")]
+        public string NomeProfissional { get; set; } = "Profissional Selecionado";
 
         [Required(ErrorMessage = "Por favor, preencha todos os campos obrigatórios corretamente.")]
         [StringLength(2, ErrorMessage = "Forma de pagamento inválida.")]
         [Display(Name = "Forma de Pagamento")]
-        public string FormaPagamento { get; set; } = "P"; // ENUM Banco de Dados: "P" (Pix) ou "CC" (Cartão de Crédito)
+        public string FormaPagamento { get; set; } = "P"; // ENUM BD: "P" (Pix) ou "CC" (Cartão de Crédito)
 
         [StringLength(2)]
         [Display(Name = "Status do Pagamento")]
-        public string StatusPagamento { get; set; } = "AP"; // ENUM Banco de Dados: "AP", "P", "R", "A", "C"
+        public string StatusPagamento { get; set; } = "AP"; // ENUM BD: "AP", "P", "R", "A", "C"
 
         [Required(ErrorMessage = "Por favor, preencha todos os campos obrigatórios corretamente.")]
-        [Range(0.01, 99999999.99, ErrorMessage = "O valor da transação deve ser maior que zero.")]
-        [Display(Name = "Valor da Transação (R$)")]
+        [Range(0.01, 99999999.99, ErrorMessage = "Por favor, preencha todos os campos obrigatórios corretamente.")]
+        [Display(Name = "Total a Reter")]
         public decimal ValorTransacao { get; set; }
 
         // Campos exibidos no Fluxo Alternativo da Tela_008 (Aba Cartão de Crédito - CSU06)
@@ -35,15 +45,15 @@ namespace BankaiWeb.Models
         [StringLength(100)]
         public string? NomeTitularCartao { get; set; }
 
-        [Display(Name = "Validade (MM/AA)")]
+        [Display(Name = "Validade")]
         [StringLength(5)]
         public string? ValidadeCartao { get; set; }
 
-        [Display(Name = "CVV")]
+        [Display(Name = "CVC (Código de Segurança)")]
         [StringLength(4)]
         public string? CvvCartao { get; set; }
 
-        // Validação condicional executada automaticamente pelo ASP.NET MVC via IValidatableObject
+        // Validação condicional conforme Fluxo Alternativo e Exceção do CSU06
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (FormaPagamento != "P" && FormaPagamento != "CC")
