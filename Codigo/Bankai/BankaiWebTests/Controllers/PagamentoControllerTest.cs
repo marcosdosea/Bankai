@@ -49,7 +49,7 @@ namespace BankaiWEBTests.Controllers
         public void RealizarPagamento_Get_ExibeTela008ComValoresIniciais()
         {
             // Act
-            var result = _controller.RealizarPagamento(idAgendamento: 5, valor: 180.00m) as ViewResult;
+            var result = _controller.RealizarPagamento(idAgendamento: 5, valor: 180.00m, servico: "Troca de Resistência", profissional: "Marcos Silva") as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
