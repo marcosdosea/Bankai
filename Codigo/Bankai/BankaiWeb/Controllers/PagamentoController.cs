@@ -33,7 +33,7 @@ namespace BankaiWeb.Controllers
         }
 
         [HttpGet]
-        public IActionResult RealizarPagamento(int idAgendamento, decimal valor = 0, string servico, string profissional)
+        public IActionResult RealizarPagamento(int idAgendamento, decimal valor = 0, string servico = "", string profissional = "")
         {
             var viewModel = new PagamentoViewModel
             {
