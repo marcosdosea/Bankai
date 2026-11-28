@@ -1,7 +1,5 @@
 ﻿using BankaiWeb.Controllers;
 using BankaiWeb.Models;
-using BankaiWeb.Controllers;
-using BankaiWeb.Models;
 using Core;
 using Core.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -32,10 +30,10 @@ namespace BankaiWEBTests.Controllers
             // Arrange
             var pagamentos = new List<Pagamento>
             {
-                new Pagamento { Id = 1, IdAgendamento = 10, FormaPagamento = "Pix", StatusPagamento = "Aprovado", ValorTransacao = 150.00m },
-                new Pagamento { Id = 2, IdAgendamento = 11, FormaPagamento = "Cartao de credito", StatusPagamento = "Pendente", ValorTransacao = 250.00m }
+                new Pagamento { Id = 1, IdAgendamento = 10, FormaPagamento = "P", StatusPagamento = "A", ValorTransacao = 150.00m },
+                new Pagamento { Id = 2, IdAgendamento = 11, FormaPagamento = "CC", StatusPagamento = "AP", ValorTransacao = 250.00m }
             };
-            _mockService.Setup(s => s.getAll()).Returns(pagamentos);
+            _mockService.Setup(s => s.GetAll()).Returns(pagamentos);
 
             // Act
             var result = _controller.Index() as ViewResult;
@@ -51,7 +49,7 @@ namespace BankaiWEBTests.Controllers
         public void RealizarPagamento_Get_ExibeTela008ComValoresIniciais()
         {
             // Act
-            var result = _controller.RealizarPagamento(idAgendamento: 5, valor: 180.00m) as ViewResult;
+            var result = _controller.RealizarPagamento(idAgendamento: 5, valor: 180.00m, servico: "Troca de Resistência", profissional: "Marcos Silva") as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
@@ -59,8 +57,8 @@ namespace BankaiWEBTests.Controllers
             Assert.IsNotNull(model);
             Assert.AreEqual(5, model.CodigoAgendamento);
             Assert.AreEqual(180.00m, model.ValorTransacao);
-            Assert.AreEqual("Pix", model.FormaPagamento);
-            Assert.AreEqual("Aguardando Processamento", model.StatusPagamento);
+            Assert.AreEqual("P", model.FormaPagamento);
+            Assert.AreEqual("AP", model.StatusPagamento);
         }
 
         [TestMethod]
@@ -70,7 +68,7 @@ namespace BankaiWEBTests.Controllers
             var viewModel = new PagamentoViewModel
             {
                 CodigoAgendamento = 5,
-                FormaPagamento = "Pix",
+                FormaPagamento = "P",
                 ValorTransacao = 180.00m
             };
 
@@ -78,8 +76,8 @@ namespace BankaiWEBTests.Controllers
             {
                 Id = 12,
                 IdAgendamento = 5,
-                FormaPagamento = "Pix",
-                StatusPagamento = "Aprovado",
+                FormaPagamento = "P",
+                StatusPagamento = "A",
                 ValorTransacao = 180.00m
             };
 
@@ -103,7 +101,7 @@ namespace BankaiWEBTests.Controllers
             var viewModelInvalido = new PagamentoViewModel
             {
                 CodigoAgendamento = 0,
-                FormaPagamento = "Pix",
+                FormaPagamento = "P",
                 ValorTransacao = 0m
             };
 
@@ -125,7 +123,7 @@ namespace BankaiWEBTests.Controllers
             var viewModel = new PagamentoViewModel
             {
                 CodigoAgendamento = 5,
-                FormaPagamento = "Cartao de credito",
+                FormaPagamento = "CC",
                 ValorTransacao = 500.00m,
                 NumeroCartao = "4111111111111111",
                 NomeTitularCartao = "Cliente Teste",

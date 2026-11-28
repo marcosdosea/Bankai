@@ -1,52 +1,45 @@
 ﻿@model BankaiWeb.Models.PagamentoViewModel
 
 @{
-    ViewData["Title"] = "Detalhes do Pagamento";
-    var (badgeClass, statusTexto) = Model.StatusPagamento switch
-    {
-        "AP" => ("bg-secondary", "Aguardando Processamento (AP)"),
-        "P" => ("bg-warning text-dark", "Processando (P)"),
-        "A" => ("bg-success", "Aprovado (A)"),
-        "R" => ("bg-danger", "Recusado (R)"),
-        "C" => ("bg-dark", "Cancelado (C)"),
-        _ => ("bg-light text-dark", Model.StatusPagamento)
-    };
+    ViewData["Title"] = "Comprovante de Pagamento";
 }
 
-<div class="mb-3">
-    <a asp-action="Index" class="text-decoration-none text-secondary fw-bold">
-        <i class="bi bi-arrow-left"></i> Voltar para a lista
-    </a>
-</div>
+<div class="container py-5" style="max-width: 600px;">
+    <div class="card shadow-sm border-0 rounded-4 p-4 text-center">
+        <div class="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle bg-success-subtle text-success"
+             style="width: 72px; height: 72px; font-size: 2rem;">
+            ✓
+        </div>
 
-<div class="row justify-content-center">
-    <div class="col-md-7 col-lg-6">
-        <div class="bankai-card">
-            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
-                <h3 class="fw-bold mb-0 text-dark">Comprovante / Detalhes</h3>
-                <span class="badge @badgeClass px-3 py-2">@statusTexto</span>
+        <h4 class="fw-bold text-dark mb-1">Pagamento Confirmado!</h4>
+        <p class="text-muted small mb-4">Sua transação foi processada com sucesso pela plataforma Bankai.</p>
+
+        <div class="bg-light rounded-3 p-3 text-start mb-4">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small">Código do Pagamento:</span>
+                <span class="fw-bold small">#@Model.Codigo</span>
             </div>
-
-            <dl class="row mb-4">
-                <dt class="col-sm-5 text-muted">@Html.DisplayNameFor(model => model.Codigo)</dt>
-                <dd class="col-sm-7 fw-bold">#@Html.DisplayFor(model => model.Codigo)</dd>
-
-                <dt class="col-sm-5 text-muted">@Html.DisplayNameFor(model => model.CodigoAgendamento)</dt>
-                <dd class="col-sm-7">#@Html.DisplayFor(model => model.CodigoAgendamento)</dd>
-
-                <dt class="col-sm-5 text-muted">@Html.DisplayNameFor(model => model.FormaPagamento)</dt>
-                <dd class="col-sm-7">@Html.DisplayFor(model => model.FormaPagamento)</dd>
-
-                <dt class="col-sm-5 text-muted">@Html.DisplayNameFor(model => model.ValorTransacao)</dt>
-                <dd class="col-sm-7 fw-bold fs-5" style="color: var(--bankai-orange);">
-                    R$ @Model.ValorTransacao.ToString("N2")
-                </dd>
-            </dl>
-
-            <div class="d-flex gap-2">
-                <a asp-action="Edit" asp-route-id="@Model.Codigo" class="btn btn-bankai flex-grow-1">Editar</a>
-                <a asp-action="Index" class="btn btn-outline-secondary px-4 d-flex align-items-center">Voltar</a>
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small">Ordem Vincular (Agendamento):</span>
+                <span class="fw-bold small">@Model.OrdemVincular</span>
             </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small">Forma de Pagamento:</span>
+                <span class="fw-bold small">@(Model.FormaPagamento == "P" ? "Pix" : "Cartão de Crédito")</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small">Status:</span>
+                <span class="badge bg-success">@(Model.StatusPagamento == "A" ? "Aprovado" : Model.StatusPagamento)</span>
+            </div>
+            <div class="d-flex justify-content-between border-top pt-2 mt-2">
+                <span class="fw-bold text-dark">Valor Pago:</span>
+                <span class="fw-bolder" style="color: #D97706;">@Model.ValorTransacao.ToString("C")</span>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary fw-semibold px-4">Ver Histórico de Pagamentos</a>
+            <a asp-action="RealizarPagamento" class="btn text-white fw-semibold px-4" style="background-color: #D97706;">Novo Pagamento</a>
         </div>
     </div>
 </div>
